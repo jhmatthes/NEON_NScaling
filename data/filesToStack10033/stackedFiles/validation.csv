@@ -1,0 +1,80 @@
+table,fieldName,description,dataType,units,parserToCreate,entryValidationRulesParser,entryValidationRulesForm
+ltr_massdata,setDate,"Date that trap was set",dateTime,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]",,
+ltr_massdata,samplingProtocolVersion,"The NEON document number and version where detailed information regarding the sampling method used is available; format NEON.DOC.######vX",string,NA,,"[LOV]","[LOV]"
+ltr_massdata,measuredBy,"An identifier for the technician who measured or collected the data",string,NA,,,"[FROM_PERSONNEL]"
+ltr_massdata,massSampleID,"Identifier for a mass sample",string,NA,,"[MIGHT_EXIST][STARTS_WITH(fieldSampleID)]",
+ltr_massdata,collectDate,"Date of the collection event",dateTime,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]",,
+ltr_massdata,fieldSampleFate,"Fate of a field sample",string,NA,"[DEFAULT_TO('processed')]",,"[DEFAULT_TO('processed')]"
+ltr_massdata,fieldSampleID,"Unique identifier for a field sample",string,NA,,"[EXISTS][REQUIRE]","[REQUIRE]"
+ltr_massdata,dataQF,"Data quality flag",string,NA,,,
+ltr_massdata,massSampleFate,"Fate of a mass sample",string,NA,"[IF(IS_BLANK), DEFAULT_TO('discarded')]","[REQUIRE]","[IF(biogeoSample !='Y') & IS_blank(massSampleFate), DEFAULT_TO('discarded')][If (biogeosample = 'Y',  DEFAULT_TO('active')]"
+ltr_massdata,fieldSampleBarcode,"Barcode of a field sample",string,NA,,,
+ltr_massdata,trapID,"Identifier for trap",string,NA,,"[REQUIRE]","[REQUIRE][FROM_TABLE]"
+ltr_massdata,uid,"Unique ID within NEON database; an identifier for the record",string,NA,"[CREATE_UID]",,
+ltr_massdata,dryMass,"Oven-dried mass of sample or subsample",real,gram,,"[IF(massSampleFate !='lost'), REQUIRE][GREATER_THAN_OR_EQUAL_TO(0)]","[IF(massSampleFate !='lost'), REQUIRE][GREATER_THAN_OR_EQUAL_TO(0)]"
+ltr_massdata,plotID,"Plot identifier (NEON site code_XXX)",string,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]","[NAMED_LOCATION_TYPE('OS Plot - ltr')]","[REQUIRE]"
+ltr_massdata,remarks,"Technician notes; free text comments accompanying the record",string,NA,,,
+ltr_massdata,qaDryMass,"Indicates whether 'dryMass' value is associated with 'qa' measurement type",string,NA,,"[LOV][REQUIRE]","[LOV]"
+ltr_massdata,biogeoSample,"Sample selected for biogeochemical analyses",string,NA,,"[LOV]","[REQUIRE][LOV]"
+ltr_massdata,ovenStartDate,"The date and time a sample was placed in the drying oven",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[GREATER_THAN_OR_EQUAL_TO(collectDate-12hr)]","[GREATER_THAN_OR_EQUAL_TO(collectDate)][DATE_FORMAT(YYYY-MM-DDTHH:MM)]"
+ltr_massdata,functionalGroup,"Functional group to which a sample belongs",string,NA,,"[LOV]","[LOV]"
+ltr_massdata,massSampleBarcode,"Barcode for a mass sample",string,NA,,,
+ltr_massdata,weighDate,"Date that sample or subsample was weighed",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[IF @ <(ovenEndDate-12hr), VOID]","[REQUIRE][GREATER_THAN_OR_EQUAL_TO(ovenEndDate)][DATE_FORMAT(YYYY-MM-DD)]"
+ltr_massdata,ovenEndDate,"The date and time a sample was removed from the drying oven",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[IF (dryMass > 0), GREATER_THAN(ovenStartDate)]","[GREATER_THAN(ovenStartDate)][DATE_FORMAT(YYYY-MM-DDTHH:MM)]"
+ltr_chemistrySubsampling,dataQF,"Data quality flag",string,NA,,,
+ltr_chemistrySubsampling,cnSampleCode,"Barcode of a carbon-nitrogen sample",string,NA,,,
+ltr_chemistrySubsampling,remarks,"Technician notes; free text comments accompanying the record",string,NA,,,
+ltr_chemistrySubsampling,setDate,"Date that trap was set",dateTime,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]",,"[HIDDEN]"
+ltr_chemistrySubsampling,ligninSampleBarcode,"Barcode for a lignin sample",string,NA,,,
+ltr_chemistrySubsampling,massSampleMixtureFate,"Fate of mixture of mass samples",string,NA,,,"[SUGGESTED_ENTRY('processed')]"
+ltr_chemistrySubsampling,collectDate,"Date of the collection event",dateTime,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]",,"[HIDDEN]"
+ltr_chemistrySubsampling,archiveSampleBarcode,"Barcode for an archive sample",string,NA,,,
+ltr_chemistrySubsampling,ligninSampleID,"Identifier for a lignin sample",string,NA,,"[DOES_NOT_EXIST][IF (IS_NOT_BLANK),STARTS_WITH(massSampleMixtureID)][IF (IS_NOT_BLANK), ENDS_WITH('.LIG')]","[STARTS_WITH(massSampleID)][ENDS_WITH('.lig')]"
+ltr_chemistrySubsampling,massSampleMixtureID,"Identifier for a mixture of mass samples",string,NA,,"[DOES_NOT_EXIST]","[FROM_TABLE(ltr_massdata_in)]"
+ltr_chemistrySubsampling,cnSampleID,"Identifier for a carbon-nitrogen sample",string,NA,,"[DOES_NOT_EXIST][IF (IS_NOT_BLANK),STARTS_WITH(massSampleMixtureID)][IF (IS_NOT_BLANK), ENDS_WITH('.CN')]","[STARTS_WITH(massSampleID)][ENDS_WITH('.cn')]"
+ltr_chemistrySubsampling,toxicodendronPossible,"Indicator for whether a sample may contain Toxicodendron spp",string,NA,,"[LOV]","[DERIVE_FROM_SAMPLE_TREE][IF_ANY(massSampleID FROM massSampleIDList.toxicodendronPossible == 'Y'), 'Y')]"
+ltr_chemistrySubsampling,massSampleMixtureBarcode,"Barcode of a mixture of mass samples",string,NA,,,
+ltr_chemistrySubsampling,massSampleFateList,"List of fates of mass samples",string,NA,"[SPLIT_BY('|')]",,"[SUGGESTED_ENTRY('processed')]"
+ltr_chemistrySubsampling,processedBy,"An identifier for the technician who processed the sample(s)",string,NA,,,"[FROM_PERSONNEL]"
+ltr_chemistrySubsampling,uid,"Unique ID within NEON database; an identifier for the record",string,NA,"[CREATE_UID]",,
+ltr_chemistrySubsampling,archiveSampleFate,"Fate of archived sample",string,NA,,"[IF (IS_BLANK(archiveSampleID)), REQUIRE_NULL][IF (IS_NOT_BLANK(archiveSampleID)), REQUIRE]","[SUGGESTED_ENTRY('active')]"
+ltr_chemistrySubsampling,processingDate,"Date that sample was processed (i.e., sorted or pinned) in the domain lab",dateTime,NA,,,"[GREATER_THAN_OR_EQUAL_TO(ovenEndDate)][DATE_FORMAT(YYYY-MM-DD)]"
+ltr_chemistrySubsampling,ligninSampleFate,"Fate of a lignin sample",string,NA,,"[IF (IS_BLANK(ligninSampleID)), REQUIRE_NULL][IF (IS_NOT_BLANK(ligninSampleID)), REQUIRE]","[SUGGESTED_ENTRY('active')]"
+ltr_chemistrySubsampling,cnSampleFate,"Fate of a carbon-nitrogen sample",string,NA,,"[IF (IS_BLANK(cnSampleID)), REQUIRE_NULL][IF (IS_NOT_BLANK(cnSampleID)), REQUIRE]","[SUGGESTED_ENTRY('active')]"
+ltr_chemistrySubsampling,plotID,"Plot identifier (NEON site code_XXX)",string,NA,"[DERIVE_FROM_SAMPLE_TREE('ltr_fielddata_in.fieldSampleID')]","[NAMED_LOCATION_TYPE('OS Plot - ltr')]","[REQUIRE][NAMED_LOCATION_TYPE('OS Plot - ltr')]"
+ltr_chemistrySubsampling,massSampleBarcodeList,"List of barcodes of mass samples",string,NA,"[SPLIT_BY('|')]",,
+ltr_chemistrySubsampling,archiveSampleID,"Identifier for an archive sample",string,NA,,"[DOES_NOT_EXIST][IF (IS_NOT_BLANK),STARTS_WITH(massSampleMixtureID)][IF (IS_NOT_BLANK), ENDS_WITH('.AR')]","[STARTS_WITH(massSampleID)][ENDS_WITH('.ar')]"
+ltr_chemistrySubsampling,massSampleIDList,"List of unique identifiers for mass samples",string,NA,"[SPLIT_BY('|')]","[EXISTS]","[FROM_TABLE(ltr_massdata_in)]"
+ltr_fielddata,dataQF,"Data quality flag",string,NA,,,
+ltr_fielddata,eventID,"An identifier for the set of information associated with the event, which includes information about the place and time of the event",string,NA,,"[REQUIRE][MATCH_REGULAR_EXPRESSION('LTR.20[0-9]{2}.[A-Z]{4}.[0-9]{2}')]","[CONCATENATE ('LTR.' + yearBoutBegan' + '.' + siteID + '.' + boutNumber )]"
+ltr_fielddata,trapID,"Identifier for trap",string,NA,,"[REQUIRE]","[REQUIRE][FROM_TABLE]"
+ltr_fielddata,boutNumber,"Number of the sampling bout within a calendar year, beginning with 1",string,NA,,,"[MATCH_REGULAR_EXPRESSION([0-9]{2}]"
+ltr_fielddata,measuredBy,"An identifier for the technician who measured or collected the data",string,NA,,,"[FROM_PERSONNEL][SUGGESTED_ENTRY(previousValue)]"
+ltr_fielddata,plotID,"Plot identifier (NEON site code_XXX)",string,NA,,"[REQUIRE][NAMED_LOCATION_TYPE('OS Plot - ltr')]","[REQUIRE][NAMED_LOCATION_TYPE('OS Plot - ltr')]"
+ltr_fielddata,collectDate,"Date of the collection event",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[REQUIRE]","[REQUIRE][SUGGESTED_ENTRY(system date)][DATE_FORMAT(YYYY-MM-DD)]; [IF(collectDate – setDate) > 365 days, WARN]"
+ltr_fielddata,toxicodendronPossible,"Indicator for whether a sample may contain Toxicodendron spp",string,NA,,"[LOV]","[LOV]"
+ltr_fielddata,uid,"Unique ID within NEON database; an identifier for the record",string,NA,"[CREATE_UID]",,
+ltr_fielddata,yearBoutBegan,"The calendar year that the bout began",integer,NA,,,"[REQUIRE][MATCH_REGULAR_EXPRESSION(^[20]{2}+[1-5]{1}[0-9]{1})]"
+ltr_fielddata,trappingDays,"Decimal days between trap setting and collecting events",real,nominalDay,"[collectDate - setDate][DAYS]","[LESS_THAN(600)]",
+ltr_fielddata,samplingProtocolVersion,"The NEON document number and version where detailed information regarding the sampling method used is available; format NEON.DOC.######vX",string,NA,,"[REQUIRE]","[REQUIRE][LOV][SUGGESTED_ENTRY(previousValue)]"
+ltr_fielddata,remarks,"Technician notes; free text comments accompanying the record",string,NA,,,
+ltr_fielddata,trapCondition,"Condition of litter trap and indication of whether litter was collected",string,NA,,"[REQUIRE][LOV]","[REQUIRE][LOV]"
+ltr_fielddata,fieldSampleFate,"Fate of a field sample",string,NA,"[IF (IS_NOT_BLANK(fieldSampleID)), DEFAULT_TO('active')][IF (IS_BLANK(fieldSampleID)), '']","[IF (IS_BLANK(fieldSampleID)), REQUIRE_NULL][IF (IS_NOT_BLANK(fieldSampleID)), REQUIRE]","[SUGGESTED_ENTRY('active')]"
+ltr_fielddata,recordedBy,"An identifier for the technician who recorded the data",string,NA,,,"[FROM_PERSONNEL][SUGGESTED_ENTRY(previousValue)]"
+ltr_fielddata,fieldSampleID,"Unique identifier for a field sample",string,NA,,"[DOES_NOT_EXIST][IF trapCondition IN ('OK', 'PF'), REQUIRE]","[IF(trapCondition='OK' or 'PF'), REQUIRE]"
+ltr_fielddata,fieldSampleBarcode,"Barcode of a field sample",string,NA,,,
+ltr_fielddata,setDate,"Date that trap was set",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[REQUIRE][LESS_THAN(collectDate)]","[REQUIRE][LESS_THAN(collectDate)][DATE_FORMAT(YYYY-MM-DD)]"
+ltr_pertrap,trapID,"Identifier for trap",string,NA,"[IF (targetTaxaPresent='N'), '']","[IF(targetTaxaPresent != 'N'), REQUIRE]","[IF(targetTaxaPresent != 'N'), REQUIRE]"
+ltr_pertrap,recordedBy,"An identifier for the technician who recorded the data",string,NA,,,"[FROM_PERSONNEL]"
+ltr_pertrap,targetTaxaPresent,"Indicator of whether the sample contained individuals of the target taxa",string,NA,,"[REQUIRE]","[REQUIRE][LOV]"
+ltr_pertrap,startDate,"The start date-time or interval during which an event occurred",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[REQUIRE]","[REQUIRE][SUGGESTED_ENTRY(system date)][DATE_FORMAT(YYYY-MM-DD)]"
+ltr_pertrap,remarks,"Technician notes; free text comments accompanying the record",string,NA,,,
+ltr_pertrap,subplotID,"Identifier for the NEON subplot",string,NA,,,"[LOV]"
+ltr_pertrap,samplingProtocolVersion,"The NEON document number and version where detailed information regarding the sampling method used is available; format NEON.DOC.######vX",string,NA,,"[REQUIRE]","[REQUIRE][LOV]"
+ltr_pertrap,trapSize,"Size of trap",real,squareMeter,"[IF (targetTaxaPresent='N'), ''*0]","[LOV][IF(targetTaxaPresent != 'N'), REQUIRE]","[IF(targetTaxaPresent != 'N'), REQUIRE][LOV]"
+ltr_pertrap,trapType,"Type of trap from which a sample was collected",string,NA,"[IF (targetTaxaPresent='N'), '']","[LOV][IF(targetTaxaPresent != 'N'), REQUIRE]","[IF(targetTaxaPresent != 'N'), REQUIRE]"
+ltr_pertrap,date,"Date or date and time of measurement, observation, or collection event",dateTime,NA,"[CONVERT_TO_UTC(namedLocation)]","[REQUIRE]","[REQUIRE][DEFAULT_TO(startDate)]"
+ltr_pertrap,uid,"Unique ID within NEON database; an identifier for the record",string,NA,"[CREATE_UID]",,
+ltr_pertrap,plotID,"Plot identifier (NEON site code_XXX)",string,NA,,"[REQUIRE][NAMED_LOCATION_TYPE('OS Plot - ltr')]","[REQUIRE][NAMED_LOCATION_TYPE('OS Plot - ltr')]"
+ltr_pertrap,dataQF,"Data quality flag",string,NA,,,
+ltr_pertrap,trapPlacement,"Strategy for selecting plot location",string,NA,"[IF (targetTaxaPresent='N'), '']","[LOV][IF(targetTaxaPresent != 'N'), REQUIRE]","[IF(targetTaxaPresent != 'N'), REQUIRE][LOV]"

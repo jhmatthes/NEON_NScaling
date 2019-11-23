@@ -1,0 +1,42 @@
+table,fieldName,description,dataType,units,downloadPkg
+sls_soilChemistry,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+sls_soilChemistry,analysisDate,"Date that the sample was analyzed",dateTime,NA,basic
+sls_soilChemistry,namedLocation,"Name of the measurement location in the NEON database",string,NA,basic
+sls_soilChemistry,domainID,"Unique identifier of the NEON domain",string,NA,basic
+sls_soilChemistry,siteID,"NEON site code",string,NA,basic
+sls_soilChemistry,plotID,"Plot identifier (NEON site code_XXX)",string,NA,basic
+sls_soilChemistry,plotType,"NEON plot type in which sampling occurred: tower, distributed or gradient",string,NA,basic
+sls_soilChemistry,collectDate,"Date of the collection event",dateTime,NA,basic
+sls_soilChemistry,sampleID,"Identifier for sample",string,NA,basic
+sls_soilChemistry,cnSampleID,"Identifier for a carbon-nitrogen sample",string,NA,basic
+sls_soilChemistry,cnSampleCode,"Barcode of a carbon-nitrogen sample",string,NA,basic
+sls_soilChemistry,sampleType,"Type of sample",string,NA,basic
+sls_soilChemistry,acidTreatment,"Indicator for whether a sample has been acidified to remove carbonate prior to analysis",string,NA,basic
+sls_soilChemistry,nitrogenPercent,"Percent nitrogen in a sample on a dry weight basis",real,percent,basic
+sls_soilChemistry,organicCPercent,"Percent organic carbon in a sample on a dry weight basis",real,percent,basic
+sls_soilChemistry,CNratio,"Ratio of carbon to nitrogen concentration in a sample on a dry weight basis",real,NA,basic
+sls_soilChemistry,cnPercentQF,"Quality flag for concentration values outside the calibration range",string,NA,basic
+sls_soilChemistry,percentAccuracyQF,"Quality flag for accuracy of percent concentration values of QA materials associated with the run",string,NA,basic
+sls_soilChemistry,analyticalRepNumber,"Number of the analytical replicate",unsigned integer,number,basic
+sls_soilChemistry,remarks,"Technician notes; free text comments accompanying the record",string,NA,basic
+sls_soilChemistry,laboratoryName,"Name of the laboratory or facility that is processing the sample",string,NA,basic
+sls_soilChemistry,testMethod,"Method used to conduct test",string,NA,basic
+sls_soilChemistry,instrument,"Type of instrument used for the analysis",string,NA,basic
+sls_soilChemistry,analyzedBy,"Name of lab personnel analyzing sample",string,NA,basic
+sls_soilChemistry,reviewedBy,"Name of lab personnel who reviewed the data prior to submission",string,NA,basic
+sls_soilChemistry,dataQF,"Data quality flag",string,NA,basic
+bgc_CNiso_externalSummary,uid,"Unique ID within NEON database; an identifier for the record",string,NA,expanded
+bgc_CNiso_externalSummary,analyte,"Analyte or parameter measured",string,NA,expanded
+bgc_CNiso_externalSummary,analyteUnits,"Associated units of measure for analyte",string,NA,expanded
+bgc_CNiso_externalSummary,sampleType,"Type of sample",string,NA,expanded
+bgc_CNiso_externalSummary,instrument,"Type of instrument used for the analysis",string,NA,expanded
+bgc_CNiso_externalSummary,testMethod,"Method used to conduct test",string,NA,expanded
+bgc_CNiso_externalSummary,method,"Published method used for analysis",string,NA,expanded
+bgc_CNiso_externalSummary,qaReferenceID,"Identifier for quality assurance reference material or standard",string,NA,expanded
+bgc_CNiso_externalSummary,analyteKnownValue,"The known value of a given analyte for a quality assurance reference material or standard, with units tied to the analyte",real,NA,expanded
+bgc_CNiso_externalSummary,analyteStandardDeviation,"Long-term average standard deviation values of the analyte, based on analysis of quality assurance reference materials or standards treated as unknowns",real,NA,expanded
+bgc_CNiso_externalSummary,analyteAccuracy,"Long-term average accuracy, e.g. the absolute difference between observed and known values of the analyte, based on analysis of quality assurance reference materials or standards treated as unknowns",real,NA,expanded
+bgc_CNiso_externalSummary,laboratoryName,"Name of the laboratory or facility that is processing the sample",string,NA,expanded
+bgc_CNiso_externalSummary,labSpecificStartDate,"Date a specific analyte, instrument, and associated method detection limit combination started",dateTime,NA,expanded
+bgc_CNiso_externalSummary,labSpecificEndDate,"Date a specific analyte, instrument, and associated method detection limit combination ended",dateTime,NA,expanded
+bgc_CNiso_externalSummary,dataQF,"Data quality flag",string,NA,expanded

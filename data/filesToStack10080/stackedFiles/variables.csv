@@ -1,0 +1,108 @@
+table,fieldName,description,dataType,units,downloadPkg
+ntr_internalLab,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+ntr_internalLab,namedLocation,"Name of the measurement location in the NEON database",string,NA,basic
+ntr_internalLab,domainID,"Unique identifier of the NEON domain",string,NA,basic
+ntr_internalLab,siteID,"NEON site code",string,NA,basic
+ntr_internalLab,plotID,"Plot identifier (NEON site code_XXX)",string,NA,basic
+ntr_internalLab,plotType,"NEON plot type in which sampling occurred: tower, distributed or gradient",string,NA,basic
+ntr_internalLab,collectDate,"Date of the collection event",dateTime,NA,basic
+ntr_internalLab,samplingProtocolVersion,"The NEON document number and version where detailed information regarding the sampling method used is available; format NEON.DOC.######vX",string,NA,basic
+ntr_internalLab,sampleID,"Identifier for sample",string,NA,basic
+ntr_internalLab,sampleCode,"Barcode of a sample",string,NA,basic
+ntr_internalLab,kclSampleID,"Identifier for a potassium chloride (KCl) extract sample",string,NA,basic
+ntr_internalLab,kclSampleCode,"Barcode of a potassium chloride (KCl) extract sample",string,NA,basic
+ntr_internalLab,incubationPairID,"Identifier for a linked pair of soil samples used to measure net nitrogen transformation rates",string,NA,basic
+ntr_internalLab,nTransBoutType,"Category of bout in relation to nitrogen transformation sample collection",string,NA,basic
+ntr_internalLab,incubationLength,"Length of soil incubation",real,day,basic
+ntr_internalLab,extractionStartDate,"The start date-time for an extraction event",dateTime,NA,basic
+ntr_internalLab,kclReferenceID,"Identifier for a potassium chloride (KCl) blank reference",string,NA,basic
+ntr_internalLab,soilFreshMass,"Total fresh mass of soil",real,gram,basic
+ntr_internalLab,kclVolume,"Volume potassium chloride (KCl) used to extract soil sample",real,milliliter,basic
+ntr_internalLab,extractionEndDate,"The end date-time for an extraction event",dateTime,NA,basic
+ntr_internalLab,sampleCondition,"Condition of a sample",string,NA,basic
+ntr_internalLab,remarks,"Technician notes; free text comments accompanying the record",string,NA,basic
+ntr_internalLab,processedBy,"An identifier for the technician who processed the sample(s)",string,NA,basic
+ntr_internalLab,recordedBy,"An identifier for the technician who recorded the data",string,NA,basic
+ntr_internalLab,dataQF,"Data quality flag",string,NA,basic
+ntr_internalLabBlanks,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+ntr_internalLabBlanks,siteID,"NEON site code",string,NA,basic
+ntr_internalLabBlanks,extractionStartDate,"The start date-time for an extraction event",dateTime,NA,basic
+ntr_internalLabBlanks,extractionEndDate,"The end date-time for an extraction event",dateTime,NA,basic
+ntr_internalLabBlanks,kclReferenceID,"Identifier for a potassium chloride (KCl) blank reference",string,NA,basic
+ntr_internalLabBlanks,kclBlank1ID,"Identifier for the first potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,kclBlank1Code,"Barcode of the first potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,kclBlank2ID,"Identifier for the second potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,kclBlank2Code,"Barcode of the second potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,kclBlank3ID,"Identifier for the third potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,kclBlank3Code,"Barcode of the third potassium chloride (KCl) blank reference sample",string,NA,basic
+ntr_internalLabBlanks,remarks,"Technician notes; free text comments accompanying the record",string,NA,basic
+ntr_internalLabBlanks,dataQF,"Data quality flag",string,NA,basic
+ntr_externalLab,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+ntr_externalLab,namedLocation,"Name of the measurement location in the NEON database",string,NA,basic
+ntr_externalLab,domainID,"Unique identifier of the NEON domain",string,NA,basic
+ntr_externalLab,siteID,"NEON site code",string,NA,basic
+ntr_externalLab,plotID,"Plot identifier (NEON site code_XXX)",string,NA,basic
+ntr_externalLab,collectDate,"Date of the collection event",dateTime,NA,basic
+ntr_externalLab,sampleID,"Identifier for sample",string,NA,basic
+ntr_externalLab,sampleCode,"Barcode of a sample",string,NA,basic
+ntr_externalLab,kclSampleID,"Identifier for a potassium chloride (KCl) extract sample",string,NA,basic
+ntr_externalLab,kclSampleCode,"Barcode of a potassium chloride (KCl) extract sample",string,NA,basic
+ntr_externalLab,sampleCondition,"Condition of a sample",string,NA,basic
+ntr_externalLab,ammoniumNAnalysisDate,"Date an ammonium sample was analyzed",dateTime,NA,basic
+ntr_externalLab,kclAmmoniumNConc,"Concentration of ammonium N in a potassium chloride extract",real,milligramsPerLiter,basic
+ntr_externalLab,ammoniumNRepNum,"Analytical replicate number for ammonium sample",unsigned integer,number,basic
+ntr_externalLab,ammoniumNQF,"Quality flag for ammonium N values",string,NA,basic
+ntr_externalLab,ammoniumNRemarks,"Free text comments accompanying the ammonium record",string,NA,basic
+ntr_externalLab,nitrateNitriteNAnalysisDate,"Date a nitrate + nitrite N sample was analyzed",dateTime,NA,basic
+ntr_externalLab,kclNitrateNitriteNConc,"Concentration of nitrate + nitrite N in a potassium chloride extract",real,milligramsPerLiter,basic
+ntr_externalLab,nitrateNitriteNRepNum,"Analytical replicate number for nitrate + nitrite N sample",unsigned integer,number,basic
+ntr_externalLab,nitrateNitriteNQF,"Quality flag for nitrate + nitrite N values",string,NA,basic
+ntr_externalLab,nitrateNitriteNRemarks,"Free text comments accompanying the nitrate + nitrite N record",string,NA,basic
+ntr_externalLab,laboratoryName,"Name of the laboratory or facility that is processing the sample",string,NA,basic
+ntr_externalLab,ammoniumNMethod,"Method used to test sample for ammonium N concentration",string,NA,basic
+ntr_externalLab,ammoniumNInstrument,"Type of instrument used for ammonium analysis",string,NA,basic
+ntr_externalLab,ammoniumNAnalyzedBy,"Name of lab personnel analyzing sample for ammonium N",string,NA,basic
+ntr_externalLab,ammoniumNReviewedBy,"Name of lab personnel who reviewed ammonium N data prior to submission",string,NA,basic
+ntr_externalLab,nitrateNitriteNMethod,"Method used to test sample for nitrate + nitrite N concentration",string,NA,basic
+ntr_externalLab,nitrateNitriteNInstrument,"Type of instrument used for nitrate + nitrite N analysis",string,NA,basic
+ntr_externalLab,nitrateNitriteNAnalyzedBy,"Name of lab personnel analyzing sample for nitrate + nitrite N",string,NA,basic
+ntr_externalLab,nitrateNitriteNReviewedBy,"Name of lab personnel who reviewed nitrite + nitrate N data prior to submission",string,NA,basic
+ntr_externalLab,dataQF,"Data quality flag",string,NA,basic
+sls_soilMoisture,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+sls_soilMoisture,namedLocation,"Name of the measurement location in the NEON database",string,NA,basic
+sls_soilMoisture,domainID,"Unique identifier of the NEON domain",string,NA,basic
+sls_soilMoisture,siteID,"NEON site code",string,NA,basic
+sls_soilMoisture,plotID,"Plot identifier (NEON site code_XXX)",string,NA,basic
+sls_soilMoisture,plotType,"NEON plot type in which sampling occurred: tower, distributed or gradient",string,NA,basic
+sls_soilMoisture,collectDate,"Date of the collection event",dateTime,NA,basic
+sls_soilMoisture,samplingProtocolVersion,"The NEON document number and version where detailed information regarding the sampling method used is available; format NEON.DOC.######vX",string,NA,basic
+sls_soilMoisture,sampleID,"Identifier for sample",string,NA,basic
+sls_soilMoisture,sampleCode,"Barcode of a sample",string,NA,basic
+sls_soilMoisture,moistureSampleID,"Identifier of moisture sample",string,NA,basic
+sls_soilMoisture,horizon,"Organic or mineral soil",string,NA,basic
+sls_soilMoisture,ovenStartDate,"The date and time a sample was placed in the drying oven",dateTime,NA,basic
+sls_soilMoisture,ovenEndDate,"The date and time a sample was removed from the drying oven",dateTime,NA,basic
+sls_soilMoisture,boatMass,"Mass of the weigh boat",real,gram,basic
+sls_soilMoisture,freshMassBoatMass,"Combined mass of a fresh sample and weigh boat",real,gram,basic
+sls_soilMoisture,dryMassBoatMass,"Oven-dried mass of the sample and weigh boat",real,gram,basic
+sls_soilMoisture,soilMoisture,"Gravimetric water content of soil in grams of water per gram dry soil",real,gramsPerGram,basic
+sls_soilMoisture,dryMassFraction,"Dry mass divided by fresh mass of a sample",real,NA,basic
+sls_soilMoisture,smRemarks,"Remarks from measurement of sample gravimetric soil moisture",string,NA,basic
+sls_soilMoisture,smMeasuredBy,"An identifier for the technician who measured or collected the soil moisture data",string,NA,basic
+sls_soilMoisture,dataQF,"Data quality flag",string,NA,basic
+ntr_externalSummary,uid,"Unique ID within NEON database; an identifier for the record",string,NA,basic
+ntr_externalSummary,analyte,"Analyte or parameter measured",string,NA,expanded
+ntr_externalSummary,analyteUnits,"Associated units of measure for analyte",string,NA,expanded
+ntr_externalSummary,sampleType,"Type of sample",string,NA,expanded
+ntr_externalSummary,instrument,"Type of instrument used for the analysis",string,NA,expanded
+ntr_externalSummary,method,"Published method used for analysis",string,NA,expanded
+ntr_externalSummary,methodDetectionLimit,"Detection limit for method used",real,NA,expanded
+ntr_externalSummary,qaReferenceID,"Identifier for quality assurance reference material or standard",string,NA,expanded
+ntr_externalSummary,lotID,"Lot or batch number for quality assurance material",string,NA,expanded
+ntr_externalSummary,analyteKnownValue,"The known value of a given analyte for a quality assurance reference material or standard, with units tied to the analyte",real,NA,expanded
+ntr_externalSummary,analyteStandardDeviation,"Long-term average standard deviation values of the analyte, based on analysis of quality assurance reference materials or standards treated as unknowns",real,NA,expanded
+ntr_externalSummary,analyteAccuracy,"Long-term average accuracy, e.g. the absolute difference between observed and known values of the analyte, based on analysis of quality assurance reference materials or standards treated as unknowns",real,NA,expanded
+ntr_externalSummary,laboratoryName,"Name of the laboratory or facility that is processing the sample",string,NA,expanded
+ntr_externalSummary,labSpecificStartDate,"Date a specific analyte, instrument, and associated method detection limit combination started",dateTime,NA,expanded
+ntr_externalSummary,labSpecificEndDate,"Date a specific analyte, instrument, and associated method detection limit combination ended",dateTime,NA,expanded
+ntr_externalSummary,dataQF,"Data quality flag",string,NA,expanded
