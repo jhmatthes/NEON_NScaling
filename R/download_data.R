@@ -23,6 +23,14 @@
 # Load NEON download/processing R package
 library(neonUtilities)
 
+# Check if data/ folder exists in path, if not, create it
+if(dir.exists("data/")){
+  print("Will download files to data/ folder in the current path.") 
+} else{
+  dir.create("data/")
+  print("Created a data/ folder in the current path to hold downloaded data.") 
+}
+
 # Download and stack canopy foliar chemistry: DP1.10026.001
 zipsByProduct(dpID="DP1.10026.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="data/filesToStack10026/", folder=T)
