@@ -8,7 +8,6 @@
 # This code requires the packages: readr, dplyr, magrittr, stringr,
 # tidyr, and lubridate, which can all be downloaded as the tidyverse package.
 
-library(dplyr)
 library(magrittr)
 
 # Load soil inorganic N transformations flux function
