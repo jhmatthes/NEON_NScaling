@@ -24,19 +24,19 @@
 library(neonUtilities)
 
 # Download and stack canopy foliar chemistry: DP1.10026.001
-zipsByProduct(dpID="DP1.10026.001", site="all", package="basic")
+zipsByProduct(dpID="DP1.10026.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="filesToStack10026/", folder=T)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
-zipsByProduct(dpID="DP1.10078.001", site="all", package="basic")
+zipsByProduct(dpID="DP1.10078.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="filesToStack10078/", folder=T)
 
 # Download and stack soil inorganic N pools and transformations: DP1.10080.001
-zipsByProduct(dpID="DP1.10080.001", site="all", package="basic")
+zipsByProduct(dpID="DP1.10080.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="filesToStack10080/", folder=T)
 
 # Download and stack litter chemical properties: DP1.10031.001
-zipsByProduct(dpID="DP1.10031.001", site="all", package="basic")
+zipsByProduct(dpID="DP1.10031.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="filesToStack10031/", folder=T)
 
 # # Download and stack litter & fine woody debris: DP1.10033.001
@@ -44,7 +44,11 @@ stackByTable(filepath="filesToStack10031/", folder=T)
 # stackByTable(filepath="filesToStack10033/", folder=T)
 
 # Download and stack soil physical properties (distributed): DP1.10047.001
-zipsByProduct(dpID="DP1.10047.001", site="all", package="basic")
+zipsByProduct(dpID="DP1.10047.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="filesToStack10047/", folder=T)
+
+# Download and stack woody vegetation plot data: DP1.10098.001
+zipsByProduct(dpID="DP1.10098.001", site="all", package="basic", savepath="data/")
+stackByTable(filepath="filesToStack10098/", folder=T)
 
 
