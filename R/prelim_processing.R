@@ -9,6 +9,7 @@
 # tidyr, and lubridate, which can all be downloaded as the tidyverse package.
 
 library(magrittr)
+library(dplyr)
 
 # Load soil inorganic N transformations flux function
 source("R/def.calc.ntrans.R")
