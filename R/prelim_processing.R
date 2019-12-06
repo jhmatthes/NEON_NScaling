@@ -78,41 +78,82 @@ litter_CN <- readr::read_csv("data/filesToStack10031/stackedFiles/ltr_litterCarb
 # Foliar CN samples
 # Final joining units: individualID, month_year
 foliar_CN_trees <- readr::read_csv("data/filesToStack10026/stackedFiles/cfc_fieldData.csv") %>%
-  dplyr::mutate(month_year = stringr::str_pad(paste(lubridate::month(collectDate),
+  dplyr::mutate(year = lubridate::year(collectDate),
+                month_year = stringr::str_pad(paste(lubridate::month(collectDate),
                                                     lubridate::year(collectDate),
                                                     sep="-"),width=7,pad="0",side="left")) %>%
-  dplyr::select(month_year, sampleID, tagID, individualID, taxonID, plantStatus)
+  dplyr::select(month_year, year, sampleID, tagID, individualID, taxonID, plantStatus)
 
 foliar_CN <- readr::read_csv("data/filesToStack10026/stackedFiles/cfc_carbonNitrogen.csv") %>%
   dplyr::mutate(foliarNPercent = nitrogenPercent, foliarCPercent = carbonPercent,
          foliarCNRatio = CNratio) %>%
-  dplyr::select(siteID, plotID, plotType, sampleID, foliarNPercent, foliarCPercent, foliarCNRatio) %>%
-  dplyr::left_join(foliar_CN_trees, by = "sampleID")
+  dplyr::select(siteID, plotID, plotType, sampleID, foliarNPercent, foliarCPercent, 
+                foliarCNRatio) %>%
+  dplyr::left_join(foliar_CN_trees, by = "sampleID") %>%
+  dplyr::select(-sampleID)
 
-# Compare sample number per plot within sites (smallest unit of analysis)
-foliar_CN_n <- foliar_CN %>%
-  group_by(siteID, plotID, plotType) %>%
-  summarize(count = n())
+# Read in root chemistry data
+root_chem <- readr::read_csv("non_raw_data/rootchem_NEON.csv") %>%
+  mutate(year = lubridate::year(collectDate),
+         coarseRoot_percentN = `root_2-10_nitrogenPercent`) 
 
-# Example where date (maybe) doesn't matter: joining litterCN and soilCN
-litter_plotID <- litter_CN %>%
-  dplyr::group_by(siteID, plotID) %>%
-  dplyr::summarize(litterN_mean = mean(litterNPercent, na.rm=TRUE),
-                   litterN_sd = sd(litterNPercent, na.rm=TRUE),
-                   litterN_n = n())
+root_chem$fineRoot_percentN <- rowMeans(root_chem[,c(7,10,13)], na.rm=TRUE)
 
-soilCN_plotID <- soil_CNplots %>%
-  dplyr::group_by(siteID, plotID, horizon) %>%
-  dplyr::summarize(soilN_mean = mean(soilNPercent, na.rm=TRUE),
-                   soilN_sd = sd(soilNPercent, na.rm=TRUE),
-                   soilN_n = n())
- 
-litter_soil_plotID <- dplyr::full_join(litter_plotID, soilCN_plotID, 
-                                by = c("siteID","plotID")) %>%
-  dplyr::arrange(plotID) %>%
-  filter(!is.na(litterN_mean), !is.na(soilN_mean))
+root_chem <- dplyr::select(root_chem, siteID, plotID, plotType, year, 
+                           coarseRoot_percentN, fineRoot_percentN)
 
-ggplot(dplyr::filter(litter_soil_plotID, horizon == "O")) +
-  geom_point(aes(x = litterN_mean, y = soilN_mean, color = siteID)) +
-  geom_smooth(aes(x = litterN_mean, y = soilN_mean, color = siteID), method = "lm")
+# Combine together all "slow" variables by averaging across year within plotID
+# 1. Aggregate each dataset to plotID level
+rootN_plotID <- root_chem %>%
+  dplyr::group_by(siteID, plotID, plotType) %>%
+  dplyr::summarize(coarseRootNPercent = mean(coarseRoot_percentN, na.rm=TRUE),
+                   fineRootNPercent = mean(fineRoot_percentN, na.rm=TRUE))
+
+foliarN_plotID <- foliar_CN %>%
+  dplyr::group_by(siteID, plotID, plotType, taxonID) %>%
+  dplyr::summarize(foliarNPercent = mean(foliarNPercent, na.rm=TRUE))
+
+litterN_plotID <- litter_CN %>%
+  dplyr::group_by(siteID, plotID, plotType) %>%
+  dplyr::summarize(litterNPercent = mean(litterNPercent, na.rm=TRUE))
+
+soilN_plotID <- soil_CNplots %>%
+  dplyr::group_by(siteID, plotID, plotType, horizon) %>%
+  dplyr::summarize(soilNPercent = mean(soilNPercent, na.rm=TRUE))
+
+# 2. Join together all datasets
+dataN_plotID <- dplyr::full_join(rootN_plotID, litterN_plotID, 
+                          by = c("siteID", "plotID", "plotType")) %>%
+  dplyr::full_join(foliarN_plotID, by = c("siteID", "plotID", "plotType")) %>%
+  dplyr::full_join(soilN_plotID, by = c("siteID", "plotID", "plotType"))
+
+readr::write_csv(dataN_plotID,"N_plotID.csv")
+
+# SOME EXTRA STUFF
+# # Compare sample number per plot within sites (smallest unit of analysis)
+# foliar_CN_n <- foliar_CN %>%
+#   group_by(siteID, plotID, plotType) %>%
+#   summarize(count = n())
+# 
+# # Example where date (maybe) doesn't matter: joining litterCN and soilCN
+# litter_plotID <- litter_CN %>%
+#   dplyr::group_by(siteID, plotID) %>%
+#   dplyr::summarize(litterN_mean = mean(litterNPercent, na.rm=TRUE),
+#                    litterN_sd = sd(litterNPercent, na.rm=TRUE),
+#                    litterN_n = n())
+# 
+# soilCN_plotID <- soil_CNplots %>%
+#   dplyr::group_by(siteID, plotID, horizon) %>%
+#   dplyr::summarize(soilN_mean = mean(soilNPercent, na.rm=TRUE),
+#                    soilN_sd = sd(soilNPercent, na.rm=TRUE),
+#                    soilN_n = n())
+#  
+# litter_soil_plotID <- dplyr::full_join(litter_plotID, soilCN_plotID, 
+#                                 by = c("siteID","plotID")) %>%
+#   dplyr::arrange(plotID) %>%
+#   filter(!is.na(litterN_mean), !is.na(soilN_mean))
+# 
+# ggplot(dplyr::filter(litter_soil_plotID, horizon == "O")) +
+#   geom_point(aes(x = litterN_mean, y = soilN_mean, color = siteID)) +
+#   geom_smooth(aes(x = litterN_mean, y = soilN_mean, color = siteID), method = "lm")
 
