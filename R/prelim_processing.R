@@ -113,13 +113,22 @@ foliarN_plotID <- foliar_CN %>%
   dplyr::group_by(siteID, plotID, plotType, taxonID) %>%
   dplyr::summarize(foliarNPercent = mean(foliarNPercent, na.rm=TRUE))
 
+foliarN_plotID_noTaxonID <- foliar_CN %>%
+  dplyr::group_by(siteID, plotID, plotType) %>%
+  dplyr::summarize(foliarNPercent = mean(foliarNPercent, na.rm=TRUE))
+
 litterN_plotID <- litter_CN %>%
   dplyr::group_by(siteID, plotID, plotType) %>%
   dplyr::summarize(litterNPercent = mean(litterNPercent, na.rm=TRUE))
 
 soilN_plotID <- soil_CNplots %>%
   dplyr::group_by(siteID, plotID, plotType, horizon) %>%
-  dplyr::summarize(soilNPercent = mean(soilNPercent, na.rm=TRUE))
+  dplyr::summarize(soilNPercent = mean(soilNPercent, na.rm=TRUE)) %>%
+  tidyr::spread(key = horizon, soilNPercent) %>%
+  dplyr::mutate(soilNPercentOHoriz = O,
+                soilNPercentMHoriz = M) %>%
+  dplyr::select(siteID, plotID, plotType, soilNPercentOHoriz, 
+                soilNPercentMHoriz)
 
 # 2. Join together all datasets
 dataN_plotID <- dplyr::full_join(rootN_plotID, litterN_plotID, 
@@ -128,6 +137,14 @@ dataN_plotID <- dplyr::full_join(rootN_plotID, litterN_plotID,
   dplyr::full_join(soilN_plotID, by = c("siteID", "plotID", "plotType"))
 
 readr::write_csv(dataN_plotID,"N_plotID.csv")
+
+dataN_plotID_noTaxonID <- dplyr::full_join(rootN_plotID, litterN_plotID, 
+                                 by = c("siteID", "plotID", "plotType")) %>%
+  dplyr::full_join(foliarN_plotID_noTaxonID, by = c("siteID", "plotID", "plotType")) %>%
+  dplyr::full_join(soilN_plotID, by = c("siteID", "plotID", "plotType"))
+readr::write_csv(dataN_plotID_noTaxonID,"N_plotID_noTaxonID.csv")
+
+
 
 # SOME EXTRA STUFF
 # # Compare sample number per plot within sites (smallest unit of analysis)
