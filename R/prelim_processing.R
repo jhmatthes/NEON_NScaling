@@ -15,10 +15,10 @@ library(dplyr)
 source("R/def.calc.ntrans.R")
 
 # Calculate soil N mineralization rates
-N_external <- readr::read_csv("data/new/filesToStack10080/stackedFiles/ntr_externalLab.csv", guess_max = 10000)
-N_internal <- readr::read_csv("data/new/filesToStack10080/stackedFiles/ntr_internalLab.csv", guess_max = 10000)
-kclIntBlank <- readr::read_csv("data/new/filesToStack10080/stackedFiles/ntr_internalLabBlanks.csv", guess_max = 10000)
-soilMoist <- readr::read_csv("data/new/filesToStack10080/stackedFiles/sls_soilMoisture.csv", guess_max = 10000)
+N_external <- readr::read_csv("data/filesToStack10080/stackedFiles/ntr_externalLab.csv", guess_max = 10000)
+N_internal <- readr::read_csv("data/filesToStack10080/stackedFiles/ntr_internalLab.csv", guess_max = 10000)
+kclIntBlank <- readr::read_csv("data/filesToStack10080/stackedFiles/ntr_internalLabBlanks.csv", guess_max = 10000)
+soilMoist <- readr::read_csv("data/filesToStack10080/stackedFiles/sls_soilMoisture.csv", guess_max = 10000)
 
 soil_Ninorg_rates <- def.calc.ntrans(kclInt = N_internal, kclIntBlank = kclIntBlank,
                            kclExt = N_external, soilMoist=soilMoist,
@@ -40,7 +40,7 @@ soil_Ninorg_rates <- soil_Ninorg_rates %>%
   dplyr::filter(nTransBoutType == "tFinal") %>% #remove NA flux values 
   dplyr::select(plotID, collectDate, incubationPairID, netNminugPerGramPerDay, netNitugPerGramPerDay) %>% #remove tFinal inorg N pools
   dplyr::left_join(soil_NinorgPools_initial, by = c("plotID", "incubationPairID")) %>% #add initial inrog N pools
-  tidyr::separate(sampleID, into = c("siteplot","horizon","min_depth","max_depth","colDate"),
+  tidyr::separate(sampleID, into = c("siteplot","horizon","subplota","subplotb","colDate"),
            sep = "-") %>%
   tidyr::separate(siteplot, into = c("siteID","justPlot"), sep = "_") %>%
   dplyr::mutate(month = lubridate::month(collectDate), 
@@ -52,16 +52,16 @@ soil_Ninorg_rates <- soil_Ninorg_rates %>%
          netNminugPerGramPerDay, netNitugPerGramPerDay) 
 
 # # Plot Nmin rates by site & season
- # ggplot2::ggplot(soil_Ninorg_rates) +
- #   ggplot2::geom_jitter(ggplot2::aes(x = collectDate, y = netNminugPerGramPerDay, color = horizon)) +
- #   ggplot2::facet_wrap(~siteID) +
- #   cowplot::theme_cowplot()+ 
- #   ggplot2::labs(y = "Net Nmineralization (ug day^-1)") +
- #   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) 
+# ggplot2::ggplot(soil_Ninorg_rates) +
+#   ggplot2::geom_jitter(ggplot2::aes(x = collectDate, y = netNitugPerGramPerDay, color = horizon)) +
+#   ggplot2::facet_wrap(~siteID) +
+#   cowplot::theme_cowplot()+
+#   ggplot2::labs(y = "Net Nmineralization (ug day^-1)") +
+#   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
 
-# Load and organize soil C & N pools
+# Load and organize soil percentage C & N pools
 # Final joining units: plotID, month_year
-soil_CNplots <- readr::read_csv("data/new/filesToStack10078/stackedFiles/sls_soilChemistry.csv") %>%
+soil_CNplots <- readr::read_csv("data/filesToStack10078/stackedFiles/sls_soilChemistry.csv") %>%
   tidyr::separate(sampleID, into = c("siteplot","horizon","min_depth","max_depth","colDate"),
            sep = "-") %>%
   tidyr::separate(siteplot, into = c("siteID","justPlot"), sep = "_") %>%
@@ -111,15 +111,16 @@ litter_CN <- readr::read_csv("data/filesToStack10031/stackedFiles/ltr_litterCarb
                 litterNPercent, litterCPercent, litterCNRatio)
 
 # Foliar CN samples
-# Final joining units: individualID, month_year
-foliar_CN_trees <- readr::read_csv("data/new/filesToStack10026/stackedFiles/cfc_fieldData.csv") %>%
+# Trees final joining units: individualID, month_year
+foliar_CN_trees <- readr::read_csv("data/filesToStack10026/stackedFiles/cfc_fieldData.csv") %>%
   dplyr::mutate(year = lubridate::year(collectDate),
                 month_year = stringr::str_pad(paste(lubridate::month(collectDate),
                                                     lubridate::year(collectDate),
                                                     sep="-"),width=7,pad="0",side="left")) %>%
   dplyr::select(month_year, year, sampleID, tagID, individualID, taxonID, plantStatus)
 
-foliarCN_plotID <- readr::read_csv("data/new/filesToStack10026/stackedFiles/cfc_carbonNitrogen.csv") %>%
+# Plot final joining: plotID
+foliarCN_plotID <- readr::read_csv("data/filesToStack10026/stackedFiles/cfc_carbonNitrogen.csv") %>%
   dplyr::mutate(foliarNPercent = nitrogenPercent, foliarCPercent = carbonPercent,
          foliarCNRatio = CNratio) %>%
   dplyr::select(domainID, siteID, plotID, plotType, sampleID, foliarNPercent, foliarCPercent, 
@@ -133,7 +134,7 @@ foliarCN_plotID <- readr::read_csv("data/new/filesToStack10026/stackedFiles/cfc_
 
 # Read in root chemistry data
 # Format "BBC" roots
-root_chem_BBC <- readr::read_csv("data/new/filesToStack10102/stackedFiles/bbc_rootChemistry.csv") %>%
+root_chem_BBC <- readr::read_csv("data/filesToStack10102/stackedFiles/bbc_rootChemistry.csv") %>%
   filter(grepl("BBC",cnSampleID)) %>%
   select(domainID, siteID, plotID, cnSampleID, 
          nitrogenPercent, carbonPercent, CNratio) %>%
@@ -144,7 +145,7 @@ root_chem_BBC <- readr::read_csv("data/new/filesToStack10102/stackedFiles/bbc_ro
             rootSample_n = sum(!is.na(nitrogenPercent)))
 
 # Format Megapit roots
-root_chem_megapit <- readr::read_csv("data/new/filesToStack10102/stackedFiles/bbc_rootChemistry.csv") %>%
+root_chem_megapit <- readr::read_csv("data/filesToStack10102/stackedFiles/bbc_rootChemistry.csv") %>%
   filter(grepl("MEGAPT",namedLocation)) %>%
   tidyr::separate(cnSampleID, into = c("site","plot","depth","status","size")) %>%
   filter(status == "LIVE") %>%
@@ -160,7 +161,7 @@ root_chem_megapit <- readr::read_csv("data/new/filesToStack10102/stackedFiles/bb
 rootCN_plotID <- full_join(root_chem_BBC, root_chem_megapit)
 
 # Plot characteristics
-plot_info <- readr::read_csv("data/new/filesToStack10098/stackedFiles/vst_perplotperyear.csv") %>%
+plot_info <- readr::read_csv("data/filesToStack10098/stackedFiles/vst_perplotperyear.csv") %>%
   select(domainID, siteID, plotID, nlcdClass, decimalLatitude, decimalLongitude, 
          easting, northing, utmZone, elevation)
 plot_info <- unique(plot_info)
@@ -181,12 +182,11 @@ dataCN_plotID <- dplyr::full_join(rootCN_plotID, litterN_plotID,
 
 readr::write_csv(dataCN_plotID,"CN_plotID.csv")
 
-dataN_plotID_noTaxonID <- dplyr::full_join(rootN_plotID, litterN_plotID, 
-                                 by = c("siteID", "plotID", "plotType")) %>%
-  dplyr::full_join(foliarCN_plotID_noTaxonID, by = c("siteID", "plotID", "plotType")) %>%
-  dplyr::full_join(soilN_plotID, by = c("siteID", "plotID", "plotType"))
-readr::write_csv(dataN_plotID_noTaxonID,"N_plotID_noTaxonID.csv")
-
+# dataN_plotID_noTaxonID <- dplyr::full_join(rootN_plotID, litterN_plotID, 
+#                                  by = c("siteID", "plotID", "plotType")) %>%
+#   dplyr::full_join(foliarCN_plotID_noTaxonID, by = c("siteID", "plotID", "plotType")) %>%
+#   dplyr::full_join(soilN_plotID, by = c("siteID", "plotID", "plotType"))
+# readr::write_csv(dataN_plotID_noTaxonID,"N_plotID_noTaxonID.csv")
 
 
 # SOME EXTRA STUFF
