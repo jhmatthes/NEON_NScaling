@@ -1,0 +1,215 @@
+---
+title: "CN Models from NEON data"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## How are CN ratios related in the NEON data?
+
+Used data set up from Adrianne and Andrew. Added litter CN from litter_chem.csv.
+
+```{r include = FALSE}
+
+require(tidyr)
+require(dplyr)
+require(ggplot2)
+require(plyr) #for count function
+require(plotly)
+require(viridis)
+require(lme4)
+library(nlme)
+library(car)
+library(lattice)
+library(grid)
+library(sjPlot)
+
+setwd('C:/Users/Anika/Documents/GradSchool/NEON_2019/')
+
+# Load and clean data ----------------------------------------------------------------------
+#load nitrogen pool data
+plot.df <- read.csv(file = "CN_plotID.csv", header = T, stringsAsFactors = F)
+summary(plot.df)
+#load climate data
+climate.df <- read.csv(file = "MAT_MAP_Allsites.csv", stringsAsFactors = F)
+climate.df$MAP <- climate.df$MAP*10 # from cm to mm
+#climate.df$siteID<-climate.df$SiteID
+head(climate.df)
+
+#merge the plot and climate data by site name
+plot.df <- left_join(plot.df, climate.df, by = c("siteID" = "SiteID"))
+
+#select key columns
+myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
+            'rootSample_n','plotType','litterNPercent','foliarNPercent','foliarCPercent',
+            'foliarCNRatio','soilNPercent_MHoriz','soilCNRatio_MHoriz','nlcdClass',
+            'x','y', 'MAT', 'MAP') #need litter CN
+
+plot.df <- plot.df[myvars]
+
+#get litter CN ratios
+litterchem <- read.csv(file = 'litter_chem.csv', header = T, stringsAsFactors = F)
+litterchem <- litterchem %>% dplyr::select(plotID, siteID, CNratio)
+litterchem <- litterchem %>% 
+  group_by(plotID) %>% 
+  dplyr::summarise(litterCNratio = mean(CNratio, na.rm=T))
+litterchem <- data.frame(litterchem)
+plot.df <- left_join(plot.df, litterchem, by = c("plotID" = "plotID"))
+
+#remove duplicates resulting from the merge (linked to slight differences in coordinates?)
+nrow(plot.df)
+plot.df <- plot.df[!duplicated(plot.df), ]
+nrow(plot.df) #check that this worked
+
+#look at the data
+unique(plot.df$nlcdClass)
+unique(plot.df$siteID)
+
+plot(plot.df$litterNPercent ~ plot.df$foliarNPercent)
+### univariate distributions
+hist(plot.df$foliarNPercent)
+hist(plot.df$litterNPercent)
+hist(plot.df$rootNPercent)
+hist(log(plot.df$soilNPercent_MHoriz))
+hist(plot.df$litterCNratio)
+hist(plot.df$foliarCNRatio)
+hist(plot.df$soilCNRatio_MHoriz)
+
+#filter out sight (GUAN) with anamolously high soil nitrogen...
+plot.df <- plot.df %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::filter(!siteID=='GUAN')
+
+unique(plot.df$siteID)
+
+
+head(plot.df)
+glimpse(plot.df)
+
+plot.df$siteID <- as.factor(plot.df$siteID)
+
+```
+
+Look at CN ratios:
+
+```{r histograms}
+hist(plot.df$litterCNratio)
+hist(plot.df$foliarCNRatio)
+hist(plot.df$soilCNRatio_MHoriz)
+```
+
+## CN Models directly
+
+Using foliar CN, litter CN, and soil CN as response variables:
+
+```{r models1}
+#### CN ratios directly
+#litter
+mod.litter1 <- lmer(litterCNratio ~ soilCNRatio_MHoriz + foliarCNRatio + (1|siteID), data=plot.df)
+mod.litter2 <- lmer(litterCNratio ~ soilCNRatio_MHoriz + foliarCNRatio + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.litter3 <- lmer(litterCNratio ~ soilCNRatio_MHoriz*MAP + foliarCNRatio + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+#foliar
+mod.foliar1 <- lmer(foliarCNRatio ~ litterCNratio + soilCNRatio_MHoriz + (1|siteID), data=plot.df)
+mod.foliar2 <- lmer(foliarCNRatio ~ litterCNratio + soilCNRatio_MHoriz + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.foliar3 <- lmer(foliarCNRatio ~ litterCNratio + soilCNRatio_MHoriz*MAP + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+#soil
+mod.soil1 <- lmer(soilCNRatio_MHoriz ~ litterCNratio + foliarCNRatio + (1|siteID), data=plot.df)
+mod.soil2 <- lmer(soilCNRatio_MHoriz ~ litterCNratio + foliarCNRatio + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.soil3 <- lmer(soilCNRatio_MHoriz ~ litterCNratio + foliarCNRatio*MAP + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+#summary comparison of models
+tab_model(mod.litter1, mod.litter2, mod.litter3)
+tab_model(mod.foliar1, mod.foliar2, mod.foliar3)
+tab_model(mod.soil1, mod.soil2, mod.soil3)
+
+#visualize best model from each (based on marginal and conditional R2)
+sjPlot::plot_model(mod.litter3, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on litter CN Ratio")
+sjPlot::plot_model(mod.foliar3, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on litter CN Ratio")
+sjPlot::plot_model(mod.soil2, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on litter CN Ratio")
+```
+
+MAP still important here.
+
+Delta CN between pools might be interesting to explore.
+
+```{r delta cn}
+plot.df$CNfoliar_CNlitter <- plot.df$foliarCNRatio - plot.df$litterCNratio
+plot.df$CNlitter_CNsoil <- plot.df$litterCNratio - plot.df$soilCNRatio_MHoriz
+plot.df$CNfoliar_CNsoil <- plot.df$foliarCNRatio - plot.df$soilCNRatio_MHoriz
+
+hist(plot.df$CNfoliar_CNlitter)
+hist(plot.df$CNlitter_CNsoil)
+hist(plot.df$CNfoliar_CNsoil)
+
+mod.foliarlitter1 <- lmer(CNfoliar_CNlitter ~ litterCNratio + soilCNRatio_MHoriz + (1|siteID), data=plot.df)
+mod.foliarlitter2 <- lmer(CNfoliar_CNlitter ~ litterCNratio + soilCNRatio_MHoriz + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.foliarlitter3 <- lmer(CNfoliar_CNlitter ~ litterCNratio + soilCNRatio_MHoriz*MAP + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+
+mod.littersoil1 <- lmer(CNlitter_CNsoil ~ soilCNRatio_MHoriz + foliarCNRatio + (1|siteID), data=plot.df)
+mod.littersoil2 <- lmer(CNlitter_CNsoil ~ soilCNRatio_MHoriz + foliarCNRatio + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.littersoil3 <- lmer(CNlitter_CNsoil ~ soilCNRatio_MHoriz*MAP + foliarCNRatio + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+
+mod.foliarsoil1 <- lmer(CNfoliar_CNsoil ~ litterCNratio + soilCNRatio_MHoriz + (1|siteID), data=plot.df)
+mod.foliarsoil2 <- lmer(CNfoliar_CNsoil ~ litterCNratio + soilCNRatio_MHoriz + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.foliarsoil3 <- lmer(CNfoliar_CNsoil ~ litterCNratio + soilCNRatio_MHoriz*MAP + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+#summary comparison of models
+tab_model(mod.foliarlitter1, mod.foliarlitter2, mod.foliarlitter3)
+tab_model(mod.littersoil1, mod.littersoil2, mod.littersoil3)
+tab_model(mod.foliarsoil1, mod.foliarsoil2, mod.foliarsoil3)
+
+
+#visualize best model from each (based on marginal and conditional R2)
+sjPlot::plot_model(mod.foliarlitter3, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on difference in CN Ratio (foliar - litter")
+#visualize best model from each (based on marginal and conditional R2)
+sjPlot::plot_model(mod.littersoil3, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on difference in CN Ratio (litter - soil)")
+#visualize best model from each (based on marginal and conditional R2)
+sjPlot::plot_model(mod.foliarsoil3, 
+                   #axis.labels=c("Urchin", "Depth", "Fish"),
+                   show.values=TRUE, show.p=TRUE,
+                   title="Effect of Parameters on difference CN Ratio (foliar - soil)")
+
+
+```
+
+## Using CN as a predictor in models
+Re-run Andrew's models with delta CN to see how they change. Overall, model accuracy is increased when either CN or delta CN is included:
+```{r cn models}
+mod.soil0 <- lmer(soilNPercent_MHoriz ~ litterNPercent + foliarNPercent + (1|siteID), data=plot.df)
+mod.soil1 <- lmer(soilNPercent_MHoriz ~ litterCNratio + soilCNRatio_MHoriz + litterNPercent + foliarNPercent + (1|siteID), data=plot.df)
+
+mod.litter0 <- lmer(litterNPercent ~ litterNPercent + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+mod.litter1 <- lmer(litterNPercent ~ litterCNratio + soilCNRatio_MHoriz + soilNPercent_MHoriz + foliarNPercent + (1|siteID), data=plot.df)
+
+mod.foliar0 <- lmer(foliarNPercent ~ litterNPercent + foliarNPercent + (1|siteID), data=plot.df)
+mod.foliar1 <- lmer(foliarNPercent ~ litterCNratio + soilCNRatio_MHoriz + litterNPercent + soilNPercent_MHoriz + (1|siteID), data=plot.df)
+
+
+
+tab_model(mod.soil0, mod.soil1)
+tab_model(mod.litter0, mod.litter1)
+tab_model(mod.foliar0, mod.foliar1)
+```
