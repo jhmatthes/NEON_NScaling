@@ -254,12 +254,6 @@ plot(resid(mean_soil_leaves_lm_2),cex=2,xlab = 'Observation',ylab = 'Unexplained
 abline(h = 0.0, col="red", lwd=5, lty=2)
 dev.off()
 
-#make a bar plot of the slopes to be an inset
-link<-c('soil_leaves','leaves_litter','litter_soil')
-slope<-c(1.39,0.29,0.08)
-id<-c('1','2','3')
-slopes<-data.frame(link,slope,id)
-
 #plot it: relaionship between %soil and %foliar N ########
 
 #originally this plotting is set up to have an inset. this can change.
