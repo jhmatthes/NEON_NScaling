@@ -106,24 +106,47 @@ mean_soil_leaves_2_climate<-merge(mean_soil_leaves[-c(140,133),],climate.df,by=c
 head(mean_soil_leaves_2_climate)
 
 # MIXED EFFECTS MODEL #
-library(car)
+
+soil.to.leaf.lme<-lme(foliarNPercent~soilNPercent_MHoriz,data=mean_soil_leaves_2_climate,
+                                  random=~1|siteID,na.action=na.omit,method="REML")
+
+summary(soil.to.leaf.lme) #significant
+
+#compare to gls
+soil.to.leaf.gls<-gls(foliarNPercent~soilNPercent_MHoriz,data=mean_soil_leaves_2_climate
+                      ,na.action=na.omit,method="REML")
+summary(soil.to.leaf.gls)
+
+anova(soil.to.leaf.gls,soil.to.leaf.lme)
+
+#look at interactions
+
+#basic lm
+soil.to.leaf.climate.all.lm<-lm(foliarNPercent~soilNPercent_MHoriz*MAP,data=mean_soil_leaves_2_climate,
+                                 na.action=na.omit)
+summary(soil.to.leaf.climate.all.lm)
+
+#lme
 soil.to.leaf.climate.all.lme<-lme(foliarNPercent~soilNPercent_MHoriz*MAP,data=mean_soil_leaves_2_climate,
                                   random=~1|siteID,na.action=na.omit,method="REML")
+
 summary(soil.to.leaf.climate.all.lme)
 anova(soil.to.leaf.climate.all.lme) #no interaction
 Anova(soil.to.leaf.climate.all.lme) 
 plot(soil.to.leaf.climate.all.lme)
+?gls
 
 #remove random site effect
 soil.to.leaf.climate.all.lme.fixed <- gls(foliarNPercent~soilNPercent_MHoriz*MAP,
                   data=mean_soil_leaves_2_climate,
                   method="REML")
 
+summary(soil.to.leaf.climate.all.lme.fixed)
 #test random effects
 anova(soil.to.leaf.climate.all.lme,
       soil.to.leaf.climate.all.lme.fixed)
 
-#improving randome effects 'singificantly improves' model
+#improving randome effects 'singificantly improves' model in model with interaction...
 
 #significant positive interaction in basic lm, but not in an LME!
 
@@ -284,7 +307,23 @@ foliar_litter_clim_veg<-merge(lac_no_na_climate,mean_foliar_litter,by=c('siteID'
 # abiotic model #
 
 # MIXED EFFECTS #
-leaf.to.litter.map.lme<-lme(litterNPercent~foliarNPercent*MAP,random=~1|siteID,data=foliar_litter_clim_veg,na.action=na.omit)
+
+leaf.to.litter.lme<-lme(litterNPercent~foliarNPercent,data=foliar_litter_clim_veg,
+                      random=~1|siteID,na.action=na.omit,method="REML")
+
+summary(leaf.to.litter.lme) #not significant
+plot(litterNPercent~foliarNPercent,data=foliar_litter_clim_veg)
+
+#compare to gls
+leaf.to.litter.gls<-gls(litterNPercent~foliarNPercent,data=foliar_litter_clim_veg,
+                      na.action=na.omit,method="REML")
+summary(leaf.to.litter.gls)
+
+anova(leaf.to.litter.gls,leaf.to.litter.lme)
+
+leaf.to.litter.map.lme<-lme(litterNPercent~foliarNPercent*MAP,random=~1|siteID,
+                            data=foliar_litter_clim_veg,na.action=na.omit)
+
 summary(leaf.to.litter.map.lme)
 anova(leaf.to.litter.map.lme) #no significant interation...
 Anova(leaf.to.litter.map.lme)
@@ -313,6 +352,19 @@ litter_soil_clim_veg<-merge(lac_no_na_climate,mean_litter_soil[-c(1,28,39),],by=
 litter.to.soil.map.all_sites<-merge(mean_litter_soil[-c(1,28,39),],climate.df,by=c('siteID'))
 
 # MIXED EFFECTS MODELS #
+
+litter.to.soil.lme<-lme(soilNPercent_MHoriz~litterNPercent,random=~1|siteID,
+                            data=litter.to.soil.map.all_sites,na.action=na.omit,method="REML")
+summary(litter.to.soil.lme)
+
+#compare to gls
+litter.to.soil.gls<-gls(soilNPercent_MHoriz~litterNPercent,
+                        data=litter.to.soil.map.all_sites,na.action=na.omit,method="REML")
+summary(litter.to.soil.gls)
+
+anova(litter.to.soil.gls,litter.to.soil.lme)
+
+#interactions
 litter.to.soil.map.lme<-lme(soilNPercent_MHoriz~litterNPercent*MAP,random=~1|siteID,
                             data=litter.to.soil.map.all_sites,na.action=na.omit,method="REML")
 summary(litter.to.soil.map.lme)
