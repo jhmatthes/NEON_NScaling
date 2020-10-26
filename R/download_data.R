@@ -39,28 +39,29 @@ stackByTable(filepath="data/filesToStack10026/", folder=T)
 zipsByProduct(dpID="DP1.10078.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="data/filesToStack10078/", folder=T)
 
-# Download and stack soil inorganic N pools and transformations: DP1.10080.001
-zipsByProduct(dpID="DP1.10080.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10080/", folder=T)
-
 # Download and stack litter chemical properties: DP1.10031.001
 zipsByProduct(dpID="DP1.10031.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="data/filesToStack10031/", folder=T)
-
-# Download and stack litter & fine woody debris: DP1.10033.001
-#zipsByProduct(dpID="DP1.10033.001", site="all", package="basic", savepath="data/")
-#stackByTable(filepath="data/filesToStack10033/", folder=T)
-
-# Download and stack soil physical properties (distributed): DP1.10047.001
-zipsByProduct(dpID="DP1.10047.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10047/", folder=T)
-
-## Download and stack woody vegetation plot data: DP1.10098.001
-zipsByProduct(dpID="DP1.10098.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10098/", folder=T)
 
 # root biochemistry
 zipsByProduct(dpID="DP1.10102.001", site="all", package="basic", savepath="data/")
 stackByTable(filepath="data/filesToStack10102/", folder=T)
 
+# Data that we do not actually use
+# # Download and stack litter & fine woody debris: DP1.10033.001
+# zipsByProduct(dpID="DP1.10033.001", site="all", package="basic", savepath="data/")
+# stackByTable(filepath="data/filesToStack10033/", folder=T)
+
+# # Download and stack soil physical properties (distributed): DP1.10047.001
+# zipsByProduct(dpID="DP1.10047.001", site="all", package="basic", savepath="data/")
+# stackByTable(filepath="data/filesToStack10047/", folder=T)
+
+# ## Download and stack woody vegetation plot data: DP1.10098.001
+# zipsByProduct(dpID="DP1.10098.001", site="all", package="basic", savepath="data/")
+# stackByTable(filepath="data/filesToStack10098/", folder=T)
+
+## Download and stack soil inorganic N pools and transformations: DP1.10080.001
+# Commented out on 26 Oct 20, not using these data
+#zipsByProduct(dpID="DP1.10080.001", site="all", package="basic", savepath="data/")
+#stackByTable(filepath="data/filesToStack10080/", folder=T)
 
