@@ -18,14 +18,6 @@
 # Load NEON download/processing R package
 library(neonUtilities)
 
-# Check if data/ folder exists in path, if not, create it
-if(dir.exists("data/")){
-  print("Will download files to data/ folder in the current path.") 
-} else{
-  dir.create("data/")
-  print("Created a data/ folder in the current path to hold downloaded data.") 
-}
-
 # Download and stack canopy foliar chemistry: DP1.10026.001
 foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all")
 list2env(foliarCN, .GlobalEnv)
@@ -44,3 +36,12 @@ list2env(litterCN, .GlobalEnv)
 # 26 Oct 20: Bundled into DP1.10067.001
 rootCN <- loadByProduct(dpID="DP1.10067.001", site="all")
 list2env(rootCN, .GlobalEnv)
+
+# # Check if data/ folder exists in path, if not, create it
+# if(dir.exists("data/")){
+#   print("Will download files to data/ folder in the current path.") 
+# } else{
+#   dir.create("data/")
+#   print("Created a data/ folder in the current path to hold downloaded data.") 
+# }
+
