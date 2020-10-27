@@ -14,7 +14,6 @@
 #   litter chemical properties: DP1.10033.001
 #   root chemical properties: DP1.10067.001
 
-
 # Load NEON download/processing R package
 library(neonUtilities)
 
