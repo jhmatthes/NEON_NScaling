@@ -12,7 +12,6 @@ library(magrittr)
 library(dplyr)
 
 # Load and organize soil percentage C & N pools
-# Final joining units: plotID, month_year
 soil_CNplots <- sls_soilChemistry %>%
   tidyr::separate(sampleID, into = c("siteplot","horizon","plot_a","plot_b","colDate"),
            sep = "-") %>%
@@ -209,7 +208,7 @@ foliarCN_plotID_year <- cfc_carbonNitrogen %>%
   dplyr::mutate(foliarNPercent = nitrogenPercent, foliarCPercent = carbonPercent,
                 foliarCNRatio = CNratio,
                 year = lubridate::year(collectDate)) %>%
-  dplyr::filter(analyticalRepNumber == 1) %>%
+  dplyr::filter(analyticalRepNumber == 1, cnPercentQF == "OK") %>%
   dplyr::select(year, domainID, siteID, plotID, plotType, sampleID, foliarNPercent, foliarCPercent, 
                 foliarCNRatio) %>%
   group_by(year, domainID, siteID, plotID, plotType) %>%
@@ -239,3 +238,49 @@ rootCN_reps <- bbc_rootChemistry %>%
   group_by(year, domainID, siteID, plotID, plotType) %>%
   summarize(rootNPercent = mean(nitrogenPercent, na.rm=TRUE),
             rootNPercent_n = sum(!is.na(nitrogenPercent)))
+
+# Investigate soil CN repeat sampling
+# Load and organize soil percentage C & N pools
+soil_CNplots_year <- sls_soilChemistry %>%
+  tidyr::separate(sampleID, into = c("siteplot","horizon","plot_a","plot_b","colDate"),
+                  sep = "-") %>%
+  tidyr::separate(siteplot, into = c("siteID","justPlot"), sep = "_") %>%
+  dplyr::mutate(year = lubridate::year(collectDate), 
+                month = lubridate::month(collectDate),
+                month_year = stringr::str_pad(paste(month,year,sep="-"),
+                                              width=7,pad="0",side="left"),
+                soilNPercent = nitrogenPercent, soilCPercent = organicCPercent,
+                soilCNRatio = CNratio) %>%
+  dplyr::filter(cnPercentQF == "OK", analyticalRepNumber == 1) %>%
+  dplyr::select(year, domainID, siteID, plotID, plotType, horizon, 
+                soilNPercent, soilCPercent, soilCNRatio) 
+
+soil_CNplot_Ohorizon_year <- filter(soil_CNplots_year, horizon == "O") %>%
+  mutate(soilNPercent_OHoriz = soilNPercent,
+         soilCPercent_OHoriz = soilCPercent,
+         soilCNRatio_OHoriz = soilCNRatio) %>%
+  select(-soilNPercent, -soilCPercent, -soilCNRatio) %>%
+  group_by(domainID, siteID, plotID, plotType, year) %>%
+  summarize(soilNPercent_OHoriz_mean = mean(soilNPercent_OHoriz, na.rm=TRUE),
+            soilNPercent_OHoriz_n = sum(!is.na(soilNPercent_OHoriz)),
+            soilCPercent_OHoriz_mean = mean(soilCPercent_OHoriz, na.rm=TRUE),
+            soilCPercent_OHoriz_n = sum(!is.na(soilCPercent_OHoriz)),
+            soilCNRatio_OHoriz_mean = mean(soilCNRatio_OHoriz, na.rm=TRUE),
+            soilCNRatio_OHoriz_n = sum(!is.na(soilCNRatio_OHoriz)))
+
+soil_CNplot_Mhorizon_year <- filter(soil_CNplots_year, horizon == "M") %>%
+  mutate(soilNPercent_MHoriz = soilNPercent,
+         soilCPercent_MHoriz = soilCPercent,
+         soilCNRatio_MHoriz = soilCNRatio) %>%
+  select(-soilNPercent, -soilCPercent, -soilCNRatio) %>%
+  group_by(domainID, siteID, plotID, plotType, year) %>%
+  summarize(soilNPercent_MHoriz_mean = mean(soilNPercent_MHoriz, na.rm=TRUE),
+            soilNPercent_MHoriz_n = sum(!is.na(soilNPercent_MHoriz)),
+            soilCPercent_MHoriz_mean = mean(soilCPercent_MHoriz, na.rm=TRUE),
+            soilCPercent_MHoriz_n = sum(!is.na(soilCPercent_MHoriz)),
+            soilCNRatio_MHoriz_mean = mean(soilCNRatio_MHoriz, na.rm=TRUE),
+            soilCNRatio_MHoriz_n = sum(!is.na(soilCNRatio_MHoriz)))
+
+soilCN_plotID_year <- full_join(soil_CNplot_Ohorizon_year, 
+                                soil_CNplot_Mhorizon_year)
+
