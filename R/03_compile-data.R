@@ -12,8 +12,14 @@
 
 ### source date-stamped NEON data for manuscript - NOTE: skip if using newly downloaded
 #  data from NEON as sourced above
-plot.df <- read.csv(file = "data_pre-processed/CN_plotID.csv", stringsAsFactors = F)
-head(dat)
+plot.df <- read.csv(file = "CN_plotID.csv", stringsAsFactors = F)
+head(plot.df)
+names(plot.df)
+
+# summarise NEON data - !?! WHY NO LITTER FROM DISTRIBUTED PLOTS?
+plot.df$plotType[is.na(plot.df$plotType)] <- "dist"
+temp <- aggregate(soilNPercent_MHoriz_mean~siteID + plotType,length,data=plot.df)
+temp
 
 ### load climate data
 climate.df <- read.csv('data_pre-processed/MAT_MAP_Allsites.csv', header = T, 
