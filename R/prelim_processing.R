@@ -133,7 +133,9 @@ foliarCN_siteReps <- foliarCN_plotID %>%
             foliarCNR_plotreps = sum(!is.na(foliarCNRatio_n)))
 
 # Read in root chemistry data
-# Format "BBC" roots
+# Format "BBC" roots - average across all 3 size classes (< 1mm, 1-2mm, 2-10mm)
+# we may want to look at just "fine" roots < 2mm down the road...
+# we may also want to take weighted average of root chemistry based on root mass per size class
 rootCN_plotID <- bbc_rootChemistry %>%
   filter(grepl("BBC",cnSampleID)) %>%
   dplyr::filter(analyticalRepNumber == 1, cnPercentQF == "OK") %>%
@@ -147,6 +149,7 @@ rootCN_plotID <- bbc_rootChemistry %>%
             rootCNratio = mean(CNratio, na.rm=TRUE),
             rootCNratio_n = sum(!is.na(CNratio)))
 
+  
 # Summarize sites, plot, and replicate counts
 rootCN_siteReps <- rootCN_plotID %>%
   group_by(domainID, siteID) %>%

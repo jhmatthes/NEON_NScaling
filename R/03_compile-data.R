@@ -1,4 +1,4 @@
-# last updated: 2020-10-26
+# last updated: 2020-11-30
 # author: Adrienne Keller
 # project: NEON N scaling
 # notes: 
@@ -16,37 +16,28 @@ plot.df <- read.csv(file = "CN_plotID.csv", stringsAsFactors = F)
 head(plot.df)
 names(plot.df)
 
-# summarise NEON data - !?! WHY NO LITTER FROM DISTRIBUTED PLOTS?
-plot.df$plotType[is.na(plot.df$plotType)] <- "dist"
-temp <- aggregate(soilNPercent_MHoriz_mean~siteID + plotType,length,data=plot.df)
-temp
-
 ### load climate data
 climate.df <- read.csv('data_pre-processed/MAT_MAP_Allsites.csv', header = T, 
                        stringsAsFactors = F)
 climate.df$MAP<-climate.df$MAP*10 # change from cm to mm
+climate.df <- climate.df[ , c("siteID", "MAT", "MAP")]
 head(climate.df)
 
 ### merge the plot and climate data by site name
+nrow(plot.df)
 plot.df <- left_join(plot.df, climate.df, by ="siteID")
 head(plot.df)
 
 #select key columns to simplify (this can change)
 myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
-            'rootSample_n','plotType','litterNPercent','foliarNPercent','foliarCPercent',
-            'foliarCNRatio','soilNPercent_MHoriz','soilCNRatio_MHoriz','nlcdClass',
-            'x','y', 'MAT', 'MAP')
+            'plotType','litterNPercent_mean','foliarNPercent_mean','foliarCPercent_mean',
+            'foliarCNRatio_mean','soilNPercent_MHoriz_mean','soilCNRatio_MHoriz_mean',
+            'MAT', 'MAP')
 
 plot.df <- plot.df[myvars]
 head(plot.df)
 
-#remove duplicates resulting from the merge (linked to slight differences in coordinates?)
-nrow(plot.df) #check row # before removing duplicates #1256 rows
-plot.df <- plot.df[!duplicated(plot.df), ]
-nrow(plot.df) #check that this worked #1123 rows
-
 #look at the data
-unique(plot.df$nlcdClass) #cover class
 unique(plot.df$siteID) #sites
 
 

@@ -18,22 +18,22 @@
 library(neonUtilities)
 
 # Download and stack canopy foliar chemistry: DP1.10026.001
-foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all")
+foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F)
 list2env(foliarCN, .GlobalEnv)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
 # 26 Oct 20: Bundled into DP1.10086.001
-soilCN <- loadByProduct(dpID="DP1.10086.001", site="all")
+soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F)
 list2env(soilCN, .GlobalEnv)
 
 # Download and stack litter chemical properties: DP1.10031.001
 # 26 Oct 20: Bundled into DP1.10033.001
-litterCN <- loadByProduct(dpID="DP1.10033.001", site="all")
+litterCN <- loadByProduct(dpID="DP1.10033.001", site="all", check.size = F)
 list2env(litterCN, .GlobalEnv)
 
 # Root biochemistry
 # 26 Oct 20: Bundled into DP1.10067.001
-rootCN <- loadByProduct(dpID="DP1.10067.001", site="all")
+rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F)
 list2env(rootCN, .GlobalEnv)
 
 # # Check if data/ folder exists in path, if not, create it
