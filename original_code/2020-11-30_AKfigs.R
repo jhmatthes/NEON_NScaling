@@ -33,12 +33,12 @@ ggplot(plot.df, aes(x = foliarNPercent_mean, y = litterNPercent_mean)) +
   theme_basic + 
   theme(legend.position = 'none')
 # foliar to soil
-ggplot(plot.df, aes(x = foliarNPercent_mean, y = soilNPercent_MHoriz_mean)) +
+ggplot(plot.df, aes(x = foliarNPercent_mean, y = log(soilNPercent_MHoriz_mean))) +
   geom_point(aes(colour = siteID)) +
   theme_basic +
   theme(legend.position = 'none')
 # litter to soil
-ggplot(plot.df, aes(x = litterNPercent_mean, y = soilNPercent_MHoriz_mean)) +
+ggplot(plot.df, aes(x = litterNPercent_mean, y = log(soilNPercent_MHoriz_mean))) +
   geom_point(aes(colour = siteID)) +
   theme_basic +
   theme(legend.position = 'none')

@@ -12,7 +12,7 @@
 #rm(list=ls())
 
 # Import packages
-pkgs <- c("dplyr", "ggplot2", "nlme", "car")
+pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn")
 lapply(pkgs, library, character.only = TRUE) # load them
 
 # Set wd

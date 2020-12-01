@@ -4,7 +4,6 @@
 # notes:
 
 ################################################################################
-library(MuMIn)
 
 ### univariate distributions of N pools (Figure 1?)----
 pdf(file='output/univar-hist.pdf',
@@ -20,7 +19,12 @@ abline(v = mean(plot.df$litterNPercent, na.rm = T), col = "red", lwd = 2)
 hist(plot.df$rootNPercent, main = '', xlab = "% Root N", cex.lab = 1.75)
 abline(v = mean(plot.df$rootNPercent, na.rm = T), col = "red", lwd = 2)
 dev.off()
-# note: soil N mineral horizon is heavily right-skewed; log-transform
+# note: soil N mineral horizon is heavily right-skewed (even when excluding GUAN);
+# log-transform
+hist(log(plot.df$soilNPercent_MHoriz_mean))
+plot.df %>% filter(siteID != "GUAN") %>% 
+  ggplot() +
+  geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
 
 ### bivariate relationships between N pools - cross-site (Figure 2?) ----
 # first check that sample sizes will be > five for each site
