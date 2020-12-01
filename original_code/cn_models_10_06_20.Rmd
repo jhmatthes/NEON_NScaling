@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## How are CN ratios related in the NEON data?
 
-Used data set up from Adrianne and Andrew. Added litter CN from litter_chem.csv.
+Used data set up from Adrienne and Andrew. Added litter CN from litter_chem.csv.
 
 ```{r include = FALSE}
 

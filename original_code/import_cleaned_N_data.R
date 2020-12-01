@@ -99,8 +99,8 @@ sample_size_soil<-aggregate(soilNPercent_MHoriz~siteID,length,data=plot.df)
 # site HEAL has sample size of 1 for soil N, gets removed from analysis
 # anyways because there are no data from any of the other three pools
 
-#get mean plot value for each site
-mean_foliar<-aggregate(foliarNPercent~siteID + plotID,mean,data=plot.df)
+#get mean plot value for each plot
+mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_litter<-aggregate(litterNPercent~siteID + plotID,mean,data=plot.df)
 mean_soil<-aggregate(soilNPercent_MHoriz~siteID + plotID,mean,data=plot.df)
 

@@ -16,6 +16,10 @@ plot.df <- read.csv(file = "CN_plotID.csv", stringsAsFactors = F)
 head(plot.df)
 names(plot.df)
 
+# estimate resorption
+plot.df$resorpN <- (plot.df$foliarNPercent_mean - plot.df$litterNPercent_mean)/
+  plot.df$foliarNPercent_mean*100
+
 ### load climate data
 climate.df <- read.csv('data_pre-processed/MAT_MAP_Allsites.csv', header = T, 
                        stringsAsFactors = F)
@@ -27,6 +31,17 @@ head(climate.df)
 nrow(plot.df)
 plot.df <- left_join(plot.df, climate.df, by ="siteID")
 head(plot.df)
+
+### load veg type data !?! this needs to be updated: as is, veg type is not unique to site
+# vegtype.df <- read.csv('data_pre-processed/climate-class_Martha_2020-04-13.csv',
+#                        header = T, stringsAsFactors = F)
+# vegtype.df <- vegtype.df[!duplicated(vegtype.df), ]
+# vegtype.slim <- vegtype.df[ , c("LCclass", "climate", "ClimateGrp", "siteID")]
+# vegtype.slim <- vegtype.slim %>% filter(!is.na(LCclass)) %>% filter(!is.na(ClimateGrp))
+
+### merge plot and veg type data by site name
+# nrow(plot.df)
+# plot.df <- left_join(plot.df, vegtype.slim, by = "siteID")
 
 #select key columns to simplify (this can change)
 myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
