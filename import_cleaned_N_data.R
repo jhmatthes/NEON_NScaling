@@ -225,6 +225,7 @@ dev.off()
 #merge the two aggregated datasets
 mean_soil_leaves<-merge(mean_soil,mean_foliar,by=c('siteID','plotID'))
 length_mean_soil_leaves<-aggregate(plotID~siteID,length,data=mean_soil_leaves)
+View(mean_soil_leaves)
 #higher plot sample size in this one...
 summary(mean_soil_leaves)
 #plot(foliarNPercent~soilNPercent_MHoriz,data=mean_soil_leaves) #take a peek
