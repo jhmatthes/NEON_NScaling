@@ -3,64 +3,44 @@
 # You will only need to run this code once to download the data and unzip the files
 # to stack the data into merged files by data product. 
 # 
-# The neonUtilities zipsByProduct() function downloads .zip files for data products by site x year
-# and the stackByTable() function unzips and combines each data product file into a single spreadsheet.
+# The neonUtilities loadByProduct() function downloads and stacks data products by site x year
 #
 # You could re-run this code periodically to try to find any updated data products, 
 # but beware that this might overwrite existing previously downloaded data. 
 #
 # Data products used in this project include: 
 #   canopy foliar chemistry: DP1.10026.001
-#   soil chemical properties (distributed plots, periodic): DP1.10078.001
-#   soil inorganic N pools and transformations: DP1.10080.001
-#   litter chemical properties: DP1.10031.001
-#   litter & fine woody debris: DP1.10033.001
-# 
-# The downloaded .zip files will require ~30MB of space (as of 11/2018)
-# and the unzipped and stacked files require ~75MB (as of 11/2018).
-
+#   soil chemical properties (distributed plots, periodic): DP1.10086.001
+#   litter chemical properties: DP1.10033.001
+#   root chemical properties: DP1.10067.001
 
 # Load NEON download/processing R package
 library(neonUtilities)
 
-# Check if data/ folder exists in path, if not, create it
-if(dir.exists("data/")){
-  print("Will download files to data/ folder in the current path.") 
-} else{
-  dir.create("data/")
-  print("Created a data/ folder in the current path to hold downloaded data.") 
-}
-
 # Download and stack canopy foliar chemistry: DP1.10026.001
-zipsByProduct(dpID="DP1.10026.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10026/", folder=T)
+foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F)
+list2env(foliarCN, .GlobalEnv)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
-zipsByProduct(dpID="DP1.10078.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10078/", folder=T)
-
-# Download and stack soil inorganic N pools and transformations: DP1.10080.001
-zipsByProduct(dpID="DP1.10080.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10080/", folder=T)
+# 26 Oct 20: Bundled into DP1.10086.001
+soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F)
+list2env(soilCN, .GlobalEnv)
 
 # Download and stack litter chemical properties: DP1.10031.001
-zipsByProduct(dpID="DP1.10031.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10031/", folder=T)
+# 26 Oct 20: Bundled into DP1.10033.001
+litterCN <- loadByProduct(dpID="DP1.10033.001", site="all", check.size = F)
+list2env(litterCN, .GlobalEnv)
 
-# Download and stack litter & fine woody debris: DP1.10033.001
-#zipsByProduct(dpID="DP1.10033.001", site="all", package="basic", savepath="data/")
-#stackByTable(filepath="data/filesToStack10033/", folder=T)
+# Root biochemistry
+# 26 Oct 20: Bundled into DP1.10067.001
+rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F)
+list2env(rootCN, .GlobalEnv)
 
-# Download and stack soil physical properties (distributed): DP1.10047.001
-zipsByProduct(dpID="DP1.10047.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10047/", folder=T)
-
-## Download and stack woody vegetation plot data: DP1.10098.001
-zipsByProduct(dpID="DP1.10098.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10098/", folder=T)
-
-# root biochemistry
-zipsByProduct(dpID="DP1.10102.001", site="all", package="basic", savepath="data/")
-stackByTable(filepath="data/filesToStack10102/", folder=T)
-
+# # Check if data/ folder exists in path, if not, create it
+# if(dir.exists("data/")){
+#   print("Will download files to data/ folder in the current path.") 
+# } else{
+#   dir.create("data/")
+#   print("Created a data/ folder in the current path to hold downloaded data.") 
+# }
 
