@@ -5,7 +5,11 @@
 
 ################################################################################
 
-### univariate distributions of N pools (Figure 1?)----
+### Figure 1: Map of sites (perhaps overlay on a climate and/or veg type layer)
+# map paired with table of sample size per site for each 'pool' (foliar, litter, 
+# soil, root) % N
+
+### univariate distributions of N pools (Figure 2)----
 pdf(file='output/univar-hist.pdf',
     width=6,height=4)
 mar.default <- c(6,3,5,2) + 0.1
@@ -26,7 +30,7 @@ plot.df %>% filter(siteID != "GUAN") %>%
   ggplot() +
   geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
 
-### bivariate relationships between N pools - cross-site (Figure 2?) ----
+### bivariate relationships between N pools - cross-site with each point = site mean (Figure 3) ----
 # first check that sample sizes will be > five for each site
 sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
 sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
