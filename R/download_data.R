@@ -36,6 +36,11 @@ list2env(litterCN, .GlobalEnv)
 rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F)
 list2env(rootCN, .GlobalEnv)
 
+# Soil texture
+# 09 Dec 20: BUndled into DP1.10047.001
+soiltexture <- loadByProduct(dpID = "DP1.10047.001", site = "all", check.size = F)
+list2env(soiltexture, .GlobalEnv)
+
 # # Check if data/ folder exists in path, if not, create it
 # if(dir.exists("data/")){
 #   print("Will download files to data/ folder in the current path.") 

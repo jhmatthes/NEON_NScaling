@@ -160,11 +160,22 @@ rootCN_siteReps <- rootCN_plotID %>%
             rootCNR_totalreps = sum(rootCNratio_n, na.rm=TRUE),
             rootCNR_plotreps = sum(!is.na(rootCNratio_n)))
 
+# Read in soil texture data
+soiltexture_plotID <- spc_particlesize %>%
+  select(domainID, siteID, plotID, sandTotal, siltTotal, clayTotal, carbonateClay,
+         clayFineContent, siltFineContent) %>%
+  group_by(domainID, siteID, plotID) %>%
+  summarize(pctSand = mean(sandTotal, na.rm=TRUE),
+            pctSilt = mean(siltTotal, na.rm=TRUE),
+            pctClay = mean(clayTotal, na.rm=TRUE))
+
+
 # Combine together all variables to the plotID level
 dataCN_plotID <- dplyr::full_join(rootCN_plotID, litterCN_plotID, 
                           by = c("domainID", "siteID", "plotID", "plotType")) %>%
   dplyr::full_join(foliarCN_plotID, by = c("domainID","siteID", "plotID", "plotType")) %>%
-  dplyr::full_join(soilCN_plotID, by = c("domainID", "siteID", "plotID", "plotType")) 
+  dplyr::full_join(soilCN_plotID, by = c("domainID", "siteID", "plotID", "plotType")) %>%
+  dplyr::full_join(soiltexture_plotID, by = c("domainID", "siteID", "plotID"))
 
 readr::write_csv(dataCN_plotID,"CN_plotID.csv")
 
@@ -176,6 +187,15 @@ dataCN_reps <- dplyr::full_join(rootCN_siteReps, litterCN_siteReps,
 
 readr::write_csv(dataCN_reps,"CN_siteReps.csv")
 
+# Summarize sites, plot, and replicate counts
+rootCN_siteReps <- rootCN_plotID %>%
+  group_by(domainID, siteID) %>%
+  summarize(rootN_totalreps = sum(rootNPercent_n, na.rm=TRUE),
+            rootN_plotreps = sum(!is.na(rootNPercent_n)),
+            rootC_totalreps = sum(rootCPercent_n, na.rm=TRUE),
+            rootC_plotreps = sum(!is.na(rootCPercent_n)),
+            rootCNR_totalreps = sum(rootCNratio_n, na.rm=TRUE),
+            rootCNR_plotreps = sum(!is.na(rootCNratio_n)))
 
 #### Investigate summaries of reps by year
 # Summarize by site x plot x year
