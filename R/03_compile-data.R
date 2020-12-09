@@ -32,22 +32,23 @@ nrow(plot.df)
 plot.df <- left_join(plot.df, climate.df, by ="siteID")
 head(plot.df)
 
-### load veg type data !?! this needs to be updated: as is, veg type is not unique to site
-# vegtype.df <- read.csv('data_pre-processed/climate-class_Martha_2020-04-13.csv',
-#                        header = T, stringsAsFactors = F)
-# vegtype.df <- vegtype.df[!duplicated(vegtype.df), ]
-# vegtype.slim <- vegtype.df[ , c("LCclass", "climate", "ClimateGrp", "siteID")]
-# vegtype.slim <- vegtype.slim %>% filter(!is.na(LCclass)) %>% filter(!is.na(ClimateGrp))
+### load veg type data 
+vegtype.df <- read.csv('data_pre-processed/land-cover-class_Martha_2020-12-09.csv',
+                       header = T, stringsAsFactors = F)
+vegtype.df <- vegtype.df %>% rename(siteID = site)
 
 ### merge plot and veg type data by site name
-# nrow(plot.df)
+nrow(plot.df) # 1615
+plot.df <- left_join(plot.df, vegtype.df, by = "siteID")
+
 # plot.df <- left_join(plot.df, vegtype.slim, by = "siteID")
 
 #select key columns to simplify (this can change)
+names(plot.df)
 myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
             'plotType','litterNPercent_mean','foliarNPercent_mean','foliarCPercent_mean',
             'foliarCNRatio_mean','soilNPercent_MHoriz_mean','soilCNRatio_MHoriz_mean',
-            'MAT', 'MAP')
+            'pctSand', 'pctSilt', 'pctClay', 'resorpN','MAT', 'MAP', 'Lcclass')
 
 plot.df <- plot.df[myvars]
 head(plot.df)
