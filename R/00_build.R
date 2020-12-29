@@ -20,6 +20,6 @@ lapply(pkgs, library, character.only = TRUE) # load them
 # Read in functions
 
 # Read in files
-source("R/download_data.R")
-source("R/prelim_processing.R")
+source("R/01_download_data.R")
+source("R/02_prelim_processing.R")
 source("R/03_compile-data.R")

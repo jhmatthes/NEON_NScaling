@@ -14,6 +14,9 @@
 #   litter chemical properties: DP1.10033.001
 #   root chemical properties: DP1.10067.001
 
+# NEON token
+neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJrZWxsZXJhYkB1bW4uZWR1Iiwic2NvcGUiOiJyYXRlOnB1YmxpYyIsImlzcyI6Imh0dHBzOi8vZGF0YS5uZW9uc2NpZW5jZS5vcmcvIiwiZXhwIjoxNzY2ODk2ODgwLCJpYXQiOjE2MDkyMTY4ODAsImVtYWlsIjoia2VsbGVyYWJAdW1uLmVkdSJ9.L2gHraOdcGLWe1dvJDPxpDymwMusPBCLqutgNP2V9bnV3Aqz0hgGJOqvvVjJgP1Qvjc-JV1GIr_cm-61YGl-0g"
+
 # Load NEON download/processing R package
 library(neonUtilities)
 
@@ -23,8 +26,11 @@ list2env(foliarCN, .GlobalEnv)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
 # 26 Oct 20: Bundled into DP1.10086.001
-soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F)
-list2env(soilCN, .GlobalEnv)
+soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
+                        token = neonToken,
+                        tabl = "sls_soilChemistry")
+sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
+list2env(sls_soilChemistry, .GlobalEnv)
 
 # Download and stack litter chemical properties: DP1.10031.001
 # 26 Oct 20: Bundled into DP1.10033.001
