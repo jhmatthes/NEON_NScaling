@@ -16,6 +16,9 @@ pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn")
 lapply(pkgs, library, character.only = TRUE) # load them
 
 # Set wd
+library(rstudioapi)
+current_path <- getActiveDocumentContext()$path
+setwd(dirname(current_path))
 
 # Read in functions
 
