@@ -11,6 +11,11 @@
 
 #rm(list=ls())
 
+#This part may need to go here...
+# library(devtools)
+# devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
+# #restart R
+
 # Import packages
 pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn")
 lapply(pkgs, library, character.only = TRUE) # load them
