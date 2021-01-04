@@ -34,9 +34,9 @@ list2env(foliarCN, .GlobalEnv)
 soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
                         token = neonToken,
                         tabl = "sls_soilChemistry")
-sls_soilChemistry <- soilCN$`1` # fix naming scheme!?! #doesnt't work for me, Andrew
-#list2env(sls_soilChemistry, .GlobalEnv)
-list2env(soilCN , .GlobalEnv)
+sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
+list2env(sls_soilChemistry, .GlobalEnv)
+
 
 # Download and stack litter chemical properties: DP1.10031.001
 # 26 Oct 20: Bundled into DP1.10033.001
