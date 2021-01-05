@@ -17,7 +17,7 @@
 # NEON token
 neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJrZWxsZXJhYkB1bW4uZWR1Iiwic2NvcGUiOiJyYXRlOnB1YmxpYyIsImlzcyI6Imh0dHBzOi8vZGF0YS5uZW9uc2NpZW5jZS5vcmcvIiwiZXhwIjoxNzY2ODk2ODgwLCJpYXQiOjE2MDkyMTY4ODAsImVtYWlsIjoia2VsbGVyYWJAdW1uLmVkdSJ9.L2gHraOdcGLWe1dvJDPxpDymwMusPBCLqutgNP2V9bnV3Aqz0hgGJOqvvVjJgP1Qvjc-JV1GIr_cm-61YGl-0g"
 
-# this seems to be needed for soilCN download
+# Use github version of neonUtilities to download just needed tables
 # library(devtools)
 # devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
 # #restart R
@@ -40,20 +40,25 @@ soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F,
 #sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
 list2env(soilCN, .GlobalEnv) #edited this back to soilCN (JHM, 1/5/21)
 
-
 # Download and stack litter chemical properties: DP1.10031.001
 # 26 Oct 20: Bundled into DP1.10033.001
-litterCN <- loadByProduct(dpID="DP1.10033.001", site="all", check.size = F)
+litterCN <- loadByProduct(dpID="DP1.10033.001", site="all", check.size = F,
+                          token = neonToken, 
+                          tabl = "ltr_litterCarbonNitrogen")
 list2env(litterCN, .GlobalEnv)
 
 # Root biochemistry
 # 26 Oct 20: Bundled into DP1.10067.001
-rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F)
+rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F,
+                        token = neonToken,
+                        tabl = "bbc_rootChemistry")
 list2env(rootCN, .GlobalEnv)
 
 # Soil texture
-# 09 Dec 20: BUndled into DP1.10047.001
-soiltexture <- loadByProduct(dpID = "DP1.10047.001", site = "all", check.size = F)
+# 09 Dec 20: Bundled into DP1.10047.001
+soiltexture <- loadByProduct(dpID = "DP1.10047.001", site = "all", 
+                             check.size = F, token = neonToken,
+                             tabl = "spc_particlesize")
 list2env(soiltexture, .GlobalEnv)
 
 # # Check if data/ folder exists in path, if not, create it

@@ -149,7 +149,6 @@ rootCN_plotID <- bbc_rootChemistry %>%
             rootCNratio = mean(CNratio, na.rm=TRUE),
             rootCNratio_n = sum(!is.na(CNratio)))
 
-  
 # Summarize sites, plot, and replicate counts
 rootCN_siteReps <- rootCN_plotID %>%
   group_by(domainID, siteID) %>%
