@@ -26,7 +26,8 @@ neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEub
 library(neonUtilities)
 
 # Download and stack canopy foliar chemistry: DP1.10026.001
-foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F)
+foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F,
+                          token = neonToken, tabl = "cfc_carbonNitrogen")
 list2env(foliarCN, .GlobalEnv)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
@@ -34,8 +35,10 @@ list2env(foliarCN, .GlobalEnv)
 soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
                         token = neonToken,
                         tabl = "sls_soilChemistry")
-sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
-list2env(sls_soilChemistry, .GlobalEnv)
+
+# Didn't run into this issue (JHM, 1/5/21)
+#sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
+list2env(soilCN, .GlobalEnv) #edited this back to soilCN (JHM, 1/5/21)
 
 
 # Download and stack litter chemical properties: DP1.10031.001
