@@ -35,4 +35,4 @@ setwd(dirname(current_path))
 #works with the rstudio wd setup
 source("01_download_data.R")
 source("02_prelim_processing.R")
-source("R/03_compile-data.R")
+source("03_compile-data.R")

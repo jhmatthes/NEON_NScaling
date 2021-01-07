@@ -38,7 +38,7 @@ vegtype.df <- read.csv('data_pre-processed/land-cover-class_Martha_2020-12-09.cs
 vegtype.df <- vegtype.df %>% rename(siteID = site)
 
 ### merge plot and veg type data by site name
-nrow(plot.df) # 1615
+nrow(plot.df) # 1636
 plot.df <- left_join(plot.df, vegtype.df, by = "siteID")
 
 # plot.df <- left_join(plot.df, vegtype.slim, by = "siteID")

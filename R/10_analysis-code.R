@@ -83,7 +83,6 @@ summary(foliar_to_root_CN_lm)
 ggplot(plot.df, aes(x = foliarCNRatio_mean, y = rootCNratio)) + 
   geom_point(aes(colour = siteID, size = 3)) + 
   geom_smooth(method = "lm") +
-  theme_basic + 
   theme(legend.position = 'none') 
 # foliar to litter CN
 foliar_to_litter_CN_lm <- lm(litterCNRatio_mean ~ foliarCNRatio_mean, data = plot.df)
@@ -91,7 +90,6 @@ summary(foliar_to_litter_CN_lm)
 ggplot(plot.df, aes(x = foliarCNRatio_mean, y = litterCNRatio_mean)) + 
   geom_point(aes(colour = siteID, size = 3)) + 
   geom_smooth(method = "lm") +
-  theme_basic + 
   theme(legend.position = 'none') 
 # foliar to soil CN
 foliar_to_soil_CN_lm <- lm(soilCNRatio_MHoriz_mean ~ foliarCNRatio_mean, data = plot.df)
