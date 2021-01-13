@@ -20,35 +20,36 @@ layout(matrix(1:4, ncol=2))
 par(oma=c(6, 5, 6, 5), mar=c(5, 0, 0, 0),pty='s')
 #?par
 # Panel label setup
-line =0.75 
-cex = 1.0
+line = 0.75 
+cex = 1.25
 side = 3
-adj=-0.5
+adj= - 0.15
 
 # A
 hist(plot.df$soilNPercent_MHoriz_mean,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$soilNPercent_MHoriz_mean, na.rm = T), col = "red", lwd = 2)
-mtext('% Soil N (mineral horizon)',side=1,line=2.2,cex=1)
+abline(v = mean(plot.df$soilNPercent_MHoriz_mean, na.rm = T), col = "red", lwd = 3)
+mtext('% Soil N (mineral horizon)',side=1,line=2.2,cex=0.75)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 
 # C
 hist(plot.df$litterNPercent_mean,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$litterNPercent, na.rm = T), col = "red", lwd = 2)
-mtext('% Litter N',side=1,line=2.2,cex=1)
+abline(v = mean(plot.df$litterNPercent, na.rm = T), col = "red", lwd = 3)
+mtext('% Litter N',side=1,line=2.2,cex=0.75)
 mtext("C", side=side, line=line, cex=cex, adj=adj)
 
 # B
 hist(plot.df$foliarNPercent_mean,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$foliarNPercent_mean, na.rm = T), col = "red", lwd = 2)
-mtext('% Foliar N',side=1,line=2.2,cex=1)
+abline(v = mean(plot.df$foliarNPercent_mean, na.rm = T), col = "red", lwd = 3)
+mtext('% Foliar N',side=1,line=2.2,cex=0.75)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
 
 
 # D
-hist(plot.df$rootNPercent, main = '', xlab = "", cex.lab = 1.75)
-abline(v = mean(plot.df$rootNPercent, na.rm = T), col = "red", lwd = 2)
-mtext('% Root N',side=1,line=2.2,cex=1)
+hist(plot.df$rootNPercent, main = '', xlab = "", ylab='',cex.lab = 1.75)
+abline(v = mean(plot.df$rootNPercent, na.rm = T), col = "red", lwd = 3)
+mtext('% Root N',side=1,line=2.2,cex=0.75)
 mtext("D", side=side, line=line, cex=cex, adj=adj)
+mtext('Frequency',side=2,line=0.75,cex=1.5,outer=TRUE)
 
 dev.off()
 
@@ -74,7 +75,6 @@ sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df)
 
 mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df)
-mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
 
 # # merge foliar and root data by plot ID
@@ -108,24 +108,163 @@ mean_foliar_soil_2 <- mean_foliar_soil[-2] %>%
   dplyr::summarise_all(mean) %>%
   dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
-plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)
+#plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)
+#summary(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)) #not significant
 
 # merge root and soil data by plot ID
 mean_soil_root <- merge(mean_soil, mean_root, by = c('siteID', 'plotID'))
-length_mean_soil_root <- aggregate(plotID ~ siteID, length, data = mean_foliar_root)
+length_mean_soil_root <- aggregate(plotID ~ siteID, length, data = mean_soil_root)
 
 mean_soil_root_2 <- mean_soil_root[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) %>%
   dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
-plot(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)
-
-#merge root and foliar N
-mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2 , by = c('siteID'))
-plot(foliarNPercent_mean~rootNPercent,data=mean_foliar_root)
-summary(lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root))
-
-#stopped here
+#plot(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)
+#summary(lm(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)) #not significant
 
 
+#plot this out
+
+pdf(file='./../output/bivar_soil_leaf_root.pdf',
+    width=8,height=6)
+# mar.default <- c(6,3,5,2) + 0.1
+# par(mar = mar.default + c(2, 2, 0, 0),mfrow=c(1,4))
+
+# Set up multi-panel
+layout(matrix(1:2, ncol=2))
+par(oma=c(6, 5, 6, 5), mar=c(0, 4, 0, 0),pty='s')
+#?par
+# Panel label setup
+line = 0.75 
+cex = 1.25
+side = 3
+adj= - 0.15
+
+# A: soil to root N
+plot(rootNPercent~soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_2)
+mtext('% Root N',side=2,line=2.25,cex=1.0)
+mtext("A", side=side, line=line, cex=cex, adj=adj)
+text(0.6, 0.75, 'N.S',cex=1)
+
+# B: soil leaf N
+plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_2)
+mtext("B", side=side, line=line, cex=cex, adj=adj)
+mtext('% Leaf N',side=2,line=2.25,cex=1.0)
+mtext('% Soil N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
+text(0.3, 1, 'N.S',cex=1)
+
+dev.off()
+
+# Root to soil N relationship --------------------------------------------------
+
+pdf(file='./../output/bivar_root_leaf.pdf',
+    width=6,height=6)
+
+# Get a sense if a linear or nonlinear fit is better
+soil_leaf_linear<-lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root)
+soil_leaf_nonlinear<- lm(foliarNPercent_mean ~ poly(rootNPercent, 2, raw = TRUE), data = mean_foliar_root)
+AIC(soil_leaf_linear,soil_leaf_nonlinear)
+
+layout(matrix(1:1, ncol=1))
+par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
+
+# merge root and foliar N
+mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
+plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=mean_foliar_root)
+mtext('% Leaf N',side=2,line=3,cex=1.5)
+mtext('% Root N',side=1,line=3,cex=1.5,outer=T)
+abline(soil_leaf_linear, col="red",lwd=2)
+legend("bottom",paste("R-squared =",round(summary(soil_leaf_linear)$r.squared,2)),bty="n",cex = 1.00)
+
+dev.off()
+
+
+# Mixed effects models ---------------------------------------------------------
+
+# head(plot.df)
+
+# Do mixed effects analysis for leaf N
+library(lme4)
+
+mean_foliar_lme<-aggregate(foliarNPercent_mean~siteID + plotID
+                           + MAP + MAT + pctSand + pctClay + Lcclass,mean,data=plot.df)
+
+# I would like to include vegetation in this, but we I think we to
+# simplify it so we have fewer veg levels with more data in them: woody versus herbaceous? forest versus grassland? 
+
+?lmer
+leaf_lme<-lmer(foliarNPercent_mean~ MAP + pctClay + Lcclass + (1|siteID),data=mean_foliar_lme)
+summary(leaf_lme)
+r.squaredGLMM(leaf_lme) 
+
+#conditional way higher than marginal 
+#similar result whether using clay or sand for texture
+
+# Do mixed effects analysis for root N
+
+mean_root_lme <- aggregate(rootNPercent ~ siteID + plotID
+                           + MAP + MAT + pctSand + pctClay + Lcclass, mean, data = plot.df)
+
+root_lme<-lmer(rootNPercent ~ MAP + pctClay + Lcclass (1|siteID),data=mean_root_lme)
+summary(root_lme)
+r.squaredGLMM(root_lme) #conditional same as marginal
+
+
+# plant feedbacks to soil N ----------------------------------------------------
+
+mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
+mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
+
+# Litter and soil N
+mean_litter_soil <- merge(mean_litter, mean_soil, by = c('siteID', 'plotID'))
+length_mean_litter_soil <- aggregate(plotID ~ siteID, length, data = mean_litter_soil)
+
+# Get site means
+mean_litter_soil_2 <- mean_litter_soil[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) %>%
+  dplyr::filter(soilNPercent_MHoriz_mean < 1)
+
+
+# Resorption and soil N
+mean_resorp_soil <- merge(mean_resorp, mean_soil, by = c('siteID', 'plotID'))
+length_mean_resorp_soil <- aggregate(plotID ~ siteID, length, data = mean_resorp_soil)
+
+# Get site means
+mean_resorp_soil_2 <- mean_resorp_soil[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) %>%
+  dplyr::filter(soilNPercent_MHoriz_mean < 1)
+
+
+pdf(file='./../output/bivar_plant_soil_root.pdf',
+    width=8,height=6)
+
+# Set up multi-panel
+layout(matrix(1:2, ncol=2))
+par(oma=c(6, 5, 6, 5), mar=c(0, 4, 0, 0),pty='s')
+#?par
+# Panel label setup
+line = 0.75 
+cex = 1.25
+side = 3
+adj= - 0.15
+
+# A: litter to soil N
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,xlab='',ylab="",data=mean_litter_soil_2)
+mtext('% Litter N',side=1,line=2.25,cex=1.0)
+mtext("A", side=side, line=line, cex=cex, adj=adj)
+text(0.6, 0.75, 'N.S',cex=1)
+
+# B: resorp to soil N
+plot(soilNPercent_MHoriz_mean~resorpN,xlab='',ylab="",data=mean_resorp_soil_2)
+mtext('N Resporption',side=1,line=2.25,cex=1.0)
+mtext("B", side=side, line=line, cex=cex, adj=adj)
+#text(0.6, 0.75, 'N.S',cex=1)
+
+# no clear relationships
+
+dev.off()
+
+# stopped here AJF 1/13/2021
