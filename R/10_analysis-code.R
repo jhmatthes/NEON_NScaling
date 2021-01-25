@@ -66,8 +66,9 @@ plot.df %>% filter(siteID != "GUAN") %>%
 sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
 sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
 sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) 
+sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
 
-# HEAL has sample size of 1 for soil N, gets removed from analysis
+# HEAL has sample size of 1 for soil N, this gets removed from analysis
 # anyways because there are no data from any of the other three pools
 
 # Now look at what sites have co-located foliar, root, litter and soil data
@@ -76,16 +77,6 @@ sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df)
 mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df)
 mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
-
-# # merge foliar and root data by plot ID
-# mean_foliar_root <- merge(mean_foliar, mean_root, by = c('siteID', 'plotID'))
-# length_mean_foliar_root <- aggregate(plotID ~ siteID, length, data = mean_foliar_root)
-# 
-# mean_foliar_root_2 <- mean_foliar_root[-2] %>%
-#   dplyr::group_by(siteID) %>%
-#   dplyr::summarise_all(mean) 
-# 
-# plot(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2)
 
 # # merge foliar and litter data by plot ID
 # mean_foliar_litter<-merge(mean_foliar,mean_litter,by=c('siteID','plotID'))
@@ -102,14 +93,15 @@ mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
 mean_foliar_soil <- merge(mean_foliar, mean_soil, by = c('siteID', 'plotID'))
 length_mean_foliar_soil <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil)
 
-# Get site means
+# Get site means for foliar N
 mean_foliar_soil_2 <- mean_foliar_soil[-2] %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
-  dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+  dplyr::summarise_all(mean) #%>%
+  #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
 #plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)
-#summary(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)) #not significant
+#summary(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2)) 
+#not significant with or without high soil N values
 
 # merge root and soil data by plot ID
 mean_soil_root <- merge(mean_soil, mean_root, by = c('siteID', 'plotID'))
@@ -117,8 +109,8 @@ length_mean_soil_root <- aggregate(plotID ~ siteID, length, data = mean_soil_roo
 
 mean_soil_root_2 <- mean_soil_root[-2] %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
-  dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+  dplyr::summarise_all(mean) #%>%
+  #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
 #plot(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)
 #summary(lm(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)) #not significant
@@ -145,42 +137,93 @@ adj= - 0.15
 plot(rootNPercent~soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_2)
 mtext('% Root N',side=2,line=2.25,cex=1.0)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
-text(0.6, 0.75, 'N.S',cex=1)
+text(1, 0.75, 'N.S',cex=1)
 
 # B: soil leaf N
 plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_2)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
 mtext('% Leaf N',side=2,line=2.25,cex=1.0)
 mtext('% Soil N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
-text(0.3, 1, 'N.S',cex=1)
+text(1, 1, 'N.S',cex=1)
 
 dev.off()
 
-# Root to soil N relationship --------------------------------------------------
+# Root to foliar N relationship --------------------------------------------------
+
+
+# merge foliar and root data by plot ID
+mean_foliar_root <- merge(mean_foliar, mean_root, by = c('siteID', 'plotID'))
+length_mean_foliar_root <- aggregate(plotID ~ siteID, length, data = mean_foliar_root)
+
+mean_foliar_root_2 <- mean_foliar_root[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean)
+
+summary(mean_foliar_root_2)
+
+plot(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2)
+#plot(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2)
+
+# Get a sense if a linear or nonlinear fit is better
+root_leaf_linear<-lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2)
+#summary(soil_leaf_linear) #significant R-square = 0.15
+root_leaf_nonlinear<- lm(foliarNPercent_mean ~ poly(rootNPercent, 2, raw = TRUE), data = mean_foliar_root_2)
+#summary(soil_leaf_nonlinear)
+#AIC(root_leaf_linear,root_leaf_nonlinear)
+#nonlinear fits better
+
+# set up nonlinear line fit
+X <- data.frame(rootNPercent =seq(0.6, 2.4, by=0.001))
+X$leaf<-predict(root_leaf_nonlinear,X)
 
 pdf(file='./../output/bivar_root_leaf.pdf',
     width=6,height=6)
-
-# Get a sense if a linear or nonlinear fit is better
-soil_leaf_linear<-lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root)
-soil_leaf_nonlinear<- lm(foliarNPercent_mean ~ poly(rootNPercent, 2, raw = TRUE), data = mean_foliar_root)
-AIC(soil_leaf_linear,soil_leaf_nonlinear)
 
 layout(matrix(1:1, ncol=1))
 par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
 
 # merge root and foliar N
-mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
-plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=mean_foliar_root)
+#mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
+plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=mean_foliar_root_2,cex=1.25)
 mtext('% Leaf N',side=2,line=3,cex=1.5)
 mtext('% Root N',side=1,line=3,cex=1.5,outer=T)
-abline(soil_leaf_linear, col="red",lwd=2)
-legend("bottom",paste("R-squared =",round(summary(soil_leaf_linear)$r.squared,2)),bty="n",cex = 1.00)
+#abline(soil_leaf_nonlinear, col="red",lwd=2)
+points(leaf~rootNPercent, col = "red",data=X,pch=19,cex=1)
+legend("bottom",paste("R-squared =",round(summary(root_leaf_nonlinear)$r.squared,2)),bty="n",cex = 1.00)
+
+dev.off()
+
+# now look at how predictive leaf N is of root N
+leaf_root_linear<-lm(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2)
+#summary(leaf_root_linear)
+leaf_root_nonlinear<- lm(rootNPercent ~ poly(foliarNPercent_mean, 2, raw = TRUE), data = mean_foliar_root_2)
+#summary(leaf_root_nonlinear)
+
+AIC(leaf_root_linear,leaf_root_nonlinear)
+#More of a linear relationship
+
+pdf(file='./../output/bivar_leaf_root.pdf',
+    width=6,height=6)
+
+layout(matrix(1:1, ncol=1))
+par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
+
+# merge root and foliar N
+#mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
+plot(rootNPercent~foliarNPercent_mean,xlab='',ylab='', data=mean_foliar_root_2,cex=1.25)
+mtext('% Root N',side=2,line=3,cex=1.5)
+mtext('% Leaf N',side=1,line=3,cex=1.5,outer=T)
+abline(leaf_root_linear, col="red",lwd=3)
+legend(0.5,1.4,paste("R-squared =",round(summary(leaf_root_linear)$r.squared,2)),bty="n",cex = 1.00)
 
 dev.off()
 
 
+
 # Mixed effects models ---------------------------------------------------------
+
+
+head(plot.df)
 
 # head(plot.df)
 
@@ -188,28 +231,54 @@ dev.off()
 library(lme4)
 
 mean_foliar_lme<-aggregate(foliarNPercent_mean~siteID + plotID
-                           + MAP + MAT + pctSand + pctClay + Lcclass,mean,data=plot.df)
+                           + pctSand + Lcclass,mean,data=plot.df)
+
+head(mean_foliar_lme)
+
+#rename veg type
+mean_foliar_lme <- rename_lcc(mean_foliar_lme)
+head(mean_foliar_lme)
+unique(mean_foliar_lme$Lcclass)
+
+# get aridity data
+vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
+head(vpd)
+
+#cleanup
+vpd<-vpd[c(2,3)]
+colnames(vpd) <- c('siteID','vpd')
+
+#merge with vpd data frame
+mean_foliar_lme <- merge(vpd,mean_foliar_lme,by=c('siteID'))
+head(mean_foliar_lme)
 
 # I would like to include vegetation in this, but we I think we to
 # simplify it so we have fewer veg levels with more data in them: woody versus herbaceous? forest versus grassland? 
-
-?lmer
-leaf_lme<-lmer(foliarNPercent_mean~ MAP + pctClay + Lcclass + (1|siteID),data=mean_foliar_lme)
+library(lme4)
+leaf_lme<-lmer(foliarNPercent_mean~ vpd + pctSand + Lcclass + (1|siteID),data=mean_foliar_lme)
 summary(leaf_lme)
 r.squaredGLMM(leaf_lme) 
-
 #conditional way higher than marginal 
-#similar result whether using clay or sand for texture
 
 # Do mixed effects analysis for root N
 
 mean_root_lme <- aggregate(rootNPercent ~ siteID + plotID
-                           + MAP + MAT + pctSand + pctClay + Lcclass, mean, data = plot.df)
+                           + pctSand + pctSand + Lcclass, mean, data = plot.df)
 
-root_lme<-lmer(rootNPercent ~ MAP + pctClay + Lcclass (1|siteID),data=mean_root_lme)
+#rename veg type
+mean_root_lme <- rename_lcc(mean_root_lme)
+head(mean_root_lme)
+
+#merge the vpd data frame
+mean_root_lme <- merge(vpd,mean_root_lme,by=c('siteID'))
+head(mean_root_lme)
+
+root_lme<-lmer(rootNPercent ~ vpd + pctSand + Lcclass + (1|siteID),data=mean_root_lme)
 summary(root_lme)
-r.squaredGLMM(root_lme) #conditional same as marginal
+r.squaredGLMM(root_lme) 
+#conditional still higher than marginal
 
+# stopped here 1/25/2021
 
 # plant feedbacks to soil N ----------------------------------------------------
 
