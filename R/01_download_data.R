@@ -17,9 +17,11 @@
 # NEON token
 neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJrZWxsZXJhYkB1bW4uZWR1Iiwic2NvcGUiOiJyYXRlOnB1YmxpYyIsImlzcyI6Imh0dHBzOi8vZGF0YS5uZW9uc2NpZW5jZS5vcmcvIiwiZXhwIjoxNzY2ODk2ODgwLCJpYXQiOjE2MDkyMTY4ODAsImVtYWlsIjoia2VsbGVyYWJAdW1uLmVkdSJ9.L2gHraOdcGLWe1dvJDPxpDymwMusPBCLqutgNP2V9bnV3Aqz0hgGJOqvvVjJgP1Qvjc-JV1GIr_cm-61YGl-0g"
 
-# Use github version of neonUtilities to download just needed tables
-# library(devtools)
-# devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
+#remove.packages(library(neonUtilities))
+
+#Use github version of neonUtilities to download just needed tables
+library(devtools)
+devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
 # #restart R
 
 # Load NEON download/processing R package
