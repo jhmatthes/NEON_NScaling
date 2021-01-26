@@ -20,13 +20,13 @@ neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEub
 #remove.packages(library(neonUtilities))
 
 #Use github version of neonUtilities to download just needed tables
-library(devtools)
-devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
+# library(devtools)
+# devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
 # #restart R
 
 # Load NEON download/processing R package
 library(neonUtilities)
-
+#?loadByProduct
 # Download and stack canopy foliar chemistry: DP1.10026.001
 foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F,
                           token = neonToken, tabl = "cfc_carbonNitrogen")
