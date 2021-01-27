@@ -3,11 +3,22 @@
 # project: NEON N scaling
 # notes:
 
-################################################################################
+# Map of sites? -----
+library(rgdal)
+library(raster)
 
 ### Figure 1: Map of sites (perhaps overlay on a climate and/or veg type layer)
 # map paired with table of sample size per site for each 'pool' (foliar, litter, 
 # soil, root) % N
+
+neon_domains<-readOGR(dsn="./../data_pre-processed/NEONDomains_0",layer="NEON_Domains")
+neon_domains<- sp::spTransform(neon_domains, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
+plot(neon_domains)
+
+neone_bounadaries<-readOGR(dsn="./../data_pre-processed/Field_Sampling_Boundaries",layer="terrestrialSamplingBoundaries")
+plot(neone_bounadaries)
+
+# need to look into this omre...
 
 # Distributions of N pools -------------------------------------------
 pdf(file='./../output/univar-hist.pdf',
@@ -251,10 +262,10 @@ mean_foliar_lme<-aggregate(foliarNPercent_mean~siteID + plotID
 
 head(mean_foliar_lme)
 
-#rename veg type
+#rename to veg type to herb versus woody
 mean_foliar_lme <- rename_lcc(mean_foliar_lme)
-head(mean_foliar_lme)
-unique(mean_foliar_lme$Lcclass)
+# head(mean_foliar_lme)
+# unique(mean_foliar_lme$Lcclass)
 
 # get aridity data
 vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
@@ -264,19 +275,26 @@ head(vpd)
 vpd<-vpd[c(2,3)]
 colnames(vpd) <- c('siteID','vpd')
 
-#merge with vpd data frame
+# merge with vpd data frame
 mean_foliar_lme <- merge(vpd,mean_foliar_lme,by=c('siteID'))
 head(mean_foliar_lme)
 
-# I would like to include vegetation in this, but we I think we to
-# simplify it so we have fewer veg levels with more data in them: woody versus herbaceous? forest versus grassland? 
-?lme
 # leaf_lme.1<-lme(foliarNPercent_mean~ vpd + pctSand + Lcclass, random= ~1|siteID,data=mean_foliar_lme)
 # summary(leaf_lme.1) # not significant 
+# r.squaredGLMM(leaf_lme.1)
 leaf_lme<-lmer(foliarNPercent_mean~ vpd + pctSand + Lcclass + (1|siteID),data=mean_foliar_lme)
 summary(leaf_lme)
-r.squaredGLMM(leaf_lme) 
-#conditional way higher than marginal 
+r.squaredGLMM(leaf_lme)
+#conditional way higher than marginal. Same for each lme approach.
+
+#make a data frame of this
+source<-c('Marginal','Conditional')
+value<-c(0.30,0.56)
+cond.marg.lead<-data.frame(source,value)
+cond.marg.lead$pool<-'Leaf'
+
+#
+#
 
 # Do mixed effects analysis for root N
 
@@ -285,20 +303,59 @@ mean_root_lme <- aggregate(rootNPercent ~ siteID + plotID
 
 #rename veg type
 mean_root_lme <- rename_lcc(mean_root_lme)
-head(mean_root_lme)
+#head(mean_root_lme)
 
 #merge the vpd data frame
 mean_root_lme <- merge(vpd,mean_root_lme,by=c('siteID'))
-head(mean_root_lme)
+#head(mean_root_lme)
 
 # root_lme.1<-lme(rootNPercent~ vpd + pctSand + Lcclass, random= ~1|siteID,data=mean_root_lme)
 # summary(root_lme.1) # not significant 
+# r.squaredGLMM(root_lme.1) 
 
 root_lme<-lmer(rootNPercent ~ vpd + pctSand + Lcclass + (1|siteID),data=mean_root_lme)
 summary(root_lme)
 r.squaredGLMM(root_lme) 
-r.squaredGLMM(root_lme.1) 
-#conditional still higher than marginal
+
+#make a data frame of this
+source<-c('Marginal','Conditional')
+value<-c(0.11,0.27)
+cond.marg.root<-data.frame(source,value)
+cond.marg.root$pool<-'Root'
+
+cond.marg.leaf.root<-rbind(cond.marg.lead,cond.marg.root)
+
+pdf(file='./../output/cond.mar.leaf.root.pdf',
+    width=8,height=8)
+
+# stacked bar plot
+ggplot(cond.marg.leaf.root,aes(x=pool,y=value,fill=source)) +
+  scale_y_continuous(expand = c(0,0)) + #for bar plot
+  scale_fill_manual(values=c('Marginal'='grey','Conditional'='blue'),
+                    labels=c('Marginal'='Marginal','Conditional'='Conditional')) +
+  stat_summary(geom='bar',position="stack",fun='mean',color='black',size=0.25) +
+  scale_x_discrete(breaks=c("Leaf","Root"),
+                   labels=c('Leaf', "Root")) +
+  ylab('R-squared') +
+  xlab('') +
+  #labs(subtitle = "A") +
+  theme(
+    axis.text.x = element_text(color='black',size=15),#, angle=25,hjust=1),
+    axis.text.y = element_text(color='black',size=15),
+    axis.title = element_text(color='black',size=25),
+    axis.ticks = element_line(color='black'),
+    legend.key = element_blank(),
+    legend.title = element_blank(),
+    legend.text = element_text(size=15),
+    legend.position = "top",
+    strip.background =element_rect(fill="white"),
+    strip.text = element_text(size=7),
+    panel.background = element_rect(fill=NA),
+    panel.border = element_blank(), #make the borders clear in prep for just have two axes
+    axis.line.x = element_line(colour = "black"),
+    axis.line.y = element_line(colour = "black"))
+ 
+dev.off()
 
 # stopped here 1/26/2021
 
@@ -314,9 +371,12 @@ length_mean_litter_soil <- aggregate(plotID ~ siteID, length, data = mean_litter
 # Get site means
 mean_litter_soil_2 <- mean_litter_soil[-2] %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
-  dplyr::filter(soilNPercent_MHoriz_mean < 1)
+  dplyr::summarise_all(mean) #%>%
+  #dplyr::filter(soilNPercent_MHoriz_mean < 1)
 
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2)
+outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2)) # 12
+litter_soil_lm<-lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2[-12,])
 
 # Resorption and soil N
 mean_resorp_soil <- merge(mean_resorp, mean_soil, by = c('siteID', 'plotID'))
@@ -327,6 +387,11 @@ mean_resorp_soil_2 <- mean_resorp_soil[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) %>%
   dplyr::filter(soilNPercent_MHoriz_mean < 1)
+
+plot(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2)
+outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2))
+resorp_soil_lm<-lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2[-14,])
+summary(resorp_soil_lm)
 
 
 pdf(file='./../output/bivar_plant_soil_root.pdf',
@@ -343,19 +408,20 @@ side = 3
 adj= - 0.15
 
 # A: litter to soil N
-plot(soilNPercent_MHoriz_mean~litterNPercent_mean,xlab='',ylab="",data=mean_litter_soil_2)
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,xlab='',ylab="% Soil N",data=mean_litter_soil_2[-12,])
 mtext('% Litter N',side=1,line=2.25,cex=1.0)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
-text(0.6, 0.75, 'N.S',cex=1)
+#text(0.6, 0.75, 'N.S',cex=1)
+legend("top",paste("R-squared =",round(summary(litter_soil_lm)$r.squared,2)),bty="n",cex = 1.00)
+
+# high value appears to be driving this significant relationship
 
 # B: resorp to soil N
-plot(soilNPercent_MHoriz_mean~resorpN,xlab='',ylab="",data=mean_resorp_soil_2)
+plot(soilNPercent_MHoriz_mean~resorpN,xlab='',ylab="",data=mean_resorp_soil_2[-14,])
 mtext('N Resporption',side=1,line=2.25,cex=1.0)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
-#text(0.6, 0.75, 'N.S',cex=1)
-
-# no clear relationships
+text(35, 0.22, 'N.S',cex=1)
 
 dev.off()
 
-# stopped here AJF 1/13/2021
+# stopped here AJF 1/27/2021
