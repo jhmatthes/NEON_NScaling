@@ -38,6 +38,12 @@ soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F,
                         token = neonToken,
                         tabl = "sls_soilChemistry")
 
+# soil ingornaic N: ammonium and nitrate
+inorganicN<- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
+                     token = neonToken, tabl='ntr_externalLab')
+
+list2env(inorganicN, .GlobalEnv) 
+
 # Didn't run into this issue (JHM, 1/5/21)
 #sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
 list2env(soilCN, .GlobalEnv) #edited this back to soilCN (JHM, 1/5/21)

@@ -169,12 +169,54 @@ soiltexture_plotID <- spc_particlesize %>%
             pctClay = mean(clayTotal, na.rm=TRUE))
 
 
+# Read in inogranic N data
+inorganic.df<-as.data.frame(inorganicN[1])
+#inorganic.df$
+
+# get ammonium
+
+ammonium_plotID <- inorganic.df  %>%
+  dplyr::filter(ntr_externalLab.ammoniumNRepNum == 1, ntr_externalLab.ammoniumNQF == "OK") %>%
+  dplyr::select(ntr_externalLab.domainID, ntr_externalLab.siteID, ntr_externalLab.plotID, 
+                ntr_externalLab.kclSampleID, ntr_externalLab.kclAmmoniumNConc) %>%
+  group_by(ntr_externalLab.domainID, ntr_externalLab.siteID, ntr_externalLab.plotID) %>%
+  summarize(soil_ammonium_mean = mean(ntr_externalLab.kclAmmoniumNConc, na.rm=TRUE),
+            soil_ammonium_n = sum(!is.na(ntr_externalLab.kclAmmoniumNConc)))
+
+ammonium_plotID <-data.frame(ammonium_plotID)
+#head(ammonium_plotID)    
+
+# now get nitrate
+
+nitrate_plotID <- inorganic.df  %>%
+  dplyr::filter(ntr_externalLab.nitrateNitriteNRepNum == 1, ntr_externalLab.nitrateNitriteNQF == "OK") %>%
+  dplyr::select(ntr_externalLab.domainID, ntr_externalLab.siteID, ntr_externalLab.plotID, 
+                ntr_externalLab.kclSampleID, ntr_externalLab.kclNitrateNitriteNConc) %>%
+  group_by(ntr_externalLab.domainID, ntr_externalLab.siteID, ntr_externalLab.plotID) %>%
+  summarize(soil_nitrate_mean = mean(ntr_externalLab.kclNitrateNitriteNConc,na.rm=TRUE),
+            soil_nitrate_n = sum(!is.na(ntr_externalLab.kclNitrateNitriteNConc)))
+
+nitrate_plotID <- data.frame(nitrate_plotID)
+
+inorganicNmerged <- merge(nitrate_plotID,ammonium_plotID,by=c('ntr_externalLab.domainID',
+                                                              'ntr_externalLab.siteID',
+                                                              'ntr_externalLab.plotID'))
+
+#sum to get total inorganic N
+inorganicNmerged$inorganicN<-inorganicNmerged$soil_nitrate_mean + inorganicNmerged$soil_ammonium_mean
+#head(inorganicNmerged)
+
+colnames(inorganicNmerged) <- c('domainID','siteID','plotID','soil_nitrate_mean','soil_nitrate_n',
+                                'soil_ammonium_mean','soil_ammonium_n','inorganicN')
+
+
 # Combine together all variables to the plotID level
 dataCN_plotID <- dplyr::full_join(rootCN_plotID, litterCN_plotID, 
                           by = c("domainID", "siteID", "plotID", "plotType")) %>%
   dplyr::full_join(foliarCN_plotID, by = c("domainID","siteID", "plotID", "plotType")) %>%
   dplyr::full_join(soilCN_plotID, by = c("domainID", "siteID", "plotID", "plotType")) %>%
-  dplyr::full_join(soiltexture_plotID, by = c("domainID", "siteID", "plotID"))
+  dplyr::full_join(soiltexture_plotID, by = c("domainID", "siteID", "plotID")) %>%
+  dplyr::full_join(inorganicNmerged, by = c("domainID", "siteID", "plotID"))
 
 readr::write_csv(dataCN_plotID,"CN_plotID.csv")
 
@@ -196,7 +238,7 @@ rootCN_siteReps <- rootCN_plotID %>%
             rootCNR_totalreps = sum(rootCNratio_n, na.rm=TRUE),
             rootCNR_plotreps = sum(!is.na(rootCNratio_n)))
 
-#### Investigate summaries of reps by year
+#### Investigate summaries of reps by year 
 # Summarize by site x plot x year
 litterCN_plotID_year  <- ltr_litterCarbonNitrogen %>%
   dplyr::mutate(year = lubridate::year(setDate), 

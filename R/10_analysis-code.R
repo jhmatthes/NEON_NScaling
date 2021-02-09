@@ -7,6 +7,8 @@
 library(rgdal)
 library(raster)
 
+
+# future map ------
 ### Figure 1: Map of sites (perhaps overlay on a climate and/or veg type layer)
 # map paired with table of sample size per site for each 'pool' (foliar, litter, 
 # soil, root) % N
@@ -73,11 +75,14 @@ plot.df %>% filter(siteID != "GUAN") %>%
 
 # Bivariate relationships between N pools - cross-site with each point = site mean (Figure 3) ----
 
+# first do this for total soil N (organic + inorganic)
+
 # first check that sample sizes 
 sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
 sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
 sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) 
 sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
+sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df)
 
 # HEAL has sample size of 1 for soil N, this gets removed from analysis
 # anyways because there are no data from any of the other three pools
@@ -87,6 +92,7 @@ sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
 mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df)
 mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
+mean_soil_inorganic<-aggregate(inorganicN~siteID + plotID,mean,data=plot.df)
 
 # # merge foliar and litter data by plot ID
 # mean_foliar_litter<-merge(mean_foliar,mean_litter,by=c('siteID','plotID'))
@@ -168,6 +174,76 @@ mtext('% Soil N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
 text(1, 1, 'N.S',cex=1)
 
 dev.off()
+
+
+#now do this with total inorganic N
+
+#soil-leaf relationships
+
+# merge foliar and soil data by plot ID
+mean_foliar_soil_inorganic <- merge(mean_foliar, mean_soil_inorganic, by = c('siteID', 'plotID'))
+length_mean_foliar_soil_inorganic <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil_inorganic)
+
+# Get site-level means for foliar N
+mean_foliar_soil_inorganic_2 <- mean_foliar_soil_inorganic[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) #%>%
+  #dplyr::filter(inorganicN < 0.8) 
+  
+  #only under lower levels is there a clear linear relationship. It is more saturating in form.
+
+# plot(foliarNPercent_mean~inorganicN,data=mean_foliar_soil_inorganic_2)
+# summary(lm(foliarNPercent_mean~inorganicN,data=mean_foliar_soil_inorganic_2))
+
+# soil-root relationships  
+
+  # merge root and soil data by plot ID
+mean_soil_root_inorganic <- merge(mean_soil_inorganic, mean_root, by = c('siteID', 'plotID'))
+length_mean_soil_root_inorganic <- aggregate(plotID ~ siteID, length, data = mean_soil_root_inorganic)
+
+mean_soil_root_inorganic_2 <- mean_soil_root_inorganic[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) #%>%
+#dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+
+#plot(rootNPercent~inorganicN,data=mean_soil_root_inorganic_2)
+outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_inorganic_2))
+summary(lm(rootNPercent~inorganicN,data=mean_soil_root_inorganic_2)) 
+
+
+pdf(file='./../output/bivar_soil_leaf_root_INORGANIC.pdf',
+    width=8,height=6)
+# mar.default <- c(6,3,5,2) + 0.1
+# par(mar = mar.default + c(2, 2, 0, 0),mfrow=c(1,4))
+
+# Set up multi-panel
+layout(matrix(1:2, ncol=2))
+par(oma=c(6, 5, 6, 5), mar=c(0, 4, 0, 0),pty='s')
+#?par
+# Panel label setup
+line = 0.75 
+cex = 1.25
+side = 3
+adj= - 0.15
+
+# A: soil to root N
+plot(rootNPercent~inorganicN,xlab='',ylab="",data=mean_soil_root_inorganic_2)
+mtext('% Root N',side=2,line=2.25,cex=1.0)
+mtext("A", side=side, line=line, cex=cex, adj=adj)
+text(1, 0.62, 'R-squared = 0.25 ',cex=1)
+
+# B: soil leaf N
+plot(foliarNPercent_mean ~ inorganicN,xlab='',ylab="",data=mean_foliar_soil_inorganic_2)
+mtext("B", side=side, line=line, cex=cex, adj=adj)
+mtext('% Leaf N',side=2,line=2.25,cex=1.0)
+mtext('% Soil inorganic N (M Horizon)',side=1,line=0.5,cex=1.25,outer=T)
+text(1.5, 0.82, 'R-squared = 0.07',cex=1)
+
+dev.off()
+
+
+
+#stopped here 2/8/2021
 
 # Root to foliar N relationship --------------------------------------------------
 
