@@ -68,10 +68,10 @@ dev.off()
 
 # note: soil N mineral horizon is heavily right-skewed (even when excluding GUAN);
 # log-transform
-hist(log(plot.df$soilNPercent_MHoriz_mean))
-plot.df %>% filter(siteID != "GUAN") %>% 
-  ggplot() +
-  geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
+# hist(log(plot.df$soilNPercent_MHoriz_mean))
+# plot.df %>% filter(siteID != "GUAN") %>% 
+#   ggplot() +
+#   geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
 
 # Bivariate relationships between N pools - cross-site with each point = site mean (Figure 3) ----
 
@@ -127,9 +127,9 @@ colnames(mean_site_soil_inorganic) <-c('siteID','N','%InorganicSoil')
 root_leaf<- left_join(mean_site_root,mean_site_foliar,by=c('siteID'),na.rm=F)
 soil_soil<-left_join(mean_site_soil,mean_site_soil_inorganic ,by=c('siteID'),na.rm=F)
 
-#join all
-root_leaf_soil<-left_join(soil_soil,root_leaf,by=c('siteID'),na.rm=F)
-write.csv(root_leaf_soil,file='./../output/means_replicates_N_Pools.csv')
+#join all and save as table
+# root_leaf_soil<-left_join(soil_soil,root_leaf,by=c('siteID'),na.rm=F)
+# write.csv(root_leaf_soil,file='./../output/means_replicates_N_Pools.csv')
 
 
 # merge datasets to do bivariate spatial relationships of site means
@@ -398,10 +398,10 @@ library(lme4)
 mean_foliar_lme<-aggregate(foliarNPercent_mean~siteID + plotID
                             + inorganicN + Lcclass,mean,data=plot.df)
 
-head(mean_foliar_lme)
+#head(mean_foliar_lme)
 
 #rename to veg type to herb versus woody. 'Croplands' are deemed herbaceous
-mean_foliar_lme <- rename_lcc(mean_foliar_lme)
+mean_foliar_lme <- rename_lcc(mean_foliar_lme,crop = T)
 # head(mean_foliar_lme)
 # unique(mean_foliar_lme$Lcclass)
 
@@ -415,23 +415,38 @@ colnames(vpd) <- c('siteID','vpd')
 
 # merge with vpd data frame
 mean_foliar_lme <- merge(vpd,mean_foliar_lme,by=c('siteID'))
-head(mean_foliar_lme)
-plot(foliarNPercent_mean~ inorganicN,data=mean_foliar_lme)
+#head(mean_foliar_lme)
+
+#check sample sizes
+length_foliar_root_lme<-aggregate(foliarNPercent_mean~siteID,length,data=mean_foliar_lme)
+
+#remove site with onle one rep
+mean_foliar_lme <- mean_foliar_lme %>%
+  dplyr::filter(!(siteID=="WREF"))
+unique(mean_foliar_lme$siteID) # works
+
 # lme functions lets you see P values in summary output
-leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN + Lcclass + vpd, random= ~1|siteID,data=mean_foliar_lme)
+leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN + vpd + Lcclass, random= ~1|siteID,data=mean_foliar_lme)
 summary(leaf_lme.1) #only significant factor is inroganic N
 # r.squaredGLMM(leaf_lme.1)
-leaf_lme<-lmer(foliarNPercent_mean~ inorganicN + vpd  + Lcclass + (1|siteID),data=mean_foliar_lme)
-#summary(leaf_lme)
-r.squaredGLMM(leaf_lme)
-#conditional way higher than marginal. Same for each lme approach.
+leaf_lme.2<-lmer(foliarNPercent_mean~ inorganicN + vpd  + Lcclass + (1|siteID),data=mean_foliar_lme)
+#summary(leaf_lme.2)
+#r.squaredGLMM(leaf_lme.2)
+#conditional higher than marginal.
+
+# see if random site effects 'improves' the model, compare to a multiple regression
+leaf_lm.1<-lm(foliarNPercent_mean~ inorganicN + vpd + Lcclass,data=mean_foliar_lme)
+AIC(leaf_lm.1,leaf_lme.1)
+# adding site random effects lowers the AIC
+
 
 #interesting that leaf-soil N is significant when we don't average the sites, the relationship
-# is clearly very saturating 
+# ooks somewhat saturating 
+plot(foliarNPercent_mean~ inorganicN,data=mean_foliar_lme)
 
 #make a data frame of this
 source<-c('Marginal','Conditional')
-value<-c(0.29,0.56)
+value<-c(0.41,0.69)
 cond.marg.lead<-data.frame(source,value)
 cond.marg.lead$pool<-'Leaf'
 
@@ -442,24 +457,41 @@ cond.marg.lead$pool<-'Leaf'
 
 mean_root_lme <- aggregate(rootNPercent ~ siteID + plotID + inorganicN +
                             Lcclass, mean, data = plot.df)
+#head(mean_root_lme)
 
-# remove pctSand for now, as it made the dataframe too small
-#plot(rootNPercent ~inorganicN,data=mean_root_lme)
+# Again, remove pctSand for now, as it made the data frame too small for an LME
+
 #rename veg type
-mean_root_lme <- rename_lcc(mean_root_lme)
+mean_root_lme <- rename_lcc(mean_root_lme,crop=F)
 #head(mean_root_lme)
 
 #merge the vpd data frame
 mean_root_lme <- merge(vpd,mean_root_lme,by=c('siteID'))
 #head(mean_root_lme)
 
-root_lme.1<-lme(rootNPercent~ inorganicN + Lcclass + vpd, random= ~1|siteID,data=mean_root_lme)
-summary(root_lme.1) # not significant
+#check sample sizes
+length_mean_root_lme<-aggregate(rootNPercent~siteID,length,data=mean_root_lme)
+# lower than foliar, but looks ok
+
+#now do lmes
+root_lme.1<-lme(rootNPercent~ inorganicN + vpd + Lcclass , random= ~1|siteID,data=mean_root_lme)
+summary(root_lme.1) # iorganic N barely significant in this case
 r.squaredGLMM(root_lme.1)
 
-root_lme<-lmer(rootNPercent ~ inorganicN + vpd + pctSand + Lcclass + (1|siteID),data=mean_root_lme)
-summary(root_lme)
-r.squaredGLMM(root_lme) 
+root_lme.2<-lmer(rootNPercent ~ inorganicN + vpd  + Lcclass + (1|siteID),data=mean_root_lme)
+summary(root_lme.2)
+r.squaredGLMM(root_lme.2) 
+
+#see if adding random effects 'improves' the model
+root_lm.1<-lm(rootNPercent ~ inorganicN + vpd  + Lcclass,data=mean_root_lme)
+summary(root_lm.1)
+
+AIC(root_lm.1,root_lme.1)
+# multiple regression does better.
+
+length(length_mean_root_lme$siteID) # 15 sites
+length(length_foliar_root_lme$siteID) # 15 sites
+
 
 #make a data frame of this
 source<-c('Marginal','Conditional')
@@ -501,7 +533,7 @@ ggplot(cond.marg.leaf.root,aes(x=pool,y=value,fill=source)) +
  
 dev.off()
 
-# stopped here 1/26/2021
+# stopped here 2/12/2021
 
 # plant feedbacks to soil N ----------------------------------------------------
 
