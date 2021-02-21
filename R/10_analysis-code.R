@@ -397,7 +397,6 @@ library(lme4)
 
 mean_foliar_lme<-aggregate(foliarNPercent_mean~siteID + plotID
                             + inorganicN + Lcclass,mean,data=plot.df)
-
 #head(mean_foliar_lme)
 
 #rename to veg type to herb versus woody. 'Croplands' are deemed herbaceous
@@ -420,7 +419,7 @@ mean_foliar_lme <- merge(vpd,mean_foliar_lme,by=c('siteID'))
 #check sample sizes
 length_foliar_root_lme<-aggregate(foliarNPercent_mean~siteID,length,data=mean_foliar_lme)
 
-#remove site with onle one rep
+#remove site with only one rep
 mean_foliar_lme <- mean_foliar_lme %>%
   dplyr::filter(!(siteID=="WREF"))
 unique(mean_foliar_lme$siteID) # works
@@ -437,8 +436,7 @@ leaf_lme.2<-lmer(foliarNPercent_mean~ inorganicN + vpd  + Lcclass + (1|siteID),d
 # see if random site effects 'improves' the model, compare to a multiple regression
 leaf_lm.1<-lm(foliarNPercent_mean~ inorganicN + vpd + Lcclass,data=mean_foliar_lme)
 AIC(leaf_lm.1,leaf_lme.1)
-# adding site random effects lowers the AIC
-
+# adding site random effects lowers the AIC for predicting leaf N
 
 #interesting that leaf-soil N is significant when we don't average the sites, the relationship
 # ooks somewhat saturating 
@@ -487,11 +485,14 @@ root_lm.1<-lm(rootNPercent ~ inorganicN + vpd  + Lcclass,data=mean_root_lme)
 summary(root_lm.1)
 
 AIC(root_lm.1,root_lme.1)
-# multiple regression does better.
+# multiple regression has lower AaIC
 
 length(length_mean_root_lme$siteID) # 15 sites
+dim(mean_root_lme)
 length(length_foliar_root_lme$siteID) # 15 sites
+dim(mean_foliar_lme)
 
+#more data in the foliar dataset than root dataset
 
 #make a data frame of this
 source<-c('Marginal','Conditional')
@@ -537,37 +538,59 @@ dev.off()
 
 # plant feedbacks to soil N ----------------------------------------------------
 
+head(plot.df)
+
+#plot and site means
 mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
 
-# Litter and soil N
-mean_litter_soil <- merge(mean_litter, mean_soil, by = c('siteID', 'plotID'))
-length_mean_litter_soil <- aggregate(plotID ~ siteID, length, data = mean_litter_soil)
+# Litter and total soil N
+mean_litter_total_soil <- merge(mean_litter, mean_soil, by = c('siteID', 'plotID'))
+length_mean_litter_total_soil <- aggregate(plotID ~ siteID, length, data = mean_litter_total_soil)
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil)
+summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil))
+outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil))
+
+#without outlier
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil[-c(22,48),])
+summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil[-c(48,22),]))
+# Adjusted R-squared: 0.1194 , p-value: 0.0015
 
 # Get site means
-mean_litter_soil_2 <- mean_litter_soil[-2] %>%
+mean_litter_total_soil_2 <- mean_litter_total_soil[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) #%>%
   #dplyr::filter(soilNPercent_MHoriz_mean < 1)
 
-plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2)
-outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2)) # 12
-litter_soil_lm<-lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_soil_2[-12,])
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2)
+outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2)) # 12
+litter_soil_lm<-lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2[-12,])
+summary(litter_soil_lm)
+# Adjusted R-squared:  0.2235, p-value: 0.02361
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2[-c(12),])
+
+#what if we remove that one point that seems to be driving the relationship?
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2[-c(6,12),])
+summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=mean_litter_total_soil_2[-c(6,12),]))
+#significance was driven by that single point with high soil and high litter N (GUAN)
+
 
 # Resorption and soil N
-mean_resorp_soil <- merge(mean_resorp, mean_soil, by = c('siteID', 'plotID'))
-length_mean_resorp_soil <- aggregate(plotID ~ siteID, length, data = mean_resorp_soil)
+mean_resorp_total_soil <- merge(mean_resorp, mean_soil, by = c('siteID', 'plotID'))
+length_mean_resorp_total_soil <- aggregate(plotID ~ siteID, length, data = mean_resorp_total_soil)
 
 # Get site means
-mean_resorp_soil_2 <- mean_resorp_soil[-2] %>%
+mean_resorp_total_soil_2 <- mean_resorp_total_soil[-2] %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
-  dplyr::filter(soilNPercent_MHoriz_mean < 1)
+  dplyr::summarise_all(mean) #%>%
+  #dplyr::filter(soilNPercent_MHoriz_mean < 1)
 
-plot(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2)
-outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2))
-resorp_soil_lm<-lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_soil_2[-14,])
+plot(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil_2) # no relationship
+outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil_2))
+#try without loutlier
+resorp_soil_lm<-lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil_2[-10,])
 summary(resorp_soil_lm)
+plot(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil_2[-10,])
 
 
 pdf(file='./../output/bivar_plant_soil_root.pdf',
@@ -584,7 +607,7 @@ side = 3
 adj= - 0.15
 
 # A: litter to soil N
-plot(soilNPercent_MHoriz_mean~litterNPercent_mean,xlab='',ylab="% Soil N",data=mean_litter_soil_2[-12,])
+plot(soilNPercent_MHoriz_mean~litterNPercent_mean,xlab='',ylab="% Soil N",data=mean_litter_total_soil_2[-12,])
 mtext('% Litter N',side=1,line=2.25,cex=1.0)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 #text(0.6, 0.75, 'N.S',cex=1)
@@ -600,4 +623,30 @@ text(35, 0.22, 'N.S',cex=1)
 
 dev.off()
 
-# stopped here AJF 1/27/2021
+#now this with inorganic N
+
+#plot and site means
+mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
+mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
+
+# Litter and total soil N
+mean_litter_inorganic_soil <- merge(mean_litter, mean_soil_inorganic, by = c('siteID', 'plotID'))
+length_mean_litter_inorganic_soil <- aggregate(plotID ~ siteID, length, data = mean_litter_inorganic_soil)
+plot(inorganicN~litterNPercent_mean,data=mean_litter_inorganic_soil)
+
+# Get site means
+mean_litter_total_soil_2 <- mean_litter_inorganic_soil[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) #%>%
+#dplyr::filter(soilNPercent_MHoriz_mean < 1)
+
+plot(inorganicN~litterNPercent_mean,data=mean_litter_total_soil_2)
+summary(lm(inorganicN~litterNPercent_mean,data=mean_litter_total_soil_2))
+
+#see if this changes if we remove large value
+plot(inorganicN~litterNPercent_mean,data=mean_litter_total_soil_2[-5,])
+summary(lm(inorganicN~litterNPercent_mean,data=mean_litter_total_soil_2[-5,]))
+
+#again mostly driven by high value
+
+# stopped here.
