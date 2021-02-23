@@ -730,22 +730,23 @@ mean_total_soil_lme <- mean_total_soil_lme %>%
 unique(mean_total_soil_lme$siteID) # works
 
 # lme functions lets you see P values in summary output
-total_soil_lme.1<-lme(soilNPercent_MHoriz_mean~ litterNPercent_mean + resorpN  + Lcclass, random= ~1|siteID,data=mean_total_soil_lme)
-summary(total_soil_lme.1) #only significant factor is inroganic N
+total_soil_lme.1<-lme(soilNPercent_MHoriz_mean~ litterNPercent_mean + resorpN  + Lcclass + vpd, random= ~1|siteID,data=mean_total_soil_lme)
+summary(total_soil_lme.1) #vpd is slightly significant
 # r.squaredGLMM(total_soil_lme.1)
-total_soil_lme.2<-lmer(soilNPercent_MHoriz_mean ~ litterNPercent_mean + resorpN  + Lcclass + (1|siteID),data=mean_total_soil_lme)
+total_soil_lme.2<-lmer(soilNPercent_MHoriz_mean ~ litterNPercent_mean + resorpN  + Lcclass + vpd + (1|siteID),data=mean_total_soil_lme)
 #summary(total_soil_lme.2)
 #r.squaredGLMM(total_soil_lme.2)
-#conditional higher than marginal.
+#conditional the same as marginal.
 
 # see if random site effects 'improves' the model, compared to a multiple regression
-total_soil_lm.1<-lm(soilNPercent_MHoriz_mean ~ litterNPercent_mean + resorpN  + Lcclass,data=mean_total_soil_lme)
+total_soil_lm.1<-lm(soilNPercent_MHoriz_mean ~ litterNPercent_mean + resorpN  + Lcclass + vpd,data=mean_total_soil_lme)
+summary(total_soil_lm.1)
 AIC(total_soil_lm.1,total_soil_lme.1)
 # multiple regression has a lower AIC (not enough replicates in each group?)
 
 #make a data frame of this
 source<-c('Marginal','Conditional')
-value<-c(0.42,0.96)
+value<-c(0.82,0.82)
 cond.marg.total.soil<-data.frame(source,value)
 cond.marg.total.soil$pool<-'Total_Soil'
 
@@ -785,16 +786,17 @@ mean_inorganic_soil_lme <- mean_inorganic_soil_lme %>%
 unique(mean_inorganic_soil_lme$siteID) # works
 
 # lme functions lets you see P values in summary output
-inorganic_soil_lme.1<-lme(inorganicN~ litterNPercent_mean + resorpN  + Lcclass, random= ~1|siteID,data=mean_inorganic_soil_lme)
+inorganic_soil_lme.1<-lme(inorganicN~ litterNPercent_mean + resorpN  + Lcclass + vpd, random= ~1|siteID,data=mean_inorganic_soil_lme)
 summary(inorganic_soil_lme.1) #only significant factor is inroganic N
 # r.squaredGLMM(inorganic_soil_lme.1)
-inorganic_soil_lme.2<-lmer(inorganicN ~ litterNPercent_mean + resorpN  + Lcclass + (1|siteID),data=mean_inorganic_soil_lme)
+inorganic_soil_lme.2<-lmer(inorganicN ~ litterNPercent_mean + resorpN  + Lcclass + vpd + (1|siteID),data=mean_inorganic_soil_lme)
 #summary(inorganic_soil_lme.2)
 #r.squaredGLMM(inorganic_soil_lme.2)
 #conditional higher than marginal.
 
 # see if random site effects 'improves' the model, compared to a multiple regression
-inorganic_soil_lm.1<-lm(inorganicN ~ litterNPercent_mean + resorpN  + Lcclass,data=mean_inorganic_soil_lme)
+inorganic_soil_lm.1<-lm(inorganicN ~ litterNPercent_mean + resorpN  + Lcclass + vpd,data=mean_inorganic_soil_lme)
+summary(inorganic_soil_lm.1)
 AIC(inorganic_soil_lm.1,inorganic_soil_lme.1)
 # mixed effects has a lower AIC (all variance was in random effects)
 
