@@ -80,11 +80,11 @@ dev.off()
 # Get sample sizes 
 sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
 sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
-sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) 
+sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) # HEAL only 1
 sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
 sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df)
 
-# HEAL has sample size of 1 for total soil N, this gets removed from analysis
+# HEAL has sample size of 1 for total soil N, this gets removed from analysis/merging
 # anyways because there are no data from any of the other three pools
 
 # Get mean values for each plot
@@ -131,6 +131,7 @@ soil_soil<-left_join(mean_site_soil,mean_site_soil_inorganic ,by=c('siteID'),na.
 # root_leaf_soil<-left_join(soil_soil,root_leaf,by=c('siteID'),na.rm=F)
 # write.csv(root_leaf_soil,file='./../output/means_replicates_N_Pools.csv')
 
+#total soil N
 
 # merge datasets to do bivariate spatial relationships of site means
 
@@ -140,8 +141,9 @@ length_mean_foliar_soil <- aggregate(plotID ~ siteID, length, data = mean_foliar
 
 # Get site-level means for foliar N
 mean_foliar_soil_2 <- mean_foliar_soil[-2] %>%
+  dplyr::filter(!(siteID=="WREF")) %>% #remove site with only one replicate
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
+  dplyr::summarise_all(mean) #%>%
   #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
 #look at  outliers
@@ -160,6 +162,7 @@ mean_soil_root <- merge(mean_soil, mean_root, by = c('siteID', 'plotID'))
 length_mean_soil_root <- aggregate(plotID ~ siteID, length, data = mean_soil_root)
 
 mean_soil_root_2 <- mean_soil_root[-2] %>%
+  dplyr::filter(!(siteID=="PUUM")) %>% #remove site with only one replicate
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) #%>%
   #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
@@ -175,35 +178,35 @@ outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2))
 
 #plot this out with high soil N values
 
-pdf(file='./../output/bivar_soil_leaf_root.pdf',
-    width=8,height=6)
-# mar.default <- c(6,3,5,2) + 0.1
-# par(mar = mar.default + c(2, 2, 0, 0),mfrow=c(1,4))
-
-# Set up multi-panel
-layout(matrix(1:2, ncol=2))
-par(oma=c(6, 5, 6, 5), mar=c(0, 4, 0, 0),pty='s')
-#?par
-# Panel label setup
-line = 0.75 
-cex = 1.25
-side = 3
-adj= - 0.15
-
-# A: soil to root N
-plot(rootNPercent~soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_2)
-mtext('% Root N',side=2,line=2.25,cex=1.0)
-mtext("A", side=side, line=line, cex=cex, adj=adj)
-text(1, 0.75, 'N.S',cex=1)
-
-# B: soil leaf N
-plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_2)
-mtext("B", side=side, line=line, cex=cex, adj=adj)
-mtext('% Leaf N',side=2,line=2.25,cex=1.0)
-mtext('% Soil N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
-text(1, 1, 'N.S',cex=1)
-
-dev.off()
+# pdf(file='./../output/bivar_soil_leaf_root.pdf',
+#     width=8,height=6)
+# # mar.default <- c(6,3,5,2) + 0.1
+# # par(mar = mar.default + c(2, 2, 0, 0),mfrow=c(1,4))
+# 
+# # Set up multi-panel
+# layout(matrix(1:2, ncol=2))
+# par(oma=c(6, 5, 6, 5), mar=c(0, 4, 0, 0),pty='s')
+# #?par
+# # Panel label setup
+# line = 0.75 
+# cex = 1.25
+# side = 3
+# adj= - 0.15
+# 
+# # A: soil to root N
+# plot(rootNPercent~soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_2)
+# mtext('% Root N',side=2,line=2.25,cex=1.0)
+# mtext("A", side=side, line=line, cex=cex, adj=adj)
+# text(1, 0.75, 'N.S',cex=1)
+# 
+# # B: soil leaf N
+# plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_2)
+# mtext("B", side=side, line=line, cex=cex, adj=adj)
+# mtext('% Leaf N',side=2,line=2.25,cex=1.0)
+# mtext('% Soil N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
+# #text(1, 1, 'N.S',cex=1)
+# 
+# dev.off()
 
 
 #now do this with total inorganic N
@@ -216,8 +219,9 @@ length_mean_foliar_soil_inorganic <- aggregate(plotID ~ siteID, length, data = m
 
 # Get site-level means for foliar N
 mean_foliar_soil_inorganic_2 <- mean_foliar_soil_inorganic[-2] %>%
+  dplyr::filter(!(siteID=="WREF")) %>% #remove site with only one replicate
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) #%>%
+  dplyr::summarise_all(mean) %>%
   #dplyr::filter(inorganicN < 1) 
   
   #only under lower levels is there a clear linear relationship. It is more saturating in form.
@@ -288,7 +292,7 @@ plot(rootNPercent~inorganicN,xlab='',ylab="",data=mean_soil_root_inorganic_2,cex
 #mtext('% Root N',side=2,line=2.25,cex=1.0)
 abline(sensitivity.sol.root.lm, col="red",lwd=2)
 mtext("C", side=side, line=line, cex=cex, adj=adj)
-text(1, 0.62, 'R-squared = 0.25 ',cex=1)
+#text(1, 0.62, 'R-squared = 0.25 ',cex=1)
 
 # D: total soil leaf N
 plot(foliarNPercent_mean ~ inorganicN,xlab='',ylab="",data=mean_foliar_soil_inorganic_2,cex=1.25)
@@ -316,7 +320,7 @@ mean_foliar_root_2 <- mean_foliar_root[-2] %>%
 
 summary(mean_foliar_root_2)
 
-plot(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2)
+#plot(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2)
 #plot(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2)
 
 #see if there are outliers
@@ -325,15 +329,7 @@ outlierTest(lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2))
 
 # Get a sense if a linear or nonlinear fit is better
 root_leaf_linear<-lm(foliarNPercent_mean~rootNPercent,data=mean_foliar_root_2)
-#summary(soil_leaf_linear) #significant R-square = 0.15
-root_leaf_nonlinear<- lm(foliarNPercent_mean ~ poly(rootNPercent, 2, raw = TRUE), data = mean_foliar_root_2)
-#summary(soil_leaf_nonlinear)
-#AIC(root_leaf_linear,root_leaf_nonlinear)
-#nonlinear fits better
-
-# set up nonlinear line fit
-X <- data.frame(rootNPercent =seq(0.6, 2.4, by=0.001))
-X$leaf<-predict(root_leaf_nonlinear,X)
+#summary(root_leaf_linear) #significant R-square = 0.15
 
 pdf(file='./../output/bivar_root_leaf.pdf',
     width=6,height=6)
@@ -346,42 +342,9 @@ par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
 plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=mean_foliar_root_2,cex=1.25)
 mtext('% Leaf N',side=2,line=3,cex=1.5)
 mtext('% Root N',side=1,line=3,cex=1.5,outer=T)
-#abline(soil_leaf_nonlinear, col="red",lwd=2)
-points(leaf~rootNPercent, col = "red",data=X,pch=19,cex=1)
-legend("bottom",paste("R-squared =",round(summary(root_leaf_nonlinear)$r.squared,2)),bty="n",cex = 1.00)
+abline(root_leaf_linear, col="red",lwd=2)
 
 dev.off()
-
-# now look at how predictive leaf N is of root N
-
-#quick outlier test
-outlierTest(lm(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2))
-
-leaf_root_linear<-lm(rootNPercent~foliarNPercent_mean,data=mean_foliar_root_2[-24,])
-#summary(leaf_root_linear)
-leaf_root_nonlinear<- lm(rootNPercent ~ poly(foliarNPercent_mean, 2, raw = TRUE), data = mean_foliar_root_2)
-#summary(leaf_root_nonlinear)
-
-AIC(leaf_root_linear,leaf_root_nonlinear)
-#More of a linear relationship
-
-pdf(file='./../output/bivar_leaf_root.pdf',
-    width=6,height=6)
-
-layout(matrix(1:1, ncol=1))
-par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
-
-# merge root and foliar N
-#mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
-plot(rootNPercent~foliarNPercent_mean,xlab='',ylab='', data=mean_foliar_root_2[-24,],cex=1.25)
-mtext('% Root N',side=2,line=3,cex=1.5)
-mtext('% Leaf N',side=1,line=3,cex=1.5,outer=T)
-abline(leaf_root_linear, col="red",lwd=3)
-legend(0.5,1.4,paste("R-squared =",round(summary(leaf_root_linear)$r.squared,2)),bty="n",cex = 1.00)
-
-dev.off()
-
-
 
 # Mixed effects models ---------------------------------------------------------
 
