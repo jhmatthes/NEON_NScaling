@@ -291,3 +291,54 @@ mtext("B", side=side, line=line, cex=cex, adj=adj)
 dev.off()
 
 #Stopped here. Do LMEs for this next.
+
+# mixed effects models ------------
+
+library(lme4)
+head(plot.df)
+
+# do this without resorption because there was no clear relationship. This
+# also adds more sites
+
+mean_soil_cn_lme<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID
+                           + litterCNRatio_mean + Lcclass,mean,data=plot.df)
+#head(mean_soil_cn_lme)
+
+#rename to veg type to herb versus woody. 'Croplands' are deemed herbaceous
+mean_soil_cn_lme<- rename_lcc(mean_soil_cn_lme,crop = T)
+# head(mean_soil_cn_lme)
+# unique(mean_soil_cn_lme$Lcclass)
+
+# get aridity data
+vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
+#head(vpd)
+
+#cleanup
+vpd<-vpd[c(2,3)]
+colnames(vpd) <- c('siteID','vpd')
+
+# merge with vpd data frame
+mean_soil_cn_lme <- merge(vpd,mean_soil_cn_lme,by=c('siteID'))
+#head(mean_soil_cn_lme)
+
+#check sample sizes
+length_mean_soil_cn_lme<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=mean_soil_cn_lme)
+
+#remove site with only one rep
+mean_soil_cn_lme<- mean_soil_cn_lme %>%
+  #dplyr::filter(!(siteID=="UNDE")) %>% #only two replicates
+  dplyr::filter(!(siteID=="SCBI"))
+unique(mean_foliar_lme$siteID) # works
+
+# lme functions lets you see P values in summary output
+soil_cn_lme.1<-lme(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass, random= ~1|siteID,data=mean_soil_cn_lme)
+summary(soil_cn_lme.1) #only significant factor is inroganic N
+# r.squaredGLMM(soil_cn_lme.1)
+soil_cn_lme.2<-lmer(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass + (1|siteID),data=mean_soil_cn_lme)
+# r.squaredGLMM(soil_cn_lme.2)
+
+soil_cn_lm<-lm(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass,data=mean_soil_cn_lme)
+summary(soil_cn_lm)
+AIC(soil_cn_lm,soil_cn_lme.1)
+#LME slightly better
+
