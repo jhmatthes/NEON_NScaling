@@ -35,8 +35,8 @@ setwd(dirname(current_path))
 # R studio working directory approach
 
 # Run these to get latest data
-# source("01_download_data.R")
-# source("02_prelim_processing.R")
+source("01_download_data.R")
+source("02_prelim_processing.R")
 
 # Load Data
 source("03_compile-data.R")

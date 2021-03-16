@@ -105,7 +105,7 @@ adj= - 0.15
 
 # A: soil to root N
 plot(rootCNratio~soilCNRatio_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_cn_2)
-mtext('% Root C:N',side=2,line=2.25,cex=1.0)
+mtext('Root C:N',side=2,line=2.25,cex=1.0)
 abline(sensitiivty_soil_root_cn, col="red",lwd=2)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 
@@ -113,8 +113,8 @@ mtext("A", side=side, line=line, cex=cex, adj=adj)
 plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_cn_2[-2,])
 abline(sensitiivty_soil_leaf_cn, col="red",lwd=2)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
-mtext('% Leaf C:N',side=2,line=2.25,cex=1.0)
-mtext('% Total soil C:N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
+mtext('Leaf C:N',side=2,line=2.25,cex=1.0)
+mtext('Total soil C:N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
 
 dev.off()
 

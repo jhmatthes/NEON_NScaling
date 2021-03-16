@@ -48,7 +48,7 @@ names(plot.df)
 myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
             'plotType','litterNPercent_mean','foliarNPercent_mean','foliarCPercent_mean',
             'foliarCNRatio_mean','soilNPercent_MHoriz_mean','soilCNRatio_MHoriz_mean',
-            'pctSand', 'pctSilt', 'pctClay', 'resorpN','inorganicN', 'MAT', 'MAP', 'Lcclass','litterCNRatio_mean')
+            'pctSand', 'pctSilt', 'pctClay', 'resorpN','inorganicN', 'MAT', 'MAP', 'Lcclass','litterCNRatio_mean','netNminugPerGramPerDay')
 
 plot.df <- plot.df[myvars]
 head(plot.df)

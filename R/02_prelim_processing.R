@@ -210,13 +210,26 @@ colnames(inorganicNmerged) <- c('domainID','siteID','plotID','soil_nitrate_mean'
                                 'soil_ammonium_mean','soil_ammonium_n','inorganicN')
 
 
+# tidy up net N mineralization data
+
+# Read in soil texture data
+min.df <- min.df %>%
+  select(all_data.domainID, all_data.siteID, all_data.plotID, all_data.netNminugPerGramPerDay) %>%
+  group_by(all_data.domainID, all_data.siteID, all_data.plotID) %>%
+  summarize(netNminugPerGramPerDay = mean(all_data.netNminugPerGramPerDay, na.rm=TRUE)) %>%
+  filter(!netNminugPerGramPerDay=='NaN')
+
+colnames(min.df) <-c('domainID','siteID','plotID','netNminugPerGramPerDay')
+min.df$netNminugPerGramPerDay<-round(min.df$netNminugPerGramPerDay,2)
+
 # Combine together all variables to the plotID level
 dataCN_plotID <- dplyr::full_join(rootCN_plotID, litterCN_plotID, 
                           by = c("domainID", "siteID", "plotID", "plotType")) %>%
   dplyr::full_join(foliarCN_plotID, by = c("domainID","siteID", "plotID", "plotType")) %>%
   dplyr::full_join(soilCN_plotID, by = c("domainID", "siteID", "plotID", "plotType")) %>%
   dplyr::full_join(soiltexture_plotID, by = c("domainID", "siteID", "plotID")) %>%
-  dplyr::full_join(inorganicNmerged, by = c("domainID", "siteID", "plotID"))
+  dplyr::full_join(inorganicNmerged, by = c("domainID", "siteID", "plotID")) %>%
+  dplyr::full_join(min.df, by = c("domainID", "siteID", "plotID")) 
 
 readr::write_csv(dataCN_plotID,"CN_plotID.csv")
 

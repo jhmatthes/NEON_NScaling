@@ -24,8 +24,14 @@ neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEub
 # devtools::install_github('NEONScience/NEON-utilities/neonUtilities', ref='2.0')
 # #restart R
 
+#for downloading the neonNTrans package
+library(devtools)
+#install_github("NEONScience/NEON-Nitrogen-Transformations/neonNTrans", dependencies=TRUE)  
+library(neonNTrans)
+
 # Load NEON download/processing R package
 library(neonUtilities)
+library(neonNTrans)
 #?loadByProduct
 # Download and stack canopy foliar chemistry: DP1.10026.001
 foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F,
@@ -76,4 +82,21 @@ list2env(soiltexture, .GlobalEnv)
 #   dir.create("data/")
 #   print("Created a data/ folder in the current path to hold downloaded data.") 
 # }
+
+#get mineralization data
+#https://github.com/NEONScience/NEON-Nitrogen-Transformations/tree/master/neonNTrans
+soilData <- loadByProduct(site = "all", dpID = "DP1.10086.001", package = "basic", check.size = F)
+out <- def.calc.ntrans(kclInt = soilData$ntr_internalLab,
+                       kclIntBlank = soilData$ntr_internalLabBlanks,
+                       kclExt = soilData$ntr_externalLab,
+                       soilMoist = soilData$sls_soilMoisture,
+                       dropAmmoniumFlags = "blanks exceed sample value",
+                       dropNitrateFlags = "blanks exceed sample value" )
+
+# turn to data frame
+min.df<-as.data.frame(out[1])
+rm(out) #remove large list from memory
+
+#done
+
 

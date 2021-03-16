@@ -3,6 +3,9 @@
 # project: NEON N scaling
 # notes:
 
+head(plot.df)
+plot(rootNPercent~netNminugPerGramPerDay,data=plot.df)
+
 # Map of sites? -----
 library(rgdal)
 library(raster)
