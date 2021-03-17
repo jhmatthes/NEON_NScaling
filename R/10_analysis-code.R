@@ -95,6 +95,7 @@ mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df)
 mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
 mean_soil_inorganic<-aggregate(inorganicN~siteID + plotID,mean,data=plot.df)
+mean_soil_mineralization<-aggregate(netNminugPerGramPerDay~siteID + plotID,mean,data=plot.df)
 
 #make a table of sites, mean values, and number of replicates
 
@@ -224,7 +225,7 @@ length_mean_foliar_soil_inorganic <- aggregate(plotID ~ siteID, length, data = m
 mean_foliar_soil_inorganic_2 <- mean_foliar_soil_inorganic[-2] %>%
   dplyr::filter(!(siteID=="WREF")) %>% #remove site with only one replicate
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) %>%
+  dplyr::summarise_all(mean) #%>%
   #dplyr::filter(inorganicN < 1) 
   
   #only under lower levels is there a clear linear relationship. It is more saturating in form.
@@ -295,7 +296,7 @@ plot(rootNPercent~inorganicN,xlab='',ylab="",data=mean_soil_root_inorganic_2,cex
 #mtext('% Root N',side=2,line=2.25,cex=1.0)
 abline(sensitivity.sol.root.lm, col="red",lwd=2)
 mtext("C", side=side, line=line, cex=cex, adj=adj)
-#text(1, 0.62, 'R-squared = 0.25 ',cex=1)
+text(1, 0.62, 'R-squared = 0.25 ',cex=1)
 
 # D: total soil leaf N
 plot(foliarNPercent_mean ~ inorganicN,xlab='',ylab="",data=mean_foliar_soil_inorganic_2,cex=1.25)
@@ -305,6 +306,53 @@ mtext('% Inorganic soil N (M Horizon)',side=1,line=2.25,cex=1.0)
 
 
 dev.off()
+
+#mineralization-leaf N relationships
+
+# merge foliar and mineralization data by plot ID
+mean_foliar_soil_mineralization <- merge(mean_foliar, mean_soil_mineralization, by = c('siteID', 'plotID'))
+length_mean_foliar_soil_mineralization <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil_mineralization)
+
+# Get site-level means for foliar N
+mean_foliar_soil_mineralization_2 <- mean_foliar_soil_mineralization[-2] %>%
+  dplyr::filter(!(siteID=="WREF")) %>% #remove site with only one replicate
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) %>%
+  #dplyr::filter(inorganicN < 1) 
+  
+  #28 sites
+  
+  # plot(foliarNPercent_mean~netNminugPerGramPerDay,data=mean_foliar_soil_mineralization_2)
+  #outlierTest(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=mean_foliar_soil_mineralization_2))
+  #no outliers
+  # summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=mean_foliar_soil_mineralization_2))
+
+  #No clear relationship
+
+# mineralization-root relationships  
+
+# merge root and soil data by plot ID
+mean_mineralization_root <- merge(mean_soil_mineralization, mean_root, by = c('siteID', 'plotID'))
+length_mean_mineralization_root <- aggregate(plotID ~ siteID, length, data = mean_mineralization_root_inorganic)
+
+#less replicates in this one
+
+mean_mineralization_root_2 <- mean_mineralization_root[-2] %>%
+  dplyr::group_by(siteID) %>%
+  dplyr::summarise_all(mean) #%>%
+#dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+
+#29 sites
+
+#plot(rootNPercent~netNminugPerGramPerDay,data=mean_mineralization_root_2)
+outlierTest(lm(rootNPercent~netNminugPerGramPerDay,data=mean_mineralization_root_2))
+# no outliers
+summary(lm(rootNPercent~netNminugPerGramPerDay,data=mean_mineralization_root_2))
+# significant
+# Adjusted R-squared:  0.25
+
+#give ID for plotting
+sensitivity.sol.root.lm<-lm(rootNPercent~inorganicN,data=mean_soil_root_inorganic_2)
 
 
 

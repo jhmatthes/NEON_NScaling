@@ -107,18 +107,20 @@ adj= - 0.15
 plot(rootCNratio~soilCNRatio_MHoriz_mean,xlab='',ylab="",data=mean_soil_root_cn_2)
 mtext('Root C:N',side=2,line=2.25,cex=1.0)
 abline(sensitiivty_soil_root_cn, col="red",lwd=2)
+text(25, 29, 'R-squared = 0.49 ',cex=1)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 
 # B: soil leaf N
 plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,xlab='',ylab="",data=mean_foliar_soil_cn_2[-2,])
 abline(sensitiivty_soil_leaf_cn, col="red",lwd=2)
+text(22.5, 19, 'R-squared = 0.66 ',cex=1)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
 mtext('Leaf C:N',side=2,line=2.25,cex=1.0)
 mtext('Total soil C:N (M Horizon)',side=1,line=-1,cex=1.25,outer=T)
 
 dev.off()
 
-#now do this with inroganic N
+# need to add statstics in these figure
 
 
 # mixed effect models -----------------
@@ -156,18 +158,14 @@ unique(mean_foliar_cn_lme$siteID) # works
 # lme functions lets you see P values in summary output
 leaf_cn_lme.1<-lme(foliarCNRatio_mean~ soilCNRatio_MHoriz_mean + vpd + Lcclass, random= ~1|siteID,data=mean_foliar_cn_lme)
 summary(leaf_cn_lme.1) #only significant factor is inroganic N
-# r.squaredGLMM(leaf_cn_lme.1)
-leaf_cn_lme.2<-lmer(foliarCNRatio_mean~soilCNRatio_MHoriz_mean  + vpd  + Lcclass + (1|siteID),data=mean_foliar_cn_lme)
-#summary(leaf_cn_lme.2)
-#r.squaredGLMM(leaf_cn_lme.2)
+r.squaredGLMM(leaf_cn_lme.1)
+#0.57 - 0.31
 
-#only soil C:N significant, more var in conditional 
+# leaf_cn_lme.2<-lmer(foliarCNRatio_mean~soilCNRatio_MHoriz_mean  + vpd  + Lcclass + (1|siteID),data=mean_foliar_cn_lme)
+# #summary(leaf_cn_lme.2)
+# #r.squaredGLMM(leaf_cn_lme.2)
 
-#see if adding random effects 'improves' the model
-leaf_cn_lm.1<-lm(foliarCNRatio_mean ~ soilCNRatio_MHoriz_mean + vpd  + Lcclass,data=mean_foliar_cn_lme)
-summary(leaf_cn_lm.1)
 
-AIC(leaf_cn_lme.1,leaf_cn_lm.1)
 
 #
 #
@@ -197,16 +195,11 @@ length_mean_root_cn_lme<-aggregate(rootCNratio~siteID,length,data=mean_root_cn_l
 root_cn_lme.1<-lme(rootCNratio~ soilCNRatio_MHoriz_mean + vpd + Lcclass , random= ~1|siteID,data=mean_root_cn_lme)
 summary(root_cn_lme.1) # iorganic N barely significant in this case
 r.squaredGLMM(root_cn_lme.1)
+#0.60-0.19
 
-root_cn_lme.2<-lmer(rootCNratio ~ soilCNRatio_MHoriz_mean + vpd  + Lcclass + (1|siteID),data=mean_root_cn_lme)
-summary(root_cn_lme.2)
-r.squaredGLMM(root_cn_lme.2) 
-
-#see if adding random effects 'improves' the model
-root_cn_lm.1<-lm(rootCNratio ~ soilCNRatio_MHoriz_mean + vpd  + Lcclass,data=mean_root_cn_lme)
-summary(root_cn_lm.1)
-
-AIC(root_cn_lm.1,root_cn_lme.1)
+# root_cn_lme.2<-lmer(rootCNratio ~ soilCNRatio_MHoriz_mean + vpd  + Lcclass + (1|siteID),data=mean_root_cn_lme)
+# summary(root_cn_lme.2)
+# r.squaredGLMM(root_cn_lme.2) 
 
 # plant feedbacks to soil N----
 
