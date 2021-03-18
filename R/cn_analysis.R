@@ -41,6 +41,8 @@ mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.d
 # mean_site_soil  <-merge(sample_size_soil,mean_site_soil ,by=c('siteID'))
 # colnames(mean_site_soil) <-c('siteID','N','%TotalSoil')
 
+#soil effects on plant N -----
+
 #root and leaf merge
 root_leaf_cn <- merge(mean_root_cn,mean_foliar_cn,by=c('siteID','plotID'),na.rm=T)
 plot(foliarCNRatio_mean~rootCNratio,data=root_leaf_cn)
@@ -123,7 +125,7 @@ dev.off()
 # need to add statstics in these figure
 
 
-# mixed effect models -----------------
+# mixed effect models: soil effects on plant N -----------------
 
 head(plot.df)
 library(lme4)
@@ -216,8 +218,7 @@ mean_litter_soil_cn_2 <- mean_litter_soil_cn[-2] %>%
   dplyr::filter(!(siteID=="SJER")) %>% #remove site with only one replicate
   dplyr::filter(!(siteID=="DEJU")) %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) #%>%
-#dplyr::filter(soilNPercent_MHoriz_mean < 1)
+  dplyr::summarise_all(mean) 
 head(mean_litter_soil_cn_2)
 plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
 
@@ -244,8 +245,8 @@ mean_resorp_soil_cn_2 <- mean_resorp_soil_cn[-2] %>%
   dplyr::filter(!(siteID=="SJER")) %>% #remove site with only one replicate
   dplyr::filter(!(siteID=="BONA")) %>%
   dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) #%>%
-#dplyr::filter(soilNPercent_MHoriz_mean < 1)
+  dplyr::summarise_all(mean) 
+
 head(mean_litter_soil_cn_2)
 plot(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2)
 
@@ -273,6 +274,7 @@ adj= - 0.15
 plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2,xlab='',ylab="Total soil C:N")
 mtext('Litter C:N',side=1,line=2.25,cex=1.0)
 abline(litter_soil_cn_lm, col="red",lwd=2)
+text(91, 15, 'R-squared = 0.54',cex=1)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 
 # B: resorp to soil N
@@ -319,19 +321,12 @@ length_mean_soil_cn_lme<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=me
 
 #remove site with only one rep
 mean_soil_cn_lme<- mean_soil_cn_lme %>%
-  #dplyr::filter(!(siteID=="UNDE")) %>% #only two replicates
   dplyr::filter(!(siteID=="SCBI"))
-unique(mean_foliar_lme$siteID) # works
+unique(mean_soil_cn_lme$siteID) # works
 
 # lme functions lets you see P values in summary output
 soil_cn_lme.1<-lme(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass, random= ~1|siteID,data=mean_soil_cn_lme)
-summary(soil_cn_lme.1) #only significant factor is inroganic N
+summary(soil_cn_lme.1)
 # r.squaredGLMM(soil_cn_lme.1)
-soil_cn_lme.2<-lmer(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass + (1|siteID),data=mean_soil_cn_lme)
-# r.squaredGLMM(soil_cn_lme.2)
-
-soil_cn_lm<-lm(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd + Lcclass,data=mean_soil_cn_lme)
-summary(soil_cn_lm)
-AIC(soil_cn_lm,soil_cn_lme.1)
-#LME slightly better
+0.55 - 0.11
 
