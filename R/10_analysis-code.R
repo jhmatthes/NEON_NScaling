@@ -3,28 +3,6 @@
 # project: NEON N scaling
 # notes:
 
-head(plot.df)
-plot(rootNPercent~netNminugPerGramPerDay,data=plot.df)
-
-# Map of sites? -----
-library(rgdal)
-library(raster)
-
-
-# future map:
-### Figure 1: Map of sites (perhaps overlay on a climate and/or veg type layer)
-# map paired with table of sample size per site for each 'pool' (foliar, litter, 
-# soil, root) % N
-
-neon_domains<-readOGR(dsn="./../data_pre-processed/NEONDomains_0",layer="NEON_Domains")
-neon_domains<- sp::spTransform(neon_domains, CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"))
-plot(neon_domains)
-
-neone_bounadaries<-readOGR(dsn="./../data_pre-processed/Field_Sampling_Boundaries",layer="terrestrialSamplingBoundaries")
-plot(neone_bounadaries)
-
-# need to look into this omre...
-
 # Distributions of N pools -------------------------------------------
 pdf(file='./../output/univar-hist.pdf',
     width=8,height=8)
@@ -150,6 +128,8 @@ mean_foliar_soil_2 <- mean_foliar_soil[-2] %>%
   dplyr::summarise_all(mean) #%>%
   #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
 
+length(mean_foliar_soil_2$siteID) #31 sites
+
 #look at  outliers
 outlierTest(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mean_foliar_soil_2))
 #no outliers
@@ -170,6 +150,8 @@ mean_soil_root_2 <- mean_soil_root[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) #%>%
   #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+
+length(mean_soil_root_2$siteID) #31 sites
 
 #plot(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2)
 outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root_2))

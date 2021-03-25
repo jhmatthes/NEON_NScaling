@@ -1,5 +1,8 @@
 #C:N analyses
 
+# 31 sites for root-soil total N relationships
+# 31 sites for foliar-soil total N relationships
+
 head(plot.df)
 
 # Get sample sizes 
@@ -57,6 +60,8 @@ mean_foliar_soil_cn_2 <- mean_foliar_soil_cn[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) #%>%
 
+length(mean_foliar_soil_cn_2$siteID) # 21 sites
+
 plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=mean_foliar_soil_cn_2)
 
 #look at  outliers
@@ -78,6 +83,8 @@ mean_soil_root_cn_2 <- mean_soil_root_cn[-2] %>%
   dplyr::group_by(siteID) %>%
   dplyr::summarise_all(mean) #%>%
 #dplyr::filter(soilNPercent_MHoriz_mean < 1) # get rid of anomalously high value
+
+length(mean_soil_root_cn_2$siteID) #21 sites
 
 #plot(rootCNratio~soilNPercent_MHoriz_mean,data=mean_soil_root_cn_2)
 outlierTest(lm(rootCNratio~soilCNRatio_MHoriz_mean,data=mean_soil_root_cn_2))
