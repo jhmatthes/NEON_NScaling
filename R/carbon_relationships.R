@@ -13,7 +13,7 @@ mean_foliar_c_n<-aggregate(foliarCPercent_mean~siteID,length,data=plot.df)
 mean_root_c_n <- aggregate(rootCPercent ~ siteID , length, data = plot.df)
 mean_soil_c_n<-aggregate(soilCPercent_MHoriz_mean~siteID ,length,data=plot.df)
 
-# look at folar and soil N relationship ------
+# look at folar and soil C relationship ------
 mean_foliar_soil_c <- merge(mean_foliar_c, mean_soil_c, by = c('siteID', 'plotID'))
 length_mean_foliar_soil_c <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil_c )
 colnames(length_mean_foliar_soil_c) <- c('siteID','reps')

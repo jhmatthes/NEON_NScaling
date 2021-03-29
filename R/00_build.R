@@ -17,7 +17,7 @@
 # #restart R
 
 # Import packages
-pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn")
+pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn",'lme4')
 lapply(pkgs, library, character.only = TRUE) # load them
 
 # Set wd
