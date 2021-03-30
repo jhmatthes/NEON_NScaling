@@ -71,30 +71,35 @@ rename_lcc<-function(x,crop=T){
 
 # function to select plant-soil N site combinations with at least 4 replicates----
 
-# work from this:
+filter_reps <- function(x,y,name1,name2){
 
-mean_soil_foliar_cn <- merge(mean_soil_cn, mean_foliar_cn, by = c('siteID', 'plotID'))
+mean_pools <- merge(x, y, by = c('siteID', 'plotID'))
 
 # get site reps
-length_mean_soil_foliar_cn <- aggregate(plotID ~ siteID, length, data = mean_soil_foliar_cn)
-colnames(length_mean_soil_foliar_cn) <- c('siteID','reps')
+length_mean_pools <- aggregate(plotID ~ siteID, length, data = mean_pools)
+colnames(length_mean_pools) <- c('siteID','reps')
 
 #remove sites with less than 4 replicates
-length_mean_soil_foliar_cn_reps <- length_mean_soil_foliar_cn %>%
+length_mean_pools_reps <- length_mean_pools %>%
   dplyr::filter(reps > 3)
 
 #merge so sites with < 4 reps are removed
-merge_mean_soil_foliar_cn <- merge(length_mean_soil_foliar_cn_reps,mean_soil_foliar_cn,by=c('siteID'))
+merge_mean_pools <- merge(length_mean_pools_reps,mean_pools,by=c('siteID'))
 
 #get site means
-merge_mean_soil_foliar_cn   <- merge_mean_soil_foliar_cn   %>%
+merge_mean_pools   <- merge_mean_pools %>%
   group_by(siteID) %>%
-  summarize(soilCNRatio_MHoriz_mean = mean(soilCNRatio_MHoriz_mean),
-            foliarCNRatio_mean = mean(foliarCNRatio_mean))
-merge_mean_soil_foliar_cn <- data.frame(merge_mean_soil_foliar_cn)
-length(merge_mean_soil_foliar_cn$siteID) 
+  summarise_all(mean)
+merge_mean_pools <- data.frame(merge_mean_pools)
+#length(merge_mean_pools$siteID) 
 #N = 20 sites
 
 #round to two decimal places
-merge_mean_soil_foliar_cn$foliarCNRatio_mean <- round(merge_mean_soil_foliar_cn$foliarCNRatio_mean,2)
-merge_mean_soil_foliar_cn$soilCNRatio_MHoriz_mean <- round(merge_mean_soil_foliar_cn$soilCNRatio_MHoriz_mean,2)
+# merge_mean_pools$name1 <- round(merge_mean_pools$name1,2)
+# merge_mean_pools$name2 <- round(merge_mean_pools$name2,2)
+
+return(merge_mean_pools)
+
+}
+
+

@@ -117,32 +117,11 @@ soil_soil<-left_join(mean_site_soil,mean_site_soil_inorganic ,by=c('siteID'),na.
 #-------------------------------------------------------------------------------
 # foliar and total soil N bivariate relationship ----
 
-# merge datasets to do bivariate spatial relationships of site means
-
-# merge foliar and total soil data by plot ID
-mean_foliar_soil <- merge(mean_foliar, mean_soil, by = c('siteID', 'plotID'))
-
-# get sample size for each combination
-length_mean_foliar_soil <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil)
-colnames(length_mean_foliar_soil ) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_foliar_soil_reps <- length_mean_foliar_soil %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_foliar_soil <- merge(length_mean_foliar_soil_reps,mean_foliar_soil,by=c('siteID'))
-
-#get site means
-merge_foliar_soil_means <- merge_foliar_soil  %>%
-  group_by(siteID) %>%
-  summarize(foliarNPercent_mean = mean(foliarNPercent_mean),
-            soilNPercent_MHoriz_mean = mean(soilNPercent_MHoriz_mean))
-
-merge_foliar_soil_means <- data.frame(merge_foliar_soil_means)
+#make data frame where each comination has at least 4 reps per site
+merge_foliar_soil_means <-filter_reps(mean_foliar, mean_soil)
 
 length(merge_foliar_soil_means$siteID) 
-#31 sites with 1 is the limit # of reps, 29 with the limit as 4
+#29 with the limit as 4
 
 #round to 2 decimal points
 merge_foliar_soil_means$foliarNPercent_mean<-round(merge_foliar_soil_means$foliarNPercent_mean,2)
@@ -157,82 +136,39 @@ plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means
 
 #look at LM
 summary(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)) 
-#not significant (with or without high soil N value)
-
-rm(length_mean_foliar_soil_reps,length_mean_foliar_soil,mean_foliar_soil )
+#Adjusted R-squared:  -0.01506
+#p-value: 0.4512
 
 #-------------------------------------------------------------------------------
 # root and total soil N -----
 
-# merge root and soil data by plot ID
-mean_soil_root <- merge(mean_soil, mean_root, by = c('siteID', 'plotID'))
+#make data frame where each combination has at least 4 reps per site
+merge_soil_root <- filter_reps(mean_soil,mean_root)
 
-#get sample size
-length_mean_soil_root <- aggregate(plotID ~ siteID, length, data = mean_soil_root)
-colnames(length_mean_soil_root) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_soil_root_reps <- length_mean_soil_root %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_soil_root <- merge(length_mean_soil_root_reps,mean_soil_root,by=c('siteID'))
-
-#get site means
-merge_soil_root  <- merge_soil_root  %>%
-  group_by(siteID) %>%
-  summarize(rootNPercent = mean(rootNPercent),
-            soilNPercent_MHoriz_mean = mean(soilNPercent_MHoriz_mean))
-merge_soil_root  <- data.frame(merge_soil_root)
-
-#rount to two decimal points
+#count to two decimal points
 merge_soil_root$rootNPercent <- round(merge_soil_root$rootNPercent,2)
 merge_soil_root$soilNPercent_MHoriz_mean <- round(merge_soil_root$soilNPercent_MHoriz_mean,2)
 
 length(merge_soil_root$siteID) 
-#31 sites with 1 as the rep limit, 26 sites with the 4 rep limit
+#26 sites with the 4 rep limit
 
 # take a look
-#plot(rootNPercent~soilNPercent_MHoriz_mean,data=mean_soil_root)
+#plot(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root)
 outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root))
 #one outlier 
 
 #remove outlier
 #plot(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-21,])
 #summary(lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-21,])) 
-#not significant with or without high values
 #Adjusted R-squared:  0.04297 
 #p-value: 0.163
-
-# clear from workspace if you want if you want
-rm(mean_soil_root, length_mean_soil_root_reps,length_mean_soil_root)
 
 #done
 #-------------------------------------------------------------------------------
 # inorganic N and leaf N ------------
 
-#soil-leaf relationships
+merge_foliar_soil_inorganic <- filter_reps(mean_foliar, mean_soil_inorganic)
 
-# merge foliar and inorganic soil data by plot ID
-mean_foliar_soil_inorganic <- merge(mean_foliar, mean_soil_inorganic, by = c('siteID', 'plotID'))
-
-#get replicates/number of sites
-length_mean_foliar_soil_inorganic <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil_inorganic)
-colnames(length_mean_foliar_soil_inorganic) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_foliar_soil_inorganic_reps <- length_mean_foliar_soil_inorganic %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_foliar_soil_inorganic <- merge(length_mean_foliar_soil_inorganic_reps,mean_foliar_soil_inorganic,by=c('siteID'))
-
-#get site means
-merge_foliar_soil_inorganic  <- merge_foliar_soil_inorganic   %>%
-  group_by(siteID) %>%
-  summarize(foliarNPercent_mean = mean(foliarNPercent_mean),
-            inorganicN = mean(inorganicN))
-merge_foliar_soil_inorganic <- data.frame(merge_foliar_soil_inorganic)
 length(merge_foliar_soil_inorganic$siteID) 
 # 27 sites with the 4 rep thresholds
 
@@ -242,41 +178,20 @@ merge_foliar_soil_inorganic$inorganicN<- round(merge_foliar_soil_inorganic$inorg
 
 #take a look
 # plot(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
-#outlierTest(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
+# outlierTest(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
 #no outliers
 # summary(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
 
-#Adjusted R-squared:  0.05518
-#p-value: 0.1251
-
-rm(length_mean_foliar_soil_inorganic_reps,length_mean_foliar_soil_inorganic,
-   mean_foliar_soil_inorganic)
+#Adjusted R-squared:  0.05556
+#p-value: 0.1243
 
 # done
 #-------------------------------------------------------------------------------
 
 # root N and  soil inorganic N ------
 
-# merge root and soil data by plot ID
-mean_soil_root_inorganic <- merge(mean_soil_inorganic, mean_root, by = c('siteID', 'plotID'))
+merge_soil_root_inorganic <- filter_reps(mean_soil_inorganic, mean_root)
 
-#get site replicates
-length_mean_soil_root_inorganic <- aggregate(plotID ~ siteID, length, data = mean_soil_root_inorganic)
-colnames(length_mean_soil_root_inorganic) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_soil_root_inorganic_reps <- length_mean_soil_root_inorganic %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_soil_root_inorganic <- merge(length_mean_soil_root_inorganic_reps,mean_soil_root_inorganic,by=c('siteID'))
-
-#get site means
-merge_soil_root_inorganic  <- merge_soil_root_inorganic   %>%
-  group_by(siteID) %>%
-  summarize(rootNPercent = mean(rootNPercent),
-            inorganicN = mean(inorganicN))
-merge_soil_root_inorganic <- data.frame(merge_soil_root_inorganic)
 length(merge_soil_root_inorganic$siteID) 
 # 26 sites with minimum of 4 reps
 
@@ -285,20 +200,16 @@ merge_soil_root_inorganic$rootNPercent<-round(merge_soil_root_inorganic$rootNPer
 merge_soil_root_inorganic$inorganicN<-round(merge_soil_root_inorganic$inorganicN,2)
 
 #take a look
-#plot(rootNPercent~inorganicN,data=mean_soil_root_inorganic)
-outlierTest(lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic))
+#plot(rootNPercent~inorganicN,data=merge_soil_root_inorganic)
+#outlierTest(lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic))
 #no outliers
 
-summary(lm(rootNPercent~inorganicN,data=mean_soil_root_inorganic))
-# p-value: 1.979e-06
-# Adjusted R-squared:  0.1792 
+summary(lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic))
+# p-value: 0.02617
+# Adjusted R-squared:  0.1559 
 
 #give this ID for plotting in the multi-panel figure
-#plot(rootNPercent~inorganicN,data=mean_soil_root_inorganic[-c(39,101),])
-sensitivity.soil.root.lm<-lm(rootNPercent~inorganicN,data=mean_soil_root_inorganic)
-
-rm(length_mean_soil_root_inorganic_reps, length_mean_soil_root_inorganic,
-   mean_soil_root_inorganic)
+sensitivity.soil.root.lm<-lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic)
 
 #done
 
@@ -339,7 +250,7 @@ plot(rootNPercent~inorganicN,xlab='',ylab="",data=merge_soil_root_inorganic,cex=
 #mtext('% Root N',side=2,line=2.25,cex=1.0)
 abline(sensitivity.soil.root.lm, col="red",lwd=2)
 mtext("C", side=side, line=line, cex=cex, adj=adj)
-text(1, 0.62, 'R-squared = 0.18',cex=1)
+text(1, 0.62, 'R-squared = 0.16',cex=1)
 
 # D: inorganic soil leaf N
 plot(foliarNPercent_mean ~ inorganicN,xlab='',ylab="",data=merge_foliar_soil_inorganic,cex=1.25)
@@ -455,27 +366,7 @@ r.squaredGLMM(root_lme.1)
 mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
 mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
 
-# Merge Litter and total soil N data
-mean_litter_total_soil <- merge(mean_litter, mean_soil, by = c('siteID', 'plotID'))
-
-# get sample sizes per site
-length_mean_litter_total_soil <- aggregate(plotID ~ siteID, length, data = mean_litter_total_soil)
-colnames(length_mean_litter_total_soil) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_litter_total_soil_reps <- length_mean_litter_total_soil %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_mean_litter_total_soil <- merge(length_mean_litter_total_soil_reps,
-                                      mean_litter_total_soil,by=c('siteID'))
-
-#get site means
-merge_mean_litter_total_soil  <- merge_mean_litter_total_soil  %>%
-  group_by(siteID) %>%
-  summarize(litterNPercent_mean = mean(litterNPercent_mean),
-            soilNPercent_MHoriz_mean = mean(soilNPercent_MHoriz_mean))
-merge_mean_litter_total_soil  <- data.frame(merge_mean_litter_total_soil)
+merge_mean_litter_total_soil <- filter_reps(mean_litter, mean_soil)
 
 length(merge_mean_litter_total_soil$siteID)
 # 15 sites
@@ -489,8 +380,7 @@ plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_s
 outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil)) 
 # one outlier, # 4
 plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,])
-litter_soil_lm<-lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,])
-summary(litter_soil_lm)
+summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,]))
 # Adjusted R-squared:  -0.0826 
 # p-value: 0.9296
 
@@ -498,26 +388,8 @@ summary(litter_soil_lm)
 #
 
 # Resorption and soil N
-mean_resorp_total_soil <- merge(mean_resorp, mean_soil, by = c('siteID', 'plotID'))
 
-# reps per site
-length_mean_resorp_total_soil <- aggregate(plotID ~ siteID, length, data = mean_resorp_total_soil)
-colnames(length_mean_resorp_total_soil) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_resorp_total_soil_reps <- length_mean_resorp_total_soil %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_mean_resorp_total_soil <- merge(length_mean_resorp_total_soil_reps,
-                                      mean_resorp_total_soil,by=c('siteID'))
-
-#get site means
-merge_mean_resorp_total_soil  <- merge_mean_resorp_total_soil  %>%
-  group_by(siteID) %>%
-  summarize(resorpN = mean(resorpN),
-            soilNPercent_MHoriz_mean = mean(soilNPercent_MHoriz_mean))
-merge_mean_resorp_total_soil  <- data.frame(merge_mean_resorp_total_soil)
+merge_mean_resorp_total_soil <- filter_reps(mean_resorp, mean_soil)
 
 length(merge_mean_resorp_total_soil$siteID)
 # 10 sites
@@ -533,8 +405,6 @@ outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soi
 #look without outlier
 plot(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soil[-1,])
 summary(lm(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soil[-1,]))
-summary(resorp_soil_lm)
-
 # Adjusted R-squared:  -0.1414 
 # p-value: 0.9273
 
@@ -782,33 +652,12 @@ r.squaredGLMM(inorganic_soil_lme.1)
 # mineralization-leaf N relationships ------
 
 # merge foliar and mineralization data by plot ID
-mean_foliar_soil_mineralization <- merge(mean_foliar, mean_soil_mineralization, by = c('siteID', 'plotID'))
-
-# get site replicates
-length_mean_foliar_soil_mineralization <- aggregate(plotID ~ siteID, length, data = mean_foliar_soil_mineralization)
-colnames(length_mean_foliar_soil_mineralization) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_foliar_soil_mineralization_reps <- length_mean_foliar_soil_mineralization  %>%
-  dplyr::filter(reps > 3)
-
-#merge with site-means df
-merge_mean_foliar_soil_mineralization <- merge(length_mean_foliar_soil_mineralization_reps,mean_foliar_soil_mineralization,by=c('siteID'))
-
-#get site means
-merge_mean_foliar_soil_mineralization  <- merge_mean_foliar_soil_mineralization   %>%
-  group_by(siteID) %>%
-  summarize(netNminugPerGramPerDay = mean(netNminugPerGramPerDay),
-            foliarNPercent_mean= mean(foliarNPercent_mean))
-merge_mean_foliar_soil_mineralization <- data.frame(merge_mean_foliar_soil_mineralization)
-length(merge_mean_foliar_soil_mineralization$siteID) 
-# 25 sites with minimum of 4 reps
+merge_mean_foliar_soil_mineralization <- filter_reps(mean_foliar, mean_soil_mineralization)
 
 #round to two decimal points
 merge_mean_foliar_soil_mineralization$foliarNPercent_mean<-round(merge_mean_foliar_soil_mineralization$foliarNPercent_mean,2)
 merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay<-round(merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay,2)
   
-
 # take a look  
 plot(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization)
 outlierTest(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
@@ -822,25 +671,8 @@ summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soi
 # mineralization-root relationships ------
 
 # merge root and soil data by plot ID
-mean_mineralization_root <- merge(mean_soil_mineralization, mean_root, by = c('siteID', 'plotID'))
+merge_mean_mineralization_root <- filter_reps(mean_soil_mineralization, mean_root)
 
-#get site reps
-length_mean_mineralization_root <- aggregate(plotID ~ siteID, length, data = mean_mineralization_root)
-colnames(length_mean_mineralization_root) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_mineralization_root_reps <- length_mean_mineralization_root  %>%
-  dplyr::filter(reps > 3)
-
-#merge with site-means df
-merge_mean_mineralization_root <- merge(length_mean_mineralization_root_reps,mean_mineralization_root,by=c('siteID'))
-
-#get site means
-merge_mean_mineralization_root  <- merge_mean_mineralization_root   %>%
-  group_by(siteID) %>%
-  summarize(netNminugPerGramPerDay = mean(netNminugPerGramPerDay),
-            rootNPercent= mean(rootNPercent))
-merge_mean_mineralization_root <- data.frame(merge_mean_mineralization_root)
 length(merge_mean_mineralization_root$siteID) 
 # N = 23
 
@@ -856,31 +688,10 @@ summary(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_ro
 #-------------------------------------------------------------------------------
 # Root and foliar N relationship --------------------------------------------------
 
+merge_mean_foliar_root <- filter_reps(mean_foliar, mean_root)
 
-# merge foliar and root data by plot ID
-mean_foliar_root <- merge(mean_foliar, mean_root, by = c('siteID', 'plotID'))
-
-#get site reps
-length_mean_foliar_root <- aggregate(plotID ~ siteID, length, data = mean_foliar_root)
-
-colnames(length_mean_foliar_root) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_foliar_root_reps <- length_mean_foliar_root  %>%
-  dplyr::filter(reps > 3)
-
-#merge with site-means df
-merge_mean_foliar_root <- merge(length_mean_foliar_root_reps,mean_foliar_root,by=c('siteID'))
-
-#get site means
-merge_mean_foliar_root <- merge_mean_foliar_root   %>%
-  group_by(siteID) %>%
-  summarize(foliarNPercent_mean = mean(foliarNPercent_mean),
-            rootNPercent= mean(rootNPercent))
-merge_mean_foliar_root <- data.frame(merge_mean_foliar_root)
 length(merge_mean_foliar_root$siteID) 
 # N = 24 sites
-
 
 #plot(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root)
 
@@ -908,5 +719,6 @@ plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=merge_mean_foliar_ro
 mtext('% Leaf N',side=2,line=3,cex=1.5)
 mtext('% Root N',side=1,line=3,cex=1.5,outer=T)
 abline(root_leaf_linear, col="red",lwd=2)
+text(1.2, 01.5, 'R-squared = 0.30',cex=1)
 
 dev.off()

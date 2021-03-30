@@ -1,19 +1,11 @@
 #C:N analyses
 
-# 31 sites for root-soil total N relationships
-# 31 sites for foliar-soil total N relationships
-
 head(plot.df)
 
 # Get sample sizes and plot means ------
 sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df)
-#sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
 sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df) 
 sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df)
-#sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df)
-
-# HEAL has sample size of 1 for total soil N, this gets removed from analysis
-# anyways because there are no data from any of the other three pools
 
 # Get mean values for each plot
 mean_foliar_cn<-aggregate(foliarCNRatio_mean~siteID + plotID,mean,data=plot.df)
@@ -23,28 +15,10 @@ mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.d
 #-------------------------------------------------------------------------------
 # soil and root C:N relationship -----
 
-# now do root and soil N
-mean_soil_root_cn <- merge(mean_soil_cn, mean_root_cn, by = c('siteID', 'plotID'))
+merge_mean_soil_root_cn<-filter_reps(mean_soil_cn, mean_root_cn)
 
-# get site reps
-length_mean_soil_root_cn <- aggregate(plotID ~ siteID, length, data = mean_soil_root_cn)
-colnames(length_mean_soil_root_cn) <- c('siteID','reps')
-
-#remove sites with less than 4 replicates
-length_mean_soil_root_cn_reps <- length_mean_soil_root_cn %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_mean_soil_root_cn <- merge(length_mean_soil_root_cn_reps,mean_soil_root_cn,by=c('siteID'))
-
-#get site means
-merge_mean_soil_root_cn   <- merge_mean_soil_root_cn    %>%
-  group_by(siteID) %>%
-  summarize(rootCNratio = mean(rootCNratio),
-            soilCNRatio_MHoriz_mean = mean(soilCNRatio_MHoriz_mean))
-merge_mean_soil_root_cn <- data.frame(merge_mean_soil_root_cn)
-length(merge_mean_soil_root_cn$siteID) 
-#N = 21 sites
+length(merge_mean_soil_root_cn$siteID)
+#N = 20 sites
 
 #round to two decimal places
 merge_mean_soil_root_cn$rootCNratio <- round(merge_mean_soil_root_cn$rootCNratio,2)
@@ -62,26 +36,9 @@ sensitiivty_soil_root_cn<-lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean
 
 #-------------------------------------------------------------------------------
 # soil and leaf C:N relationship ---------
-# now do root and soil N
-mean_soil_foliar_cn <- merge(mean_soil_cn, mean_foliar_cn, by = c('siteID', 'plotID'))
 
-# get site reps
-length_mean_soil_foliar_cn <- aggregate(plotID ~ siteID, length, data = mean_soil_foliar_cn)
-colnames(length_mean_soil_foliar_cn) <- c('siteID','reps')
+merge_mean_soil_foliar_cn <- filter_reps(mean_soil_cn, mean_foliar_cn)
 
-#remove sites with less than 4 replicates
-length_mean_soil_foliar_cn_reps <- length_mean_soil_foliar_cn %>%
-  dplyr::filter(reps > 3)
-
-#merge so sites with < 4 reps are removed
-merge_mean_soil_foliar_cn <- merge(length_mean_soil_foliar_cn_reps,mean_soil_foliar_cn,by=c('siteID'))
-
-#get site means
-merge_mean_soil_foliar_cn   <- merge_mean_soil_foliar_cn   %>%
-  group_by(siteID) %>%
-  summarize(soilCNRatio_MHoriz_mean = mean(soilCNRatio_MHoriz_mean),
-            foliarCNRatio_mean = mean(foliarCNRatio_mean))
-merge_mean_soil_foliar_cn <- data.frame(merge_mean_soil_foliar_cn)
 length(merge_mean_soil_foliar_cn$siteID) 
 #N = 20 sites
 
@@ -91,7 +48,6 @@ merge_mean_soil_foliar_cn$soilCNRatio_MHoriz_mean <- round(merge_mean_soil_folia
 
 #plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn)
 outlierTest(lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn))
-#no outliers
 
 #remove outlier
 #plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn[-1,])
@@ -211,23 +167,16 @@ r.squaredGLMM(root_cn_lme.1)
 #note again soil variably only significant main effect, more variance explained in random effects
 
 #-------------------------------------------------------------------------------
-# plant feedbacks to soil N----
+# plant feedbacks to soil C:N----
 
-#plot and site means
+# Litter and total soil N
 mean_litter_cn<-aggregate( litterCNRatio_mean~siteID + plotID,mean,data=plot.df)
 mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
 
-# Litter and total soil N
-mean_litter_soil_cn <- merge(mean_litter_cn, mean_soil_cn, by = c('siteID', 'plotID'))
-length_mean_litter_soil_cn  <- aggregate(plotID ~ siteID, length, data = mean_litter_soil_cn)
+mean_litter_soil_cn_2 <- filter_reps(mean_litter_cn, mean_soil_cn)
 
-# Get site means
-mean_litter_soil_cn_2 <- mean_litter_soil_cn[-2] %>%
-  dplyr::filter(!(siteID=="SJER")) %>% #remove site with only one replicate
-  dplyr::filter(!(siteID=="DEJU")) %>%
-  dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) 
-head(mean_litter_soil_cn_2)
+length(mean_litter_soil_cn_2$plotID)
+# 13 reps
 plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
 
 #look at  outliers
@@ -235,7 +184,8 @@ outlierTest(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_
 #no outliers
 
 #summary(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2))
-#Adjusted R-squared:  0.5386, p-value: 0.001111
+#Adjusted R-squared:  0.5817, 
+#p-value: 0.001471
 
 #for figure linear fit
 litter_soil_cn_lm<-lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
@@ -246,24 +196,19 @@ litter_soil_cn_lm<-lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litte
 
 #now do resorption and soil C:N
 
-mean_resorp_soil_cn <- merge(mean_resorp, mean_soil_cn, by = c('siteID', 'plotID'))
-length_mean_mean_resorp_soil_cn  <- aggregate(plotID ~ siteID, length, data = mean_resorp_soil_cn)
-
-# Get site means
-mean_resorp_soil_cn_2 <- mean_resorp_soil_cn[-2] %>%
-  dplyr::filter(!(siteID=="SJER")) %>% #remove site with only one replicate
-  dplyr::filter(!(siteID=="BONA")) %>%
-  dplyr::group_by(siteID) %>%
-  dplyr::summarise_all(mean) 
+mean_resorp_soil_cn_2 <- filter_reps(mean_resorp, mean_soil_cn)
+length(mean_resorp_soil_cn_2$plotID)
+# N = 9 sites
 
 plot(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2)
 
 #look at  outliers
-outlierTest(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
+#outlierTest(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
 #no outliers
 
 #summary(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
-#NS
+#Adjusted R-squared:  -0.04855 
+#p-value: 0.4536
 
 pdf(file='./../output/bivar_litter_resorp_soil_CN.pdf',
     width=8,height=7)
@@ -282,7 +227,7 @@ adj= - 0.15
 plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2,xlab='',ylab="Total soil C:N")
 mtext('Litter C:N',side=1,line=2.25,cex=1.0)
 abline(litter_soil_cn_lm, col="red",lwd=2)
-text(91, 15, 'R-squared = 0.54',cex=1)
+text(91, 15, 'R-squared = 0.58',cex=1)
 mtext("A", side=side, line=line, cex=cex, adj=adj)
 
 # B: resorp to soil N
