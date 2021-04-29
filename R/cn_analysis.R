@@ -29,6 +29,9 @@ outlierTest(lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)
 #no outliers
 
 #summary(lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)) 
+root_soil_cn_lm<-lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)
+tab_model(root_soil_cn_lm)
+
 #Adjusted R-squared:  0.4305, p-value: 0.001004
 
 #store for linear fit
@@ -51,7 +54,8 @@ outlierTest(lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_f
 
 #remove outlier
 #plot(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn[-1,])
-#summary(lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn[-1,])) 
+foliar_soil_cn_lm<-lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn[-1,])
+tab_model(foliar_soil_cn_lm)
 # Adjusted R-squared:  0.6695
 #p-value: 1.131e-05
 
@@ -129,6 +133,7 @@ unique(mean_foliar_cn_lme$siteID) # works
 # lme functions lets you see P values in summary output
 leaf_cn_lme.1<-lme(foliarCNRatio_mean~ soilCNRatio_MHoriz_mean + vpd + Lcclass, random= ~1|siteID,data=mean_foliar_cn_lme)
 summary(leaf_cn_lme.1) #only significant factor is soil C:N
+tab_model(leaf_cn_lme.1)
 r.squaredGLMM(leaf_cn_lme.1)
 #0.57 - 0.31
 
@@ -161,6 +166,7 @@ length_mean_root_cn_lme<-aggregate(rootCNratio~siteID,length,data=mean_root_cn_l
 #now do lmes
 root_cn_lme.1<-lme(rootCNratio~ soilCNRatio_MHoriz_mean + vpd + Lcclass , random= ~1|siteID,data=mean_root_cn_lme)
 summary(root_cn_lme.1) # soil C:N only significant 
+tab_model(root_cn_lme.1)
 r.squaredGLMM(root_cn_lme.1)
 #0.60-0.19
 
@@ -183,7 +189,8 @@ plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
 outlierTest(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2))
 #no outliers
 
-#summary(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2))
+soil_litter_cn_lm<-(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2))
+tab_model(soil_litter_cn_lm)
 #Adjusted R-squared:  0.5817, 
 #p-value: 0.001471
 

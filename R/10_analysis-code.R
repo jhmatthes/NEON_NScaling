@@ -54,6 +54,82 @@ dev.off()
 #   ggplot() +
 #   geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
 
+# Distribution of N pools by vegetation type----
+
+head(plot.df)
+
+# get aridity data
+vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
+head(vpd)
+
+#cleanup
+vpd<-vpd[c(2,3)]
+colnames(vpd) <- c('siteID','vpd')
+
+#simplify to woody versus herb vegetation types
+plot.df <- rename_lcc(plot.df,crop = T)
+
+# merge with vpd data frame
+plot.df <- merge(vpd,plot.df,by=c('siteID'))
+
+#filter to just woody and herb (not NAs)
+plot.df.2 <- plot.df %>%
+  #group_by(Lcclass) %>%
+  dplyr::filter(!Lcclass=='NA')
+unique(plot.df.2$Lcclass)
+
+#plot them
+
+pdf(file='./../output/analyses_April_2021/veg_foliarN_distrobutions.pdf',
+    width=8,height=8)
+
+#ggplot for foliar N
+ggplot(plot.df.2,aes(foliarNPercent_mean,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Foliar N')
+
+dev.off()
+
+pdf(file='./../output/analyses_April_2021/veg_rootN_distrobutions.pdf',
+    width=8,height=8)
+
+#ggplot for root N
+ggplot(plot.df.2,aes(rootNPercent,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Root N')
+
+dev.off()
+
+#ggplot for total soil N
+ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Total soil N')
+
+pdf(file='./../output/analyses_April_2021/veg_litterN_distrobutions.pdf',
+    width=8,height=8)
+
+#ggplot for litter N
+ggplot(plot.df.2,aes(litterNPercent_mean,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Litter N')
+
+dev.off()
+
+pdf(file='./../output/analyses_April_2021/veg_inorganicN_distrobutions.pdf',
+    width=8,height=8)
+
+#inorganic soil N
+ggplot(plot.df.2,aes(inorganicN ,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Inorganic soil N')
+
+dev.off()
+
 # Bivariate relationships between N pools - cross-site with each point = site mean (Figure 3) ----
 
 # first do this for total soil N (organic + inorganic)
@@ -114,6 +190,86 @@ soil_soil<-left_join(mean_site_soil,mean_site_soil_inorganic ,by=c('siteID'),na.
 # root_leaf_soil<-left_join(soil_soil,root_leaf,by=c('siteID'),na.rm=F)
 # write.csv(root_leaf_soil,file='./../output/means_replicates_N_Pools.csv')
 
+# compare variability of pools within versus across sites ----------------------
+
+# you'll have to run the previous to sections of code first
+
+# % Foliar N
+cross_site_foliar_sd<-round(sd(mean_site_foliar$`%Foliar`),2)
+
+#average within-site foliar SD
+# first filter out sites with less than 10 replicates
+within_site_foliar_sd <- merge(mean_foliar,mean_site_foliar,by=c('siteID'))
+within_site_foliar_sd <- within_site_foliar_sd %>%
+  dplyr::filter(N > 9)
+within_site_foliar_sd <- mean(sd(round(within_site_foliar_sd$foliarNPercent_mean),2))
+within_site_foliar_sd<-round(within_site_foliar_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_foliar_sd,cross_site_foliar_sd)
+leaf_scale<-data.frame(sd,scale)
+leaf_scale$pool <- 'foliar'
+
+# % Root N
+cross_site_root_sd<-round(sd(mean_site_root$`%Root`),2)
+
+#average within-site root SD
+within_site_root_sd <- merge(mean_root,mean_site_root,by=c('siteID'))
+within_site_root_sd <- within_site_root_sd %>%
+  dplyr::filter(N > 9)
+within_site_root_sd <- mean(sd(round(within_site_root_sd$rootNPercent),2))
+within_site_root_sd<-round(within_site_root_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_root_sd,cross_site_root_sd)
+root_scale<-data.frame(sd,scale)
+root_scale$pool <- 'root'
+  
+# % Total soil N
+cross_site_soil_sd<-round(sd(mean_site_soil$`%TotalSoil`),2)
+
+#average within-site total soil N
+within_site_soil_sd <- merge(mean_soil,mean_site_soil,by=c('siteID'))
+within_site_soil_sd <- within_site_soil_sd %>%
+  dplyr::filter(N > 9)
+within_site_soil_sd <- mean(sd(round(within_site_soil_sd$soilNPercent_MHoriz_mean),2))
+within_site_soil_sd<-round(within_site_soil_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_soil_sd,cross_site_soil_sd)
+soil_scale<-data.frame(sd,scale)
+soil_scale$pool <- 'soil'
+  
+# % Inorganic soil N
+cross_site_soil_inorganic_sd<-round(sd(mean_site_soil_inorganic$`%InorganicSoil`),2)
+
+#average within-site inorganic soil N
+within_site_soil_inorganic_sd <- merge(mean_soil_inorganic,mean_site_soil_inorganic,by=c('siteID'))
+within_site_soil_inorganic_sd <- within_site_soil_inorganic_sd %>%
+  dplyr::filter(N > 9)
+within_site_soil_inorganic_sd <- mean(sd(round(within_site_soil_inorganic_sd$`%InorganicSoil`),2))
+within_site_soil_inorganic_sd<-round(within_site_soil_inorganic_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_soil_inorganic_sd,cross_site_soil_inorganic_sd)
+soil_inorganic_scale<-data.frame(sd,scale)
+soil_inorganic_scale$pool <- 'soil_inorganic'
+
+# Combine the datasets
+scale_sd<-rbind(soil_inorganic_scale,soil_scale,root_scale,leaf_scale)
+
+pdf(file='./../output/analyses_April_2021/within_versus_across_variation.pdf',
+    width=8,height=8)
+
+#plot it out
+ggplot(scale_sd,aes(reorder(pool,-sd),sd,fill=scale)) +
+  geom_bar(position="dodge", stat="identity") +
+  xlab('Pool') +
+  ylab('Standard deviation')
+
+dev.off()
+
+  
 #-------------------------------------------------------------------------------
 # foliar and total soil N bivariate relationship ----
 
@@ -135,7 +291,8 @@ outlierTest(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_
 plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)
 
 #look at LM
-summary(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)) 
+foliar_soil_total_lm<-lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)
+tab_model(foliar_soil_total_lm)
 #Adjusted R-squared:  -0.01506
 #p-value: 0.4512
 
@@ -159,7 +316,8 @@ outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root))
 
 #remove outlier
 #plot(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-21,])
-#summary(lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-21,])) 
+root_soil_total_lm<-lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-21,])
+tab_model(root_soil_total_lm)
 #Adjusted R-squared:  0.04297 
 #p-value: 0.163
 
@@ -180,7 +338,9 @@ merge_foliar_soil_inorganic$inorganicN<- round(merge_foliar_soil_inorganic$inorg
 # plot(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
 # outlierTest(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
 #no outliers
-# summary(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
+
+leaf_soil_inorganic_lm<-lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
+tab_model(leaf_soil_inorganic_lm)
 
 #Adjusted R-squared:  0.05556
 #p-value: 0.1243
@@ -204,7 +364,8 @@ merge_soil_root_inorganic$inorganicN<-round(merge_soil_root_inorganic$inorganicN
 #outlierTest(lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic))
 #no outliers
 
-summary(lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic))
+root_soil_inorganic_lm<-lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic)
+tab_model(root_soil_inorganic_lm)
 # p-value: 0.02617
 # Adjusted R-squared:  0.1559 
 
@@ -380,7 +541,8 @@ plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_s
 outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil)) 
 # one outlier, # 4
 plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,])
-summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,]))
+soil_litter_total_lm <- lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_mean_litter_total_soil[-4,])
+tab_model(soil_litter_total_lm)
 # Adjusted R-squared:  -0.0826 
 # p-value: 0.9296
 
@@ -404,7 +566,8 @@ outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soi
 
 #look without outlier
 plot(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soil[-1,])
-summary(lm(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soil[-1,]))
+soil_resorp_total_lm <- lm(soilNPercent_MHoriz_mean~resorpN,data=merge_mean_resorp_total_soil[-1,])
+tab_model(soil_resorp_total_lm)
 # Adjusted R-squared:  -0.1414 
 # p-value: 0.9273
 

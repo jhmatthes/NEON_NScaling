@@ -20,6 +20,11 @@
 pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn",'lme4')
 lapply(pkgs, library, character.only = TRUE) # load them
 
+#for creating nice model output tables
+library(sjPlot)
+library(sjmisc)
+library(sjlabelled)
+
 # Set wd
 library(rstudioapi)
 current_path <- getActiveDocumentContext()$path
