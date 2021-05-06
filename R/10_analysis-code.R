@@ -5,8 +5,10 @@
 # Add veg type and VPD to the main data set -----
 
 head(plot.df)
-length(unique(plot.df$siteID))# 38
+length(unique(plot.df.2$siteID))# 38
 length(unique(vegtype.df$siteID)) #33
+
+#UKFS, STER, SOAP, SJER, LENO, KONA, DELA, DCFS, BLAN
 
 # get aridity data
 vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
@@ -83,10 +85,12 @@ dev.off()
 
 
 #filter to just woody and herb (not NAs)
-plot.df.2 <- plot.df %>%
-  #group_by(Lcclass) %>%
-  dplyr::filter(!Lcclass=='NA')
-unique(plot.df.2$Lcclass)
+# plot.df.2 <- plot.df %>%
+#   #group_by(Lcclass) %>%
+#   dplyr::filter(!Lcclass=='NA')
+# unique(plot.df.2$Lcclass)
+
+head(plot.df.2)
 
 #plot them
 
@@ -95,6 +99,17 @@ pdf(file='./../output/analyses_April_2021/veg_foliarN_distrobutions.pdf',
 
 #ggplot for foliar N
 ggplot(plot.df.2,aes(foliarNPercent_mean,fill=Lcclass),na.rm=TRUE) +
+  geom_histogram(color='black') +
+  ylab('Count') + 
+  xlab('% Total Soil  N')
+
+dev.off()
+
+pdf(file='./../output/analyses_April_2021/veg_totalsoilN_distrobutions.pdf',
+    width=8,height=8)
+
+#ggplot for foliar N
+ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass),na.rm=TRUE) +
   geom_histogram(color='black') +
   ylab('Count') + 
   xlab('% Foliar N')
