@@ -2,6 +2,31 @@
 # author: Adrienne Keller
 # project: NEON N scaling
 # notes:
+# Add veg type and VPD to the main data set -----
+
+head(plot.df)
+length(unique(plot.df$siteID))# 38
+length(unique(vegtype.df$siteID)) #33
+
+# get aridity data
+vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
+head(vpd)
+
+#cleanup
+vpd<-vpd[c(2,3)]
+colnames(vpd) <- c('siteID','vpd')
+
+#simplify to woody versus herb vegetation types
+plot.df <- rename_lcc(plot.df,crop = T)
+
+# merge with vpd data frame
+plot.df <- merge(vpd,plot.df,by=c('siteID'))
+
+#filter to just woody and herb (not NAs)
+plot.df.2 <- plot.df %>%
+  #group_by(Lcclass) %>%
+  dplyr::filter(!Lcclass=='NA')
+unique(plot.df.2$Lcclass)
 
 # Distributions of N pools -------------------------------------------
 pdf(file='./../output/univar-hist.pdf',
@@ -56,21 +81,6 @@ dev.off()
 
 # Distribution of N pools by vegetation type----
 
-head(plot.df)
-
-# get aridity data
-vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
-head(vpd)
-
-#cleanup
-vpd<-vpd[c(2,3)]
-colnames(vpd) <- c('siteID','vpd')
-
-#simplify to woody versus herb vegetation types
-plot.df <- rename_lcc(plot.df,crop = T)
-
-# merge with vpd data frame
-plot.df <- merge(vpd,plot.df,by=c('siteID'))
 
 #filter to just woody and herb (not NAs)
 plot.df.2 <- plot.df %>%
@@ -127,6 +137,80 @@ ggplot(plot.df.2,aes(inorganicN ,fill=Lcclass),na.rm=TRUE) +
   geom_histogram(color='black') +
   ylab('Count') + 
   xlab('% Inorganic soil N')
+
+dev.off()
+
+# relationship between VPD and N pools for each vegetation type-----
+head(plot.df.2)
+plot(foliarNPercent_mean~vpd,data=plot.df.2)
+
+#VPD and % foliar N veg
+summary(lm(foliarNPercent_mean~vpd*Lcclass,data=plot.df,na.rm=TRUE))
+# significant interaction betwen veg and VPD effects on % leaf N
+# negative effects for herb, no effects for woody
+
+pdf(file='./../output/analyses_April_2021/foliar_vpd_veg.pdf',
+    width=8,height=8)
+
+ggplot(plot.df.2,aes(vpd,foliarNPercent_mean,color=Lcclass),na.rm=TRUE) +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  ylab('% Foliar N') + 
+  xlab('Mean 30-year VPD')
+
+dev.off()
+
+#VPD and % root N veg
+summary(lm(rootNPercent~vpd*Lcclass,data=plot.df,na.rm=TRUE))
+#positive for herb nothing for woody, weak effects all around
+
+pdf(file='./../output/analyses_April_2021/root_vpd_veg.pdf',
+    width=8,height=8)
+
+ggplot(plot.df.2,aes(vpd,rootNPercent ,color=Lcclass),na.rm=TRUE) +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  ylab('% Root N') + 
+  xlab('Mean 30-year VPD')
+
+dev.off()
+
+# VPD and % Litter N
+
+pdf(file='./../output/analyses_April_2021/litter_vpd_veg.pdf',
+    width=8,height=8)
+
+ggplot(plot.df.2,aes(vpd,litterNPercent_mean ,color=Lcclass),na.rm=TRUE) +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  ylab('% Litter N') + 
+  xlab('Mean 30-year VPD')
+
+dev.off()
+
+# VPD and % Litter N
+
+pdf(file='./../output/analyses_April_2021/soil_N_vpd_veg.pdf',
+    width=8,height=8)
+
+ggplot(plot.df.2,aes(vpd,soilNPercent_MHoriz_mean,color=Lcclass),na.rm=TRUE) +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  ylab('% Total soil N') + 
+  xlab('Mean 30-year VPD')
+
+dev.off()
+
+#VPD inorganic soil N
+
+pdf(file='./../output/analyses_April_2021/inroganic_N_vpd_veg.pdf',
+    width=8,height=8)
+
+ggplot(plot.df.2,aes(vpd,inorganicN,color=Lcclass),na.rm=TRUE) +
+  geom_point() +
+  stat_smooth(method = "lm") +
+  ylab('% Inorganic soil N') + 
+  xlab('Mean 30-year VPD')
 
 dev.off()
 
