@@ -6,59 +6,66 @@ rename_lcc<-function(x,crop=T){
   
   if(crop==T){
   
+    x<- x %>%
+      dplyr::filter(!(Lcclass=="water"))
+    
     x$Lcclass<-
-    gsub("DECIDUOUS_FOREST", "woody", x$Lcclass)
+    gsub("deciduous broadleaf forest", "woody", x$Lcclass)
   
   #mixed forest to just forest
   x$Lcclass<-
-    gsub("EVERGREEN_FOREST", "woody", x$Lcclass)
+    gsub("evergreen needleleaf forest", "woody", x$Lcclass)
   
   #woody savannas to just savanna
   x$Lcclass<-
-    gsub("WOODY_SAVA", "woody", x$Lcclass)
+    gsub("woody savannas", "woody", x$Lcclass)
   
   #rename shrubs
   x$Lcclass<-
-    gsub("OPEN_SHRUB", "woody", x$Lcclass)
+    gsub("open shrublands", "woody", x$Lcclass)
   
   x$Lcclass<-
-    gsub("GRASSLANDS", "herb", x$Lcclass)
+    gsub("grasslands", "herb", x$Lcclass)
   
   x$Lcclass<-
-    gsub("SAVANNAS", "herb", x$Lcclass)
+    gsub("savannas", "woody", x$Lcclass)
   
   x$Lcclass<-
-    gsub("CROPLANDS", "herb", x$Lcclass)
+    gsub("croplands", "herb", x$Lcclass)
   
   x$Lcclass<-
-    gsub("MIXED_FOREST", "herb", x$Lcclass)}else{
+    gsub("mixed forest", "herb", x$Lcclass)}else{
     
     x<- x %>%
-      dplyr::filter(!(Lcclass=="CROPLANDS"))
+      dplyr::filter(!(Lcclass=="croplands"))
+    
+    x<- x %>%
+      dplyr::filter(!(Lcclass=="water"))
     
     x$Lcclass<-
-        gsub("DECIDUOUS_FOREST", "woody", x$Lcclass)
-      
-      #mixed forest to just forest
-      x$Lcclass<-
-        gsub("EVERGREEN_FOREST", "woody", x$Lcclass)
-      
-      #woody savannas to just savanna
-      x$Lcclass<-
-        gsub("WOODY_SAVA", "woody", x$Lcclass)
-      
-      #rename shrubs
-      x$Lcclass<-
-        gsub("OPEN_SHRUB", "woody", x$Lcclass)
-      
-      x$Lcclass<-
-        gsub("GRASSLANDS", "herb", x$Lcclass)
-      
-      x$Lcclass<-
-        gsub("SAVANNAS", "herb", x$Lcclass)
-      
-      x$Lcclass<-
-        gsub("MIXED_FOREST", "herb", x$Lcclass)
+      gsub("deciduous broadleaf forest", "woody", x$Lcclass)
+    
+    #mixed forest to just forest
+    x$Lcclass<-
+      gsub("evergreen needleleaf forest", "woody", x$Lcclass)
+    
+    #woody savannas to just savanna
+    x$Lcclass<-
+      gsub("woody savannas", "woody", x$Lcclass)
+    
+    #rename shrubs
+    x$Lcclass<-
+      gsub("open shrublands", "woody", x$Lcclass)
+    
+    x$Lcclass<-
+      gsub("grasslands", "herb", x$Lcclass)
+    
+    x$Lcclass<-
+      gsub("savannas", "woody", x$Lcclass)
+    
+    
+    x$Lcclass<-
+      gsub("mixed forest", "woody", x$Lcclass)
     
     
   }

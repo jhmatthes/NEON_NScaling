@@ -33,9 +33,11 @@ plot.df <- left_join(plot.df, climate.df, by ="siteID")
 head(plot.df)
 
 ### load veg type data 
-vegtype.df <- read.csv('./../data_pre-processed/land-cover-class_Martha_2020-12-09.csv', #file path is relative
+vegtype.df <- read.csv('./../data_pre-processed/LCclass_polys.csv', #file path is relative
                        header = T, stringsAsFactors = F)
-vegtype.df <- vegtype.df %>% rename(siteID = site)
+#vegtype.df <- vegtype.df %>% rename(siteID = site)
+vegtype.df <- vegtype.df[c(2,4)]
+colnames(vegtype.df) <- c('siteID','Lcclass')
 
 ### merge plot and veg type data by site name
 nrow(plot.df) # 1636
