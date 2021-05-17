@@ -2,6 +2,7 @@
 # author: Adrienne Keller
 # project: NEON N scaling
 # notes:
+
 # Add veg type and VPD to the main data set -----
 
 head(plot.df)
@@ -31,57 +32,6 @@ plot.df.2 <- plot.df %>%
   #group_by(Lcclass) %>%
   dplyr::filter(!Lcclass=='NA')
 length(unique(plot.df.2$siteID)) # 35 sites
-
-# Distributions of N pools - maybe delete this? -------------------------------------------
-pdf(file='./../output/univar-hist.pdf',
-    width=8,height=8)
-# mar.default <- c(6,3,5,2) + 0.1
-# par(mar = mar.default + c(2, 2, 0, 0),mfrow=c(1,4))
-
-# Set up multi-panel
-layout(matrix(1:4, ncol=2))
-par(oma=c(6, 5, 6, 5), mar=c(5, 0, 0, 0),pty='s')
-#?par
-# Panel label setup
-line = 0.75 
-cex = 1.25
-side = 3
-adj= - 0.15
-
-# A
-hist(plot.df$soilNPercent_MHoriz_mean,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$soilNPercent_MHoriz_mean, na.rm = T), col = "red", lwd = 3)
-mtext('% Total soil N (mineral horizon)',side=1,line=2.2,cex=0.75)
-mtext("A", side=side, line=line, cex=cex, adj=adj)
-
-# C
-hist(plot.df$foliarNPercent_mean,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$foliarNPercent_mean, na.rm = T), col = "red", lwd = 3)
-mtext('% Foliar N',side=1,line=2.2,cex=0.75)
-mtext("C", side=side, line=line, cex=cex, adj=adj)
-
-# B
-hist(plot.df$inorganicN,main='',xlab='',ylab='',cex.lab=1.75)
-abline(v = mean(plot.df$litterNPercent, na.rm = T), col = "red", lwd = 3)
-mtext('% Inorganic soil N',side=1,line=2.2,cex=0.75)
-mtext("B", side=side, line=line, cex=cex, adj=adj)
-
-
-# D
-hist(plot.df$rootNPercent, main = '', xlab = "", ylab='',cex.lab = 1.75)
-abline(v = mean(plot.df$rootNPercent, na.rm = T), col = "red", lwd = 3)
-mtext('% Root N',side=1,line=2.2,cex=0.75)
-mtext("D", side=side, line=line, cex=cex, adj=adj)
-mtext('Frequency',side=2,line=0.75,cex=1.5,outer=TRUE)
-
-dev.off()
-
-# note: soil N mineral horizon is heavily right-skewed (even when excluding GUAN);
-# log-transform
-# hist(log(plot.df$soilNPercent_MHoriz_mean))
-# plot.df %>% filter(siteID != "GUAN") %>% 
-#   ggplot() +
-#   geom_histogram(aes(log(soilNPercent_MHoriz_mean), fill = siteID))
 
 # Distribution of N pools by vegetation type----
 
