@@ -9,7 +9,7 @@
 ###############################################################################
 #Sys.info()
 
-#rm(list=ls())
+rm(list=ls())
 
 #This part may need to go here...
 # library(devtools)

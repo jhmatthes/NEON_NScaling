@@ -3,14 +3,6 @@
 # project: NEON N scaling
 # notes:
 
-# Add veg type and VPD to the main data set -----
-
-head(plot.df)
-length(unique(plot.df.2$siteID))# 38
-length(unique(vegtype.df$siteID)) #33
-
-#UKFS, STER, SOAP, SJER, LENO, KONA, DELA, DCFS, BLAN
-
 # get aridity and veg data, subset data into just veg and herb veg types -----
 
 # get aridity data
@@ -32,74 +24,6 @@ plot.df.2 <- plot.df %>%
   #group_by(Lcclass) %>%
   dplyr::filter(!Lcclass=='NA')
 length(unique(plot.df.2$siteID)) # 35 sites
-
-# Distribution of N pools by vegetation type----
-
-
-head(plot.df.2)
-
-#plot them
-
-pdf(file='./../output/analyses_April_2021/veg_foliarN_distrobutions.pdf',
-    width=8,height=8)
-
-#ggplot for foliar N
-ggplot(plot.df.2,aes(foliarNPercent_mean,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Total Soil  N')
-
-dev.off()
-
-pdf(file='./../output/analyses_April_2021/veg_totalsoilN_distrobutions.pdf',
-    width=8,height=8)
-
-#ggplot for foliar N
-ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Foliar N')
-
-dev.off()
-
-pdf(file='./../output/analyses_April_2021/veg_rootN_distrobutions.pdf',
-    width=8,height=8)
-
-#ggplot for root N
-ggplot(plot.df.2,aes(rootNPercent,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Root N')
-
-dev.off()
-
-#ggplot for total soil N
-ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Total soil N')
-
-pdf(file='./../output/analyses_April_2021/veg_litterN_distrobutions.pdf',
-    width=8,height=8)
-
-#ggplot for litter N
-ggplot(plot.df.2,aes(litterNPercent_mean,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Litter N')
-
-dev.off()
-
-pdf(file='./../output/analyses_April_2021/veg_inorganicN_distrobutions.pdf',
-    width=8,height=8)
-
-#inorganic soil N
-ggplot(plot.df.2,aes(inorganicN ,fill=Lcclass),na.rm=TRUE) +
-  geom_histogram(color='black') +
-  ylab('Count') + 
-  xlab('% Inorganic soil N')
-
-dev.off()
 
 # relationship between VPD and N pools for each vegetation type-----
 head(plot.df.2)
@@ -175,16 +99,18 @@ ggplot(plot.df.2,aes(vpd,inorganicN,color=Lcclass),na.rm=TRUE) +
 
 dev.off()
 
-# Bivariate relationships between N pools - cross-site with each point = site mean (Figure 3) ----
+# Get sample sizes (# sites) of all pools ----
 
-# first do this for total soil N (organic + inorganic)
+head(plot.df.2)
 
 # Get sample sizes 
-sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
-sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
-sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) # HEAL only 1
-sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
-sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df)
+sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df.2)
+sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df.2) # KONZ only 4
+sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df.2) # HEAL only 1
+sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df.2)
+sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df.2)
+sample_size_soil_mineralization<- aggregate(netNminugPerGramPerDay ~ siteID, length, data = plot.df.2)
+sample_size_soil_mineralization<- aggregate(netNminugPerGramPerDay ~ siteID, length, data = plot.df.2)
 
 # HEAL has sample size of 1 for total soil N, this gets removed from analysis/merging
 # anyways because there are no data from any of the other three pools
@@ -196,11 +122,10 @@ mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df.
 mean_soil_inorganic<-aggregate(inorganicN~siteID + plotID,mean,data=plot.df.2)
 mean_soil_mineralization<-aggregate(netNminugPerGramPerDay~siteID + plotID,mean,data=plot.df.2)
 
-#-------------------------------------------------------------------------------
 # make a table of sites, mean values, and number of replicates -----
 
 #foliar
-mean_site_foliar <-aggregate(foliarNPercent_mean~siteID,mean,data=plot.df)
+mean_site_foliar <-aggregate(foliarNPercent_mean~siteID,mean,data=plot.df.2)
 mean_site_foliar$Foliar<-round(mean_site_foliar$foliarNPercent_mean,2)
 mean_site_foliar <- mean_site_foliar[c(1,3)]
 mean_site_foliar<-merge(sample_size_foliar,mean_site_foliar ,by=c('siteID'))

@@ -1,5 +1,271 @@
 # manuscript figures
 
+# Table 1 -----
+
+head(plot.df.2)
+
+# Get sample sizes:
+
+sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df.2)
+sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df.2) # KONZ only 4
+sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df.2) # HEAL only 1
+sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df.2)
+sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df.2)
+sample_size_soil_mineralization<- aggregate(netNminugPerGramPerDay ~ siteID, length, data = plot.df.2)
+sample_size_soil_resorpN<- aggregate(resorpN ~ siteID, length, data = plot.df.2)
+sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df)
+sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df) 
+sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df)
+sample_size_litter_cn <- aggregate(litterNPercent_mean ~ siteID, length, data = plot.df)
+
+# Get means:
+
+#foliar
+mean_site_foliar <-aggregate(foliarNPercent_mean~siteID,mean,data=plot.df.2)
+mean_site_foliar$Foliar<-round(mean_site_foliar$foliarNPercent_mean,2)
+mean_site_foliar <- mean_site_foliar[c(1,3)]
+mean_site_foliar<-merge(mean_site_foliar,sample_size_foliar,by=c('siteID'))
+colnames(mean_site_foliar) <-c('siteID','%Foliar','N')
+
+#root
+mean_site_root <-aggregate(rootNPercent~siteID,mean,data=plot.df.2)
+mean_site_root$Root<-round(mean_site_root$rootNPercent,2)
+mean_site_root <- mean_site_root[c(1,3)]
+mean_site_root <-merge(mean_site_root,sample_size_root,by=c('siteID'))
+colnames(mean_site_root) <-c('siteID','%Root','N')
+
+#total soil N
+mean_site_soil <-aggregate(soilNPercent_MHoriz_mean~siteID,mean,data=plot.df.2)
+mean_site_soil$TotalSoil<-round(mean_site_soil$soilNPercent_MHoriz_mean,2)
+mean_site_soil  <- mean_site_soil[c(1,3)]
+mean_site_soil  <-merge(mean_site_soil,sample_size_soil, by=c('siteID'))
+colnames(mean_site_soil) <-c('siteID','%TotalSoil','N')
+
+#inorganic soil N
+mean_site_soil_inorganic <-aggregate(inorganicN~siteID,mean,data=plot.df.2)
+mean_site_soil_inorganic$InorganicSoil<-round(mean_site_soil_inorganic$inorganicN,2)
+mean_site_soil_inorganic  <- mean_site_soil_inorganic[c(1,3)]
+mean_site_soil_inorganic  <-merge(mean_site_soil_inorganic,sample_size_soil_inorganic, by=c('siteID'))
+colnames(mean_site_soil_inorganic) <-c('siteID','%InorganicSoil','N')
+
+#mineralization 
+mean_site_soil_mineralization <-aggregate(netNminugPerGramPerDay~siteID,mean,data=plot.df.2)
+mean_site_soil_mineralization$mineralization<-round(mean_site_soil_mineralization$netNminugPerGramPerDay,2)
+mean_site_soil_mineralization  <- mean_site_soil_mineralization[c(1,3)]
+mean_site_soil_mineralization  <-merge(mean_site_soil_mineralization,sample_size_soil_mineralization, by=c('siteID'))
+colnames(mean_site_soil_mineralization) <-c('siteID','Mineralization','N')
+
+#resorption 
+mean_site_soil_resorpN <-aggregate(resorpN~siteID,mean,data=plot.df.2)
+mean_site_soil_resorpN$resorption<-round(mean_site_soil_resorpN$resorpN,2)
+mean_site_soil_resorpN  <- mean_site_soil_resorpN[c(1,3)]
+mean_site_soil_resorpN  <-merge(mean_site_soil_resorpN,sample_size_soil_resorpN,by=c('siteID'))
+colnames(mean_site_soil_resorpN) <-c('siteID','Resporption','N')
+
+#litter
+mean_site_soil_litter <-aggregate(litterNPercent_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_litter$litter<-round(mean_site_soil_litter$litterNPercent_mean,2)
+mean_site_soil_litter  <- mean_site_soil_litter[c(1,3)]
+mean_site_soil_litter  <-merge(mean_site_soil_litter,sample_size_litter,by=c('siteID'))
+colnames(mean_site_soil_litter) <-c('siteID','Litter','N')
+
+#total soil C:N
+mean_site_soil_cn <-aggregate(soilCNRatio_MHoriz_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_cn$soilCN<-round(mean_site_soil_cn$soilCNRatio_MHoriz_mean,2)
+mean_site_soil_cn  <- mean_site_soil_litter[c(1,3)]
+mean_site_soil_cn  <-merge(mean_site_soil_cn,sample_size_soil_cn,by=c('siteID'))
+colnames(mean_site_soil_cn) <-c('siteID','Soil C:N','N')
+
+# root C:N
+mean_site_soil_root_cn <-aggregate(rootCNratio~siteID,mean,data=plot.df.2)
+mean_site_soil_root_cn$rootCN<-round(mean_site_soil_root_cn$rootCNratio,2)
+mean_site_soil_root_cn  <- mean_site_soil_root_cn[c(1,3)]
+mean_site_soil_root_cn  <-merge(mean_site_soil_root_cn,sample_size_root_cn,by=c('siteID'))
+colnames(mean_site_soil_root_cn) <-c('siteID','Root C:N','N')
+
+# leaf C:N
+mean_site_soil_leaf_cn <-aggregate(foliarCNRatio_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_leaf_cn$rootCN<-round(mean_site_soil_leaf_cn$foliarCNRatio_mean,2)
+mean_site_soil_leaf_cn  <- mean_site_soil_leaf_cn[c(1,3)]
+mean_site_soil_leaf_cn  <-merge(mean_site_soil_leaf_cn,sample_size_foliar_cn,by=c('siteID'))
+colnames(mean_site_soil_leaf_cn) <-c('siteID','Leaf C:N','N')
+
+# Litter C:N
+mean_site_soil_litter_cn <-aggregate(litterCNRatio_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_litter_cn$litterCN<-round(mean_site_soil_litter_cn$litterCNRatio_mean,2)
+mean_site_soil_litter_cn  <- mean_site_soil_litter_cn[c(1,3)]
+mean_site_soil_litter_cn  <-merge(mean_site_soil_litter_cn,sample_size_litter,by=c('siteID'))
+colnames(mean_site_soil_litter_cn) <-c('siteID','Litter C:N','N')
+
+## make tables
+
+# Make table for three initial pools: % total soil N, % root N, % leaf N. All sites.
+
+#root and leaf merge
+root_leaf<- left_join(mean_site_root,mean_site_foliar,by=c('siteID'),na.rm=F)
+soil_soil<-left_join(mean_site_soil,mean_site_soil_inorganic ,by=c('siteID'),na.rm=F)
+
+# all sites mean and replicate # for three key pools
+root_leaf_soil<-left_join(soil_soil,root_leaf,by=c('siteID'),na.rm=F)
+
+#save to file
+write.csv(root_leaf_soil,file='./../output/manuscript_figures/main_pools_site_summaries.csv')
+
+# Make table for litter % N, mineralization, and resorption. All sites.
+
+#merge resorption, litter, and mineralization
+litter<- left_join(mean_site_soil_litter,mean_site_soil_litter_cn, by=c('siteID'),na.rm=F)
+resorp_mineralization <- left_join(mean_site_soil_resorpN,mean_site_soil_mineralization,by=c('siteID'),na.rm=F)
+resorp_litter_mineralization<-left_join(litter,resorp_mineralization,by=c('siteID'),na.rm=F)
+
+#save to file
+write.csv(resorp_litter_mineralization,file='./../output/manuscript_figures/Plant_feedbacks_site_summaries.csv')
+
+# make table for C:N pools. All sites.
+soil_root_cn <- left_join(mean_site_soil_cn,mean_site_soil_root_cn,by=c('siteID'),na.rm=F)
+soil_root_leaf_cn <- left_join(soil_root_cn,mean_site_soil_leaf_cn,by=c('siteID'),na.rm=F)
+
+#save to file
+write.csv(soil_root_leaf_cn,file='./../output/manuscript_figures/CN_site_summaries.csv')
+
+#make main text table with just means, sd, and N of site per pool
+
+
+#total soil summary stats
+mean_total_soil<-round(mean(mean_site_soil$`%TotalSoil`),2)
+sd_total_soil<-round(sd(mean_site_soil$`%TotalSoil`),2)
+length_total_soil <-round(mean(mean_site_soil$N),0)
+
+Mean<-mean_total_soil
+total_soil_df <- data.frame(Mean)
+total_soil_df$'Standard Deviation' <- sd_total_soil
+total_soil_df$'Average Sample Size' <- length_total_soil
+total_soil_df$'Pool or Flux' <- '% Total Soil N'
+
+#inorganic soil summary stats
+mean_soil_inorganic<-round(mean(mean_site_soil_inorganic$`%InorganicSoil`),2)
+sd__soil_inogranic<-round(sd(mean_site_soil_inorganic$`%InorganicSoil`),2)
+length_soil_inorganic <-round(mean(mean_site_soil_inorganic$N),0)
+
+Mean<-mean_soil_inorganic
+soil_inorganic_df <- data.frame(Mean)
+soil_inorganic_df$'Standard Deviation' <- sd__soil_inogranic
+soil_inorganic_df$'Average Sample Size' <- length_soil_inorganic
+soil_inorganic_df$'Pool or Flux' <- '% Inorganic Soil N'
+
+# total soil C:N summary stats
+mean_soil_cn<-round(mean(mean_site_soil_cn$`Soil C:N`),2)
+sd_soil_cn<-round(sd(mean_site_soil_cn$`Soil C:N`),2)
+length_soil_cn <-round(mean(mean_site_soil_cn$N),0)
+
+Mean<-mean_soil_cn
+soil_cn_df <- data.frame(Mean)
+soil_cn_df$'Standard Deviation' <- sd_soil_cn
+soil_cn_df$'Average Sample Size' <- length_soil_cn
+soil_cn_df$'Pool or Flux' <- 'Soil C:N'
+
+# root % N summary stats
+mean_root<-round(mean(mean_site_root$`%Root`),2)
+sd_root<-round(sd(mean_site_root$`%Root`),2)
+length_root <-round(mean(mean_site_root$N),0)
+
+Mean<-mean_root
+root_df <- data.frame(Mean)
+root_df$'Standard Deviation' <- sd_root
+root_df$'Average Sample Size' <- length_root 
+root_df$'Pool or Flux' <- '% Root N'
+
+# root C:N summary stats
+mean_root_cn<-round(mean(mean_site_soil_root_cn$`Root C:N`),2)
+sd_root_cn<-round(sd(mean_site_soil_root_cn$`Root C:N`),2)
+length_root_cn <-round(mean(mean_site_soil_root_cn$N),0)
+
+Mean<-mean_root_cn
+root_cn_df <- data.frame(Mean)
+root_cn_df$'Standard Deviation' <- sd_root_cn
+root_cn_df$'Average Sample Size' <- length_root_cn 
+root_cn_df$'Pool or Flux' <- 'Root C:N'
+
+# leaf N summary stats
+mean_leaf<-round(mean(mean_site_foliar$`%Foliar`),2)
+sd_leaf<-round(sd(mean_site_foliar$`%Foliar`),2)
+length_leaf <-round(mean(mean_site_foliar$N),0)
+
+Mean<-mean_leaf
+leaf_df <- data.frame(Mean)
+leaf_df$'Standard Deviation' <- sd_leaf
+leaf_df$'Average Sample Size' <- length_leaf
+leaf_df$'Pool or Flux' <- '% Leaf N'
+
+# leaf C:N summary stats
+mean_leaf_cn<-round(mean(mean_site_soil_leaf_cn$`Leaf C:N`),2)
+sd_leaf_cn<-round(sd(mean_site_soil_leaf_cn$`Leaf C:N`),2)
+length_leaf_cn <-round(mean(mean_site_soil_leaf_cn$N),0)
+
+Mean<-mean_leaf_cn
+leaf_cn_df <- data.frame(Mean)
+leaf_cn_df$'Standard Deviation' <- sd_leaf_cn
+leaf_cn_df$'Average Sample Size' <- length_leaf_cn 
+leaf_cn_df$'Pool or Flux' <- 'Leaf C:N'
+
+# resorption summary stats
+mean_resorp<-round(mean(mean_site_soil_resorpN$Resporption),2)
+sd_resorp<-round(sd(mean_site_soil_resorpN$Resporption),2)
+length_resorp <-round(mean(mean_site_soil_resorpN$N),0)
+
+Mean<-mean_resorp
+resorp_df <- data.frame(Mean)
+resorp_df$'Standard Deviation' <- sd_resorp
+resorp_df$'Average Sample Size' <- length_resorp 
+resorp_df$'Pool or Flux' <- 'N Resorption'
+
+# Litter % N summary stats
+mean_litter<-round(mean(mean_site_soil_litter$Litter),2)
+sd_litter<-round(sd(mean_site_soil_litter$Litter),2)
+length_litter <-round(mean(mean_site_soil_litter$N),0)
+
+Mean<-mean_litter
+litter_df <- data.frame(Mean)
+litter_df$'Standard Deviation' <- sd_litter
+litter_df$'Average Sample Size' <- length_litter
+litter_df$'Pool or Flux' <- '% Litter N'
+
+# Litter C:N summary stats
+mean_litter_cn<-round(mean(mean_site_soil_litter_cn$`Litter C:N`),2)
+sd_litter_cn<-round(sd(mean_site_soil_litter_cn$`Litter C:N`),2)
+length_litter_cn <-round(mean(mean_site_soil_litter_cn$N),0)
+
+Mean<-mean_litter_cn
+litter_cn_df <- data.frame(Mean)
+litter_cn_df$'Standard Deviation' <- sd_litter_cn
+litter_cn_df$'Average Sample Size' <- length_litter_cn 
+litter_cn_df$'Pool or Flux' <- 'Litter C:N'
+
+# mineralization summary stats
+mean_mineral<-round(mean(mean_site_soil_mineralization$Mineralization),2)
+sd_mineral<-round(sd(mean_site_soil_mineralization$Mineralization),2)
+length_mineral<-round(mean(mean_site_soil_mineralization$N),0)
+
+Mean<-mean_mineral
+mineral_df <- data.frame(Mean)
+mineral_df$'Standard Deviation' <- sd_mineral
+mineral_df$'Average Sample Size' <- length_mineral 
+mineral_df$'Pool or Flux' <- 'N Mineralization'
+
+summary_stats <- rbind(total_soil_df,soil_inorganic_df,soil_cn_df,root_df,
+                       root_cn_df,leaf_df,leaf_cn_df,resorp_df,litter_df,litter_cn_df,
+                       mineral_df)
+
+summary_stats <- summary_stats[c(4,1,2,3)]
+write.csv(summary_stats,file='./../output/manuscript_figures/Pool_means.csv')
+
+
+
+
+
+
+
+
 # Figure 1 = conceptual
 
 #Figure 2 - Map of sites -----
