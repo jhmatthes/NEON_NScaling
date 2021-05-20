@@ -41,7 +41,6 @@ sensitiivty_soil_root_cn<-lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean
 # soil and leaf C:N relationship ---------
 
 merge_mean_soil_foliar_cn <- filter_reps(mean_soil_cn, mean_foliar_cn)
-
 length(merge_mean_soil_foliar_cn$siteID) 
 #N = 20 sites
 
