@@ -42,9 +42,9 @@ setwd(dirname(current_path))
 # Run these to get latest data
 # source("01_download_data.R")
 # source("02_prelim_processing.R")
-
+source("Functions.R")
 # Load Data
 source("03_compile-data.R")
-source("Functions.R")
+
 
 

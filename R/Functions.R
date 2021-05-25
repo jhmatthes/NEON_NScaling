@@ -34,6 +34,9 @@ rename_lcc<-function(x,crop=T){
     gsub("croplands", "herb", x$Lcclass)
   
   x$Lcclass<-
+    gsub("evergreen broadleaf forest", "woody", x$Lcclass)
+  
+  x$Lcclass<-
     gsub("mixed forest", "herb", x$Lcclass)}else{
     
     x<- x %>%
@@ -66,6 +69,9 @@ rename_lcc<-function(x,crop=T){
     
     x$Lcclass<-
       gsub("mixed forest", "woody", x$Lcclass)
+    
+    x$Lcclass<-
+      gsub("evergreen broadleaf forest", "woody", x$Lcclass)
     
     
   }

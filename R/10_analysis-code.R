@@ -13,17 +13,17 @@ head(vpd)
 vpd<-vpd[c(2,3)]
 colnames(vpd) <- c('siteID','vpd')
 
-#simplify to woody versus herb vegetation types
-plot.df <- rename_lcc(plot.df,crop = F)
-
 # merge with vpd data frame
 plot.df <- merge(vpd,plot.df,by=c('siteID'))
+
+#unique(plot.df$Lcclass)
 
 #filter to just woody and herb (not NAs)
 plot.df.2 <- plot.df %>%
   dplyr::filter(!Lcclass=='NA')
 length(unique(plot.df.2$siteID)) # 35 sites
 head(plot.df.2)
+#unique(plot.df.2$Lcclass)
 
 # Get mean values for each plot-site combination for each pool -----
 mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df.2)
@@ -129,7 +129,6 @@ merge_foliar_soil_means$soilNPercent_MHoriz_mean<-round(merge_foliar_soil_means$
 
 #add veg type
 merge_foliar_soil_means <- merge(merge_foliar_soil_means,vegtype.df,by='siteID')
-merge_foliar_soil_means <- rename_lcc(merge_foliar_soil_means)
 aggregate(siteID~Lcclass,length,data=merge_foliar_soil_means)
 
 #look at  outliers
@@ -137,15 +136,12 @@ outlierTest(lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_
 #no outliers
 
 #take a look
-plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)
+#plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)
 
 #look at LM
 foliar_soil_total_lm<-lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means)
 summary(foliar_soil_total_lm)
-#tab_model(foliar_soil_total_lm)
 #NS
-
-#no relationship
 
 #-------------------------------------------------------------------------------
 # root and total soil N -----
@@ -162,16 +158,16 @@ length(merge_soil_root$siteID)
 
 #add veg type
 merge_soil_root <- merge(merge_soil_root,vegtype.df,by='siteID')
-merge_soil_root <- rename_lcc(merge_soil_root)
 aggregate(siteID~Lcclass,length,data=merge_soil_root)
 
 # take a look
+#plot(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root)
 outlierTest(lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root))
-#no outliers 
+#one outlier
 
-root_soil_total_lm<-lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root) 
+root_soil_total_lm<-lm(rootNPercent~soilNPercent_MHoriz_mean,data=merge_soil_root[-18,]) 
 summary(root_soil_total_lm)
-#NS
+#NS, but close
 
 #-------------------------------------------------------------------------------
 # inorganic N and leaf N ------------
@@ -187,7 +183,6 @@ merge_foliar_soil_inorganic$inorganicN<- round(merge_foliar_soil_inorganic$inorg
 
 #add veg type
 merge_foliar_soil_inorganic <- merge(merge_foliar_soil_inorganic,vegtype.df,by='siteID')
-merge_foliar_soil_inorganic <- rename_lcc(merge_foliar_soil_inorganic)
 aggregate(siteID~Lcclass,length,data=merge_foliar_soil_inorganic)
 
 #take a look
@@ -214,7 +209,6 @@ merge_soil_root_inorganic$inorganicN<-round(merge_soil_root_inorganic$inorganicN
 
 #add veg type
 merge_soil_root_inorganic <- merge(merge_soil_root_inorganic,vegtype.df,by='siteID')
-merge_soil_root_inorganic <- rename_lcc(merge_soil_root_inorganic)
 aggregate(siteID~Lcclass,length,data=merge_soil_root_inorganic)
 
 #take a look
@@ -224,8 +218,7 @@ aggregate(siteID~Lcclass,length,data=merge_soil_root_inorganic)
 root_soil_inorganic_lm<-lm(rootNPercent~inorganicN,data=merge_soil_root_inorganic)
 summary(root_soil_inorganic_lm)
 tab_model(root_soil_inorganic_lm)
-# p-value: 0.01
-# Adjusted R-squared:  0.47
+#moderately significant 
 
 #-------------------------------------------------------------------------------
 # Mixed effects models of soil effects on plant N using inorganic soil N ---------------------------------------------------------
@@ -265,11 +258,6 @@ leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN + vpd + Lcclass, random= ~1|site
 summary(leaf_lme.1) # inorganic N shows as significant
 r.squaredGLMM(leaf_lme.1)
 
-# R2m       R2c
-# [1,] 0.1987656 0.6801899
-
-#0.68 - 0.20
-
 
 #
 #
@@ -302,13 +290,10 @@ root_lme.1<-lme(rootNPercent~ inorganicN + vpd + Lcclass , random= ~1|siteID,dat
 summary(root_lme.1) # inorganic N barely significant in this case
 r.squaredGLMM(root_lme.1)
 
-# R2m       R2c
-# [1,] 0.2578078 0.6407044
-
 
 #-------------------------------------------------------------------------------
 
-#plant feedbakcs to soil  inorganic N --------------------
+#plant feedbacks to soil  inorganic N --------------------
 
 merge_litter_soil_inorganic <- filter_reps(mean_litter, mean_soil_inorganic)
 
@@ -316,7 +301,6 @@ length(merge_litter_soil_inorganic$siteID)
 # 12 sites with the 4 rep thresholds
 
 merge_litter_soil_inorganic <- merge(merge_litter_soil_inorganic,vegtype.df,by='siteID')
-merge_litter_soil_inorganic <-rename_lcc(merge_litter_soil_inorganic)
 
 # round to two decimal points
 merge_litter_soil_inorganic$litterNPercent_mean <- round(merge_litter_soil_inorganic$litterNPercent_mean,2)
@@ -326,9 +310,9 @@ merge_litter_soil_inorganic$inorganicN <- round(merge_litter_soil_inorganic$inor
 outlierTest(lm(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic))
 
 #remove outlier
-plot(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-9,])
-summary(lm(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-9,]))
-tab_model(lm(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-9,]))
+#plot(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-6,])
+summary(lm(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-6,]))
+tab_model(lm(inorganicN~litterNPercent_mean,data=merge_litter_soil_inorganic[-6,]))
 #significant
 
 ##
@@ -339,7 +323,6 @@ mean_resorp_inorganic_soil <- filter_reps(mean_resorp, mean_soil_inorganic)
 
 #compare woody versus herb representation
 mean_resorp_inorganic_soil <- merge(mean_resorp_inorganic_soil,vegtype.df,by='siteID')
-mean_resorp_inorganic_soil <-rename_lcc(mean_resorp_inorganic_soil)
 
 # round to two decimal points
 mean_resorp_inorganic_soil$resorpN <- round(mean_resorp_inorganic_soil$resorpN,2)
@@ -350,8 +333,49 @@ plot(inorganicN~resorpN,data=mean_resorp_inorganic_soil) # no relationship
 outlierTest(lm(inorganicN~resorpN,data=mean_resorp_inorganic_soil))
 
 #try without outlier
-plot(inorganicN~resorpN,data=mean_resorp_inorganic_soil[-8,])
-summary(lm(inorganicN~resorpN,data=mean_resorp_inorganic_soil[-8,]))
+plot(inorganicN~resorpN,data=mean_resorp_inorganic_soil[-5,])
+summary(lm(inorganicN~resorpN,data=mean_resorp_inorganic_soil[-5,]))
+
+#not significant 
+
+#-------------------------------------------------------------------------------
+# plant feedbacks to total soil N ------
+
+merge_litter_soil_total <- filter_reps(mean_litter, mean_soil)
+
+length(merge_litter_soil_total$siteID) 
+# 13 sites with the 4 rep thresholds
+
+merge_litter_soil_total <- merge(merge_litter_soil_total,vegtype.df,by='siteID')
+
+# take a look
+outlierTest(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_litter_soil_total))
+#no outlier
+
+#remove outlier
+#plot(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_litter_soil_total)
+summary(lm(soilNPercent_MHoriz_mean~litterNPercent_mean,data=merge_litter_soil_total))
+
+#not significant 
+
+##
+
+# Resorption and total soil N
+mean_resorp_total_soil <- filter_reps(mean_resorp, mean_soil)
+
+#compare woody versus herb representation
+mean_resorp_total_soil <- merge(mean_resorp_total_soil,vegtype.df,by='siteID')
+
+# round to two decimal points
+mean_resorp_total_soil$resorpN <- round(mean_resorp_total_soil$resorpN,2)
+mean_resorp_total_soil$soilNPercent_MHoriz_mean <- round(mean_resorp_total_soil$soilNPercent_MHoriz_mean,2)
+
+# take a look
+#plot(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil) # no relationship
+outlierTest(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil))
+#no outliers
+
+summary(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil))
 
 #not significant 
 

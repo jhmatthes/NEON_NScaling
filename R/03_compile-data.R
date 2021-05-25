@@ -38,6 +38,9 @@ vegtype.df <- read.csv('./../data_pre-processed/LCclass_polys.csv', #file path i
 #vegtype.df <- vegtype.df %>% rename(siteID = site)
 vegtype.df <- vegtype.df[c(2,4)]
 colnames(vegtype.df) <- c('siteID','Lcclass')
+vegtype.df<-rename_lcc(vegtype.df,crop=F)
+vegtype.df<-vegtype.df[!duplicated(vegtype.df), ]
+
 
 ### merge plot and veg type data by site name
 nrow(plot.df) # 1636
