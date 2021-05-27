@@ -1,5 +1,25 @@
 # manuscript figures
 
+# set up ----
+
+
+# get aridity data
+vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
+head(vpd)
+
+#cleanup
+vpd<-vpd[c(2,3)]
+colnames(vpd) <- c('siteID','vpd')
+
+# merge with vpd data frame
+plot.df <- merge(vpd,plot.df,by=c('siteID'))
+
+#unique(plot.df$Lcclass)
+
+#filter to just woody and herb (not NAs)
+plot.df.2 <- plot.df %>%
+  dplyr::filter(!Lcclass=='NA')
+
 # Table 1 -----
 
 head(plot.df.2)
@@ -288,7 +308,7 @@ write.csv(summary_stats,file='./../output/manuscript_figures/Pool_means.csv')
 
 
 
-# Figure 1 = conceptual
+# Figure 1 = conceptual-----
 
 #Figure 2 - Map of sites -----
 
@@ -298,7 +318,7 @@ write.csv(summary_stats,file='./../output/manuscript_figures/Pool_means.csv')
 
 #total soil N
 total_soil_hist <-
-  ggplot(plot.df,aes(soilNPercent_MHoriz_mean,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
 scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -326,7 +346,7 @@ scale_fill_manual(values=c('herb'='red','woody'='blue'),
 
 #Root N 
 root_hist <-
-  ggplot(plot.df,aes(rootNPercent,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(rootNPercent,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
   scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -354,7 +374,7 @@ root_hist <-
 
 #Leaf N 
 leaf_hist <-
-  ggplot(plot.df,aes(foliarNPercent_mean,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(foliarNPercent_mean,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
   scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -381,14 +401,15 @@ leaf_hist <-
     axis.line.y = element_line(colour = "black"))
 
 # now make the bivariates with climate variable
-summary(lm(soilNPercent_MHoriz_mean~vpd,data=plot.df))
+summary(lm(soilNPercent_MHoriz_mean~vpd,data=plot.df.2))
+# weakly significant, negative effect of vpd on soil N
 
 #total soil N
 total_soil_climate <-
-  ggplot(plot.df,aes(vpd,soilNPercent_MHoriz_mean,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(vpd,soilNPercent_MHoriz_mean,fill=Lcclass)) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
-  #stat_smooth(method='lm') +
+  #stat_smooth(method='lm',se=FALSE,size=0.5,color='black') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
   xlab('') +
@@ -413,8 +434,10 @@ total_soil_climate <-
     axis.line.y = element_line(colour = "black"))
 
 #root N climate
+summary(lm(rootNPercent~vpd,data=plot.df.2))
+# weakly positive relationship
 root_climate <-
-  ggplot(plot.df,aes(vpd,rootNPercent,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(vpd,rootNPercent,fill=Lcclass)) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
   #stat_smooth(method='lm',color='black') +
@@ -442,9 +465,10 @@ root_climate <-
     axis.line.y = element_line(colour = "black"))
 
 #leaf N and climate
-
+summary(lm(foliarNPercent_mean~vpd,data=plot.df.2))
+#weak negative relationship
 leaf_climate <-
-  ggplot(plot.df,aes(vpd,foliarNPercent_mean,fill=Lcclass)) +
+  ggplot(plot.df.2,aes(vpd,foliarNPercent_mean,fill=Lcclass)) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
   #stat_smooth(method='lm') +
@@ -502,11 +526,9 @@ mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.d
 #final DF
 merge_mean_soil_root_cn<-filter_reps(mean_soil_cn, mean_root_cn)
 merge_mean_soil_root_cn <- merge(merge_mean_soil_root_cn,vegtype.df,by='siteID')
-merge_mean_soil_root_cn <- rename_lcc(merge_mean_soil_root_cn,crop = F)
 
-length(merge_mean_soil_root_cn$siteID)
-
-head(merge_mean_soil_root_cn)
+# length(merge_mean_soil_root_cn$siteID)
+# head(merge_mean_soil_root_cn)
 
 root_cn_fig <-
   ggplot(merge_mean_soil_root_cn,aes(soilCNRatio_MHoriz_mean,rootCNratio,color=Lcclass,label=siteID)) +
@@ -540,10 +562,9 @@ root_cn_fig <-
 # now do foliar
 merge_mean_soil_foliar_cn <- filter_reps(mean_soil_cn, mean_foliar_cn)
 merge_mean_soil_foliar_cn_2 <- merge(merge_mean_soil_foliar_cn[-1,],vegtype.df,by='siteID')
-merge_mean_soil_foliar_cn_2 <- rename_lcc(merge_mean_soil_foliar_cn_2,crop = F)
 
 foliar_cn_fig <-
-  ggplot(merge_mean_soil_root_cn_2,aes(soilCNRatio_MHoriz_mean,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
+  ggplot(merge_mean_soil_foliar_cn_2,aes(soilCNRatio_MHoriz_mean,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(10,30.5)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
@@ -573,9 +594,7 @@ foliar_cn_fig <-
 
 #now do root and leaf C:N
 merge_mean_root_foliar_cn <- filter_reps(mean_root_cn, mean_foliar_cn)
-#summary(lm(foliarCNRatio_mean~rootCNratio,data=merge_mean_root_foliar_cn))
 merge_mean_root_foliar_cn  <- merge(merge_mean_root_foliar_cn,vegtype.df,by='siteID')
-merge_mean_root_foliar_cn  <- rename_lcc(merge_mean_root_foliar_cn ,crop = F)
 
 root_foliar_cn_fig <-
   ggplot(merge_mean_root_foliar_cn,aes(rootCNratio,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
@@ -626,13 +645,12 @@ mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.d
 mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df.2)
 mean_litter_soil_cn_2 <- filter_reps(mean_litter_cn, mean_soil_cn)
 mean_litter_soil_cn_2 <- merge(mean_litter_soil_cn_2,vegtype.df,by='siteID')
-mean_litter_soil_cn_2 <- rename_lcc(mean_litter_soil_cn_2,crop = F)
 
 litter_soil_fig <-
-  ggplot(mean_litter_soil_cn_2,aes(litterCNRatio_mean,soilCNRatio_MHoriz_mean,color=Lcclass,label=siteID)) +
+  ggplot(mean_litter_soil_cn_2,aes(litterCNRatio_mean,soilCNRatio_MHoriz_mean,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(39,125)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  geom_text(aes(label=siteID),hjust=.0, vjust=0.0,alpha=1) +
+  geom_text(aes(label=siteID),hjust=.0, vjust=0.0,alpha=1,color='red') +
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
@@ -660,14 +678,13 @@ litter_soil_fig <-
 # now do resportion
 mean_resorp_soil_cn_2 <- filter_reps(mean_resorp, mean_soil_cn)
 mean_resorp_soil_cn_2 <- merge(mean_resorp_soil_cn_2,vegtype.df,by='siteID')
-mean_resorp_soil_cn_2 <- rename_lcc(mean_resorp_soil_cn_2,crop = F)
 
 resorp_soil_fig <-
-  ggplot(mean_resorp_soil_cn_2,aes(resorpN,soilCNRatio_MHoriz_mean,color=Lcclass,label=siteID)) +
+  ggplot(mean_resorp_soil_cn_2,aes(resorpN,soilCNRatio_MHoriz_mean,label=siteID)) +
   #scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous(expand = c(0,0),limits = c(25,69)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  geom_text(aes(label=siteID),hjust=0, vjust=0) +
+  geom_text(aes(label=siteID),hjust=0, vjust=0,color='red') +
   #stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
@@ -697,8 +714,6 @@ pdf(file='./../output/manuscript_figures/CN_litter_resportion_bivariate.pdf',
 
 plot_grid(litter_soil_fig, resorp_soil_fig, labels = c('A', 'B'),ncol = 2, nrow=1,
           rel_widths = c(1.5, 1.5,1.5), rel_heights = c(0.5, 0.5,0.5),label_size = 15)
-# x.grob <- textGrob("Soil C:N", 
-#                    gp=gpar(fontface="bold", col="black", fontsize=15))
 
 dev.off()
 

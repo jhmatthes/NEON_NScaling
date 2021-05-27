@@ -223,9 +223,6 @@ tab_model(root_soil_inorganic_lm)
 #-------------------------------------------------------------------------------
 # Mixed effects models of soil effects on plant N using inorganic soil N ---------------------------------------------------------
 
-# since we have established inorganic N is 'better', 
-# we will use this in the % N models models to represent soil N
-
 foliar_lme <- select(plot.df.2,c('siteID','vpd','foliarNPercent_mean','inorganicN','Lcclass'))
 head(foliar_lme)
 
@@ -382,99 +379,64 @@ summary(lm(soilNPercent_MHoriz_mean~resorpN,data=mean_resorp_total_soil))
 #-------------------------------------------------------------------------------
 # mixed effects models for plant effects on soil N ---------
 
-# get aridity data
-# vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
-# head(vpd)
-# #cleanup
-# vpd<-vpd[c(2,3)]
-# colnames(vpd) <- c('siteID','vpd')
 
-# look at both total and inroganic soil N
+# look at both total and inorganic soil N
 
 # total soil N
+total_soil_lme <- select(plot.df.2,c('siteID','vpd','soilNPercent_MHoriz_mean','litterNPercent_mean','Lcclass','resorpN'))
 
-mean_total_soil_lme<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID
-                           + litterNPercent_mean + resorpN + Lcclass,mean,data=plot.df)
-#head(mean_foliar_lme)
-unique(mean_total_soil_lme$Lcclass)
-
-#rename to veg type to herb versus woody. 'Croplands' are deemed herbaceous
-mean_total_soil_lme <- rename_lcc(mean_total_soil_lme,crop = T)
-# head(mean_foliar_lme)
-# unique(mean_foliar_lme$Lcclass)
-
-# merge with vpd data frame
-mean_total_soil_lme <- merge(vpd,mean_total_soil_lme,by=c('siteID'))
-#head(mean_foliar_lme)
+#remove NAs
+total_soil_lme <- total_soil_lme %>%
+  dplyr::filter(!soilNPercent_MHoriz_mean=='NA') %>%
+  dplyr::filter(!litterNPercent_mean =='NA') %>% 
+  dplyr::filter(!resorpN =='NA')
 
 #check sample sizes
-length_mean_total_soil_lme <-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=mean_total_soil_lme)
+length_total_soil_lme<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=total_soil_lme)
 
-#remove site with only one two reps (less than 4 reps. This does not leave much to work with...)
-mean_total_soil_lme <- mean_total_soil_lme %>%
-  dplyr::filter(!(siteID=="SCBI")) %>%
-  dplyr::filter(!(siteID=="UNDE")) 
-unique(mean_total_soil_lme$siteID) # works
-# N=5 sites
+#remove sites with less than 4 replicates
+total_soil_lme <- total_soil_lme %>%
+  dplyr::filter(!siteID  =='DELA') %>%
+  dplyr::filter(!siteID  =='SCBI') %>%
+  dplyr::filter(!siteID  =='SJER') %>%
+  dplyr::filter(!siteID  =='UNDE')
+
+#head(mean_foliar_lme)
+unique(total_soil_lme$Lcclass)
+#these are all woody
 
 # lme functions lets you see P values in summary output
-total_soil_lme.1<-lme(soilNPercent_MHoriz_mean~ litterNPercent_mean + resorpN  + Lcclass + vpd, random= ~1|siteID,data=mean_total_soil_lme)
+total_soil_lme.1<-lme(soilNPercent_MHoriz_mean~ litterNPercent_mean + vpd, random= ~1|siteID,data=total_soil_lme)
 summary(total_soil_lme.1) #vpd is slightly significant
 r.squaredGLMM(total_soil_lme.1)
 
 
-# R2m       R2c
-# [1,] 0.8213875 0.8213875
-
-#notes
-
-# vpd shows up as a significant main effect. no variance attributable to random effects.
-
 #inorganic soil N
 
-mean_inorganic_soil_lme<-aggregate(inorganicN ~ plotID +siteID
-                               + litterNPercent_mean + resorpN + Lcclass,mean,data=plot.df)
-#head(plot.df)
-unique(mean_inorganic_soil_lme$Lcclass)
+inorganic_soil_lme <- select(plot.df.2,c('siteID','vpd','inorganicN','litterNPercent_mean','Lcclass','resorpN'))
 
-#rename to veg type to herb versus woody. 'Croplands' are deemed herbaceous
-mean_inorganic_soil_lme <- rename_lcc(mean_inorganic_soil_lme,crop = T)
-# head(mean_inorganic_soil_lme)
-# unique(mean_inorganic_soil_lme$Lcclass)
-
-# get aridity data
-# vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
-# head(vpd)
-
-#cleanup
-# vpd<-vpd[c(2,3)]
-# colnames(vpd) <- c('siteID','vpd')
-
-# merge with vpd data frame
-mean_inorganic_soil_lme <- merge(vpd,mean_inorganic_soil_lme,by=c('siteID'))
-#head(mean_foliar_lme)
+#remove NAs
+inorganic_soil_lme <- inorganic_soil_lme  %>%
+  dplyr::filter(!inorganicN=='NA') %>%
+  dplyr::filter(!litterNPercent_mean =='NA') %>% 
+  dplyr::filter(!resorpN =='NA')
 
 #check sample sizes
-length_mean_inorganic_soil_lme <-aggregate(inorganicN~siteID,length,data=mean_inorganic_soil_lme)
+length_inorganic_soil_lme<-aggregate(inorganicN~siteID,length,data=inorganic_soil_lme)
 
-#remove site with only one two reps (less than 4)
-mean_inorganic_soil_lme <- mean_inorganic_soil_lme %>%
-  dplyr::filter(!(siteID=="SCBI")) %>%
-  dplyr::filter(!(siteID=="UNDE"))
-unique(mean_inorganic_soil_lme$siteID) # works
-# N = 5 sites
+#remove sites with less than 4 replicates
+inorganic_soil_lme <- inorganic_soil_lme %>%
+  dplyr::filter(!siteID  =='DELA') %>%
+  dplyr::filter(!siteID  =='SCBI') %>%
+  dplyr::filter(!siteID  =='SJER') %>%
+  dplyr::filter(!siteID  =='UNDE')
+
+unique(inorganic_soil_lme$Lcclass)
 
 # lme functions lets you see P values in summary output
-inorganic_soil_lme.1<-lme(inorganicN~ litterNPercent_mean + resorpN  + Lcclass + vpd, random= ~1|siteID,data=mean_inorganic_soil_lme)
+inorganic_soil_lme.1<-lme(inorganicN~ litterNPercent_mean + vpd, random= ~1|siteID,data=inorganic_soil_lme)
 summary(inorganic_soil_lme.1) #nothing significant 
 r.squaredGLMM(inorganic_soil_lme.1)
-
-# R2m       R2c
-# [1,] 0.07002065 0.9835765
-
-#notes: interesting that when using inroganic N, all variance goes into random effects
-
-#done
 
 
 #-------------------------------------------------------------------------------
@@ -487,15 +449,22 @@ merge_mean_foliar_soil_mineralization <- filter_reps(mean_foliar, mean_soil_mine
 merge_mean_foliar_soil_mineralization$foliarNPercent_mean<-round(merge_mean_foliar_soil_mineralization$foliarNPercent_mean,2)
 merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay<-round(merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay,2)
   
+length(merge_mean_foliar_soil_mineralization$siteID) 
+
+#add veg type
+merge_mean_foliar_soil_mineralization <- merge(merge_mean_foliar_soil_mineralization,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=merge_mean_foliar_soil_mineralization)
+
 # take a look  
 plot(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization)
 outlierTest(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
 #no outliers
-summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
 
-# Adjusted R-squared:  0.1092
-# p-value: 0.05915
-  
+summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
+tab_model(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
+
+#moderately significant 
+
 #-------------------------------------------------------------------------------
 # mineralization-root relationships ------
 
@@ -503,7 +472,17 @@ summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soi
 merge_mean_mineralization_root <- filter_reps(mean_soil_mineralization, mean_root)
 
 length(merge_mean_mineralization_root$siteID) 
-# N = 23
+# 19 sites
+
+#round to two decimal points
+merge_mean_mineralization_root$rootNPercent<-round(merge_mean_mineralization_root$rootNPercent,2)
+merge_mean_mineralization_root$netNminugPerGramPerDay<-round(merge_mean_mineralization_root$netNminugPerGramPerDay,2)
+
+length(merge_mean_mineralization_root$siteID) 
+
+#add veg type
+merge_mean_mineralization_root <- merge(merge_mean_mineralization_root,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=merge_mean_mineralization_root)
 
 #take a look
 #plot(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_root)
@@ -511,8 +490,7 @@ outlierTest(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralizatio
 # no outliers
 summary(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_root))
 
-# p-value: 0.6851
-# Adjusted R-squared:  -0.03925
+#not significant
 
 #-------------------------------------------------------------------------------
 # Root and foliar N relationship --------------------------------------------------
@@ -520,7 +498,17 @@ summary(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_ro
 merge_mean_foliar_root <- filter_reps(mean_foliar, mean_root)
 
 length(merge_mean_foliar_root$siteID) 
-# N = 24 sites
+# N = 20 sites
+
+#round to two decimal points
+merge_mean_foliar_root$rootNPercent<-round(merge_mean_foliar_root$rootNPercent,2)
+merge_mean_foliar_root$foliarNPercent_mean<-round(merge_mean_foliar_root$foliarNPercent_mean,2)
+
+length(merge_mean_foliar_root$siteID)
+
+#add veg type
+merge_mean_foliar_root <- merge(merge_mean_foliar_root,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=merge_mean_foliar_root)
 
 #plot(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root)
 
@@ -528,26 +516,4 @@ length(merge_mean_foliar_root$siteID)
 outlierTest(lm(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root))
 #no outliers
 summary(lm(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root))
-# Adjusted R-squared:  0.2987
-# p-value: 0.003376
-
-
-# Get a sense if a linear or nonlinear fit is better
-root_leaf_linear<-lm(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root)
-#summary(root_leaf_linear) #significant R-square = 0.15
-
-pdf(file='./../output/bivar_root_leaf.pdf',
-    width=6,height=6)
-
-layout(matrix(1:1, ncol=1))
-par(oma=c(6, 5, 6, 5), mar=c(0, 0, 0, 0),pty='s')
-
-# merge root and foliar N
-#mean_foliar_root <- merge(mean_soil_root_2, mean_foliar_soil_2, by = c('siteID'))
-plot(foliarNPercent_mean~rootNPercent,xlab='',ylab='', data=merge_mean_foliar_root,cex=1.25)
-mtext('% Leaf N',side=2,line=3,cex=1.5)
-mtext('% Root N',side=1,line=3,cex=1.5,outer=T)
-abline(root_leaf_linear, col="red",lwd=2)
-text(1.2, 01.5, 'R-squared = 0.30',cex=1)
-
-dev.off()
+tab_model(lm(foliarNPercent_mean~rootNPercent,data=merge_mean_foliar_root))

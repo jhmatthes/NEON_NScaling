@@ -17,7 +17,7 @@ rm(list=ls())
 # #restart R
 
 # Import packages
-pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn",'lme4')
+pkgs <- c("dplyr", "ggplot2", "nlme", "car", "MuMIn",'lme4','cowplot')
 lapply(pkgs, library, character.only = TRUE) # load them
 
 #for creating nice model output tables
