@@ -98,12 +98,12 @@ foliar_cn_lme <- foliar_cn_lme %>%
 #check
 herb.count<-subset(foliar_cn_lme,Lcclass=='herb')
 length(herb.count$siteID) #59 obs
-unique(herb.count$siteID) #6 herb sites
+length(unique(herb.count$siteID)) #6 herb sites
 
 #
-woody.count<-subset(foliar_root_cn_lme,Lcclass='woody')
+woody.count<-subset(foliar_cn_lme,Lcclass=='woody')
 length(woody.count$siteID)
-unique(woody.count$siteID)
+length(unique(woody.count$siteID))
 
 
 # lme functions lets you see P values in summary output
@@ -137,9 +137,9 @@ length(herb.count$siteID)
 unique(herb.count$siteID) 
 
 #
-woody.count<-subset(root_cn_lme,Lcclass='woody')
+woody.count<-subset(root_cn_lme,Lcclass=='woody')
 length(woody.count$siteID)
-unique(woody.count$siteID)
+length(unique(woody.count$siteID))
 
 #now do lmes
 root_cn_lme.1<-lme(rootCNratio~ soilCNRatio_MHoriz_mean + vpd + Lcclass , random= ~1|siteID,data=root_cn_lme)
@@ -219,12 +219,12 @@ soil_cn_lme<- soil_cn_lme %>%
 #check
 herb.count<-subset(soil_cn_lme,Lcclass=='herb')
 length(herb.count$siteID)
-unique(herb.count$siteID) 
+length(unique(herb.count$siteID))
 
 #
-woody.count<-subset(soil_cn_lme,Lcclass='woody')
+woody.count<-subset(soil_cn_lme,Lcclass=='woody')
 length(woody.count$siteID)
-unique(woody.count$siteID)
+length(unique(woody.count$siteID))
 
 # lme functions lets you see P values in summary output
 soil_cn_lme.1<-lme(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd , random= ~1|siteID,data=soil_cn_lme)

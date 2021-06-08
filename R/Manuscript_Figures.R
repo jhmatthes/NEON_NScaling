@@ -409,9 +409,11 @@ total_soil_climate <-
   ggplot(plot.df.2,aes(vpd,soilNPercent_MHoriz_mean,fill=Lcclass)) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
-  #stat_smooth(method='lm',se=FALSE,size=0.5,color='black') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
+  # geom_smooth(aes(group=1),color="black", 
+  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
+  # annotate(x=1.7, y=2, label="R-squared = 0.08", geom="text", size=4.5) +
   xlab('') +
   ylab('% Soil N') +
   theme(
@@ -443,6 +445,9 @@ root_climate <-
   #stat_smooth(method='lm',color='black') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
+  # geom_smooth(aes(group=1),color="black", 
+  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
+  # annotate(x=1.7, y=2, label="R-squared = 0.025", geom="text", size=4.5) +
   xlab('') +
   ylab('% Root N') +
   theme(
@@ -474,6 +479,9 @@ leaf_climate <-
   #stat_smooth(method='lm') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
+  # geom_smooth(aes(group=1),color="black", 
+  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
+  # annotate(x=1.7, y=4, label="R-squared = 0.011", geom="text", size=4.5) +
   xlab('Long-term vapor pressure deficit') +
   ylab('% Foliar N') +
   theme(
@@ -497,12 +505,11 @@ leaf_climate <-
 
 #
 
-library(cowplot)
 
 pdf(file='./../output/manuscript_figures/historgram_climate.pdf',
     width=8,height=6)
 
-plot_grid(total_soil_hist, total_soil_climate, root_hist,root_climate,leaf_hist,
+cowplot::plot_grid(total_soil_hist, total_soil_climate, root_hist,root_climate,leaf_hist,
           leaf_climate, labels = c('A', 'B','C','D','E','F'),ncol = 2, nrow=3,
           rel_widths = c(1.5, 1.5,1.5), rel_heights = c(0.5, 0.5,0.5),label_size = 15)
 dev.off()
@@ -538,6 +545,7 @@ root_cn_fig <-
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
+  annotate(x=24, y=37, label="R-squared = 0.44", geom="text", size=4.5) +
   xlab('Soil C:N') +
   ylab('Root C:N') +
   theme(
@@ -549,9 +557,9 @@ root_cn_fig <-
     legend.key = element_blank(),
     legend.title = element_blank(),
     legend.text = element_text(size=12),
-    legend.position = c(0.75,.2),
+    #legend.position = c(0.75,.2),
     legend.margin =margin(r=5,l=5,t=5,b=5),
-    #legend.position = 'none',
+    legend.position = 'none',
     strip.background =element_rect(fill="white"),
     strip.text = element_text(size=10),
     panel.background = element_rect(fill=NA),
@@ -571,6 +579,7 @@ foliar_cn_fig <-
   geom_text(aes(label=siteID),hjust=0, vjust=0) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
+  annotate(x=24, y=21, label="R-squared = 0.68", geom="text", size=4.5) +
   xlab('Soil C:N') +
   ylab('Foliar C:N') +
   theme(
@@ -579,12 +588,12 @@ foliar_cn_fig <-
     axis.title.x = element_text(color='black',size=15),
     axis.title.y = element_text(color='black',size=15),
     axis.ticks = element_line(color='black'),
-    # legend.key = element_blank(),
-    # legend.title = element_blank(),
-    # legend.text = element_text(size=8.25),
-    # legend.position = c(0.5,.2),
-    # legend.margin =margin(r=5,l=5,t=5,b=5),
-    legend.position = 'none',
+    legend.key = element_blank(),
+    legend.title = element_blank(),
+    legend.text = element_text(size=12),
+    #legend.position = c(0.75,.2),
+    legend.margin =margin(r=5,l=5,t=5,b=5),
+    legend.position = 'top',
     strip.background =element_rect(fill="white"),
     strip.text = element_text(size=10),
     panel.background = element_rect(fill=NA),
@@ -629,11 +638,9 @@ root_foliar_cn_fig <-
 
 pdf(file='./../output/manuscript_figures/CN_foliar_root_bivariate.pdf',
     width=13,height=4)
-?plot_grid
-plot_grid(root_cn_fig, foliar_cn_fig,root_foliar_cn_fig, labels = c('A', 'B','C'),ncol = 3, nrow=1,
+
+cowplot::plot_grid(root_cn_fig, foliar_cn_fig,root_foliar_cn_fig, labels = c('A', 'B','C'),ncol = 3, nrow=1,
           rel_widths = c(1.5, 1.5,1.5), rel_heights = c(0.5, 0.5,0.5),label_size = 15)
-# x.grob <- textGrob("Soil C:N", 
-#                    gp=gpar(fontface="bold", col="black", fontsize=15))
 
 dev.off()
 
@@ -654,6 +661,7 @@ litter_soil_fig <-
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
+  annotate(x=100, y=15, label="R-squared = 0.58", geom="text", size=4.5) +
   xlab('Litter C:N') +
   ylab('Soil C:N') +
   theme(
@@ -688,7 +696,7 @@ resorp_soil_fig <-
   #stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
-  xlab('N Resportion') +
+  xlab('Foliar N resorption efficiency (%)') +
   ylab('') +
   theme(
     axis.text.x = element_text(color='black',size=11), #angle=25,hjust=1),
@@ -712,7 +720,7 @@ resorp_soil_fig <-
 pdf(file='./../output/manuscript_figures/CN_litter_resportion_bivariate.pdf',
     width=9,height=4)
 
-plot_grid(litter_soil_fig, resorp_soil_fig, labels = c('A', 'B'),ncol = 2, nrow=1,
+cowplot::plot_grid(litter_soil_fig, resorp_soil_fig, labels = c('A', 'B'),ncol = 2, nrow=1,
           rel_widths = c(1.5, 1.5,1.5), rel_heights = c(0.5, 0.5,0.5),label_size = 15)
 
 dev.off()

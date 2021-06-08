@@ -25,6 +25,13 @@ length(unique(plot.df.2$siteID)) # 35 sites
 head(plot.df.2)
 #unique(plot.df.2$Lcclass)
 
+#combine with site coordinate df
+# mat_map <- read.csv('./../data_pre-processed/MAT_MAP_Allsites.csv')
+# sites <- data.frame(unique(plot.df.2$siteID))
+# colnames(sites) <- c('siteID')
+# sites <- merge(mat_map[c(1,2,3)],sites,by='siteID')
+# write.csv(sites,'./../data_pre-processed/sites_in_analyses.csv')
+
 # Get mean values for each plot-site combination for each pool -----
 mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df.2)
 mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df.2)
@@ -243,12 +250,12 @@ foliar_lme <- foliar_lme %>%
 #check
 herb.count<-subset(foliar_lme,Lcclass=='herb')
 length(herb.count$siteID) #59 obs
-unique(herb.count$siteID) #6 herb sites
+length(unique(herb.count$siteID)) #6 herb sites
 
 #
-woody.count<-subset(foliar_lme,Lcclass='woody')
+woody.count<-subset(foliar_lme,Lcclass=='woody')
 length(woody.count$siteID)
-unique(woody.count$siteID)
+length(unique(woody.count$siteID))
 
 # lme functions (lme lets you see P values in summary output)
 leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN + vpd + Lcclass, random= ~1|siteID,data=foliar_lme)
@@ -275,12 +282,12 @@ length_inorganic_lme<-aggregate(inorganicN~siteID,length,data=root_lme)
 #check
 herb.count<-subset(root_lme,Lcclass=='herb')
 length(herb.count$siteID) #28 obs
-unique(herb.count$siteID) #6 herb sites
+length(unique(herb.count$siteID)) #6 herb sites
 
 #
-woody.count<-subset(root_lme,Lcclass='woody')
+woody.count<-subset(root_lme,Lcclass=='woody')
 length(woody.count$siteID)
-unique(woody.count$siteID)
+length(unique(woody.count$siteID))
 
 #now do lmes
 root_lme.1<-lme(rootNPercent~ inorganicN + vpd + Lcclass , random= ~1|siteID,data=root_lme)
@@ -289,6 +296,71 @@ r.squaredGLMM(root_lme.1)
 
 
 #-------------------------------------------------------------------------------
+
+# Mixed effects models of soil effects on plant N using total soil N ------
+foliar_lme_total <- select(plot.df.2,c('siteID','vpd','foliarNPercent_mean','soilNPercent_MHoriz_mean','Lcclass'))
+head(foliar_lme_total)
+
+foliar_lme_total <- foliar_lme_total %>%
+  dplyr::filter(!foliarNPercent_mean=='NA') %>%
+  dplyr::filter(!soilNPercent_MHoriz_mean=='NA') 
+
+#check sample sizes
+length_foliar_lme_total<-aggregate(foliarNPercent_mean~siteID,length,data=foliar_lme_total)
+
+#get rid of WREF
+
+#remove sites with less than 4 replicates
+foliar_lme_total <- foliar_lme_total %>%
+  dplyr::filter(!siteID  =='WREF')
+
+#check
+herb.count<-subset(foliar_lme_total,Lcclass=='herb')
+length(herb.count$siteID) #55 obs
+unique(herb.count$siteID) #6 herb sites
+
+#
+woody.count<-subset(foliar_lme_total,Lcclass=='woody')
+length(woody.count$siteID) #152
+length(unique(woody.count$siteID)) #17 woody sites
+
+# lme functions (lme lets you see P values in summary output)
+leaf_total_lme.1<-lme(foliarNPercent_mean~ soilNPercent_MHoriz_mean + vpd + Lcclass, random= ~1|siteID,data=foliar_lme_total)
+summary(leaf_total_lme.1) # inorganic N shows as significant
+r.squaredGLMM(leaf_total_lme.1)
+
+
+#
+#
+
+# Do mixed effects analysis for root N, same work flow
+
+root_lme_total <- select(plot.df.2,c('siteID','vpd','rootNPercent','soilNPercent_MHoriz_mean','Lcclass'))
+#head(root_lme)
+
+root_lme_total <- root_lme_total %>%
+  dplyr::filter(!rootNPercent=='NA') %>%
+  dplyr::filter(!soilNPercent_MHoriz_mean =='NA') 
+
+#check sample sizes
+length_root_lme<-aggregate(rootNPercent~siteID,length,data=root_lme_total)
+
+#check
+herb.count<-subset(root_lme_total,Lcclass=='herb')
+length(herb.count$siteID) #28 obs
+unique(herb.count$siteID) #7 herb sites
+
+#
+woody.count<-subset(root_lme_total,Lcclass=='woody')
+length(woody.count$siteID) #73 obs
+length(unique(woody.count$siteID)) #17 sites
+
+#now do lmes
+root_total_lme.1<-lme(rootNPercent~ soilNPercent_MHoriz_mean + vpd + Lcclass , random= ~1|siteID,data=root_lme_total)
+summary(root_total_lme.1) 
+r.squaredGLMM(root_total_lme.1)
+
+
 
 #plant feedbacks to soil  inorganic N --------------------
 
