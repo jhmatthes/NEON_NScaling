@@ -15,22 +15,23 @@
 plot.df <- read.csv(file = "CN_plotID.csv", stringsAsFactors = F)
 head(plot.df)
 names(plot.df)
+#unique(plot.df$siteID)
 
 # estimate resorption
 plot.df$resorpN <- (plot.df$foliarNPercent_mean - plot.df$litterNPercent_mean)/
   plot.df$foliarNPercent_mean*100
 
 ### load climate data
-climate.df <- read.csv('./../data_pre-processed/MAT_MAP_Allsites.csv', header = T, 
-                       stringsAsFactors = F)
-climate.df$MAP<-climate.df$MAP*10 # change from cm to mm
-climate.df <- climate.df[ , c("siteID", "MAT", "MAP")]
-head(climate.df)
-
-### merge the plot and climate data by site name
-nrow(plot.df)
-plot.df <- left_join(plot.df, climate.df, by ="siteID")
-head(plot.df)
+# climate.df <- read.csv('./../data_pre-processed/MAT_MAP_Allsites.csv', header = T, 
+#                        stringsAsFactors = F)
+# climate.df$MAP<-climate.df$MAP*10 # change from cm to mm
+# climate.df <- climate.df[ , c("siteID", "MAT", "MAP")]
+# head(climate.df)
+# 
+# ### merge the plot and climate data by site name
+# nrow(plot.df)
+# plot.df <- left_join(plot.df, climate.df, by ="siteID")
+# head(plot.df)
 
 ### load veg type data 
 vegtype.df <- read.csv('./../data_pre-processed/LCclass_polys.csv', #file path is relative
@@ -40,6 +41,7 @@ vegtype.df <- vegtype.df[c(2,4)]
 colnames(vegtype.df) <- c('siteID','Lcclass')
 vegtype.df<-rename_lcc(vegtype.df,crop=F)
 vegtype.df<-vegtype.df[!duplicated(vegtype.df), ]
+#unique(vegtype.df$siteID)
 
 
 ### merge plot and veg type data by site name
@@ -53,8 +55,10 @@ names(plot.df)
 myvars <- c('domainID', "siteID", "plotID","rootNPercent",'rootCPercent','rootCNratio',
             'plotType','litterNPercent_mean','foliarNPercent_mean','foliarCPercent_mean',
             'foliarCNRatio_mean','soilNPercent_MHoriz_mean','soilCNRatio_MHoriz_mean',
-            'pctSand', 'pctSilt', 'pctClay', 'resorpN','inorganicN', 'MAT', 'MAP', 
+            'pctSand', 'pctSilt', 'pctClay', 'resorpN','inorganicN', 
             'Lcclass','litterCNRatio_mean','netNminugPerGramPerDay','soilCPercent_MHoriz_mean')
+
+#'MAT', 'MAP'
 
 plot.df <- plot.df[myvars]
 head(plot.df)

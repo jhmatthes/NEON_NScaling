@@ -170,6 +170,9 @@ soiltexture_plotID <- spc_particlesize %>%
 
 
 # Read in inogranic N data
+
+#https://data.neonscience.org/data-products/DP1.10086.001
+
 inorganic.df<-as.data.frame(inorganicN[1])
 #inorganic.df$
 

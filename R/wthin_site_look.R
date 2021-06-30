@@ -7,17 +7,17 @@
 # re-run this bit of code if didn't run analysis code:
 
 #start
-# merge_foliar_soil_means <-filter_reps(mean_foliar, mean_soil)
-# 
-# length(merge_foliar_soil_means$siteID) 
-# #23 with the limit as 4
-# 
-# #round to 2 decimal points
-# merge_foliar_soil_means$foliarNPercent_mean<-round(merge_foliar_soil_means$foliarNPercent_mean,2)
-# merge_foliar_soil_means$soilNPercent_MHoriz_mean<-round(merge_foliar_soil_means$soilNPercent_MHoriz_mean,2)
-# 
-# #add veg type
-# merge_foliar_soil_means <- merge(merge_foliar_soil_means,vegtype.df,by='siteID')
+merge_foliar_soil_means <-filter_reps(mean_foliar, mean_soil)
+
+length(merge_foliar_soil_means$siteID)
+#23 with the limit as 4
+
+#round to 2 decimal points
+merge_foliar_soil_means$foliarNPercent_mean<-round(merge_foliar_soil_means$foliarNPercent_mean,2)
+merge_foliar_soil_means$soilNPercent_MHoriz_mean<-round(merge_foliar_soil_means$soilNPercent_MHoriz_mean,2)
+
+#add veg type
+merge_foliar_soil_means <- merge(merge_foliar_soil_means,vegtype.df,by='siteID')
 #end
 
 #minimum of 10 within-site reps

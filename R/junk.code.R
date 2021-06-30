@@ -206,3 +206,136 @@ mtext('N Resporption',side=1,line=2.25,cex=1.0)
 mtext("B", side=side, line=line, cex=cex, adj=adj)
 
 dev.off()
+
+
+# compare variability of pools within versus across sites ----------------------
+
+# you'll have to run the previous to sections of code first
+
+# % Foliar N
+cross_site_foliar_sd<-round(sd(mean_site_foliar$`%Foliar`),2)
+
+#average within-site foliar SD #
+
+# first filter out sites with less than 10 replicates
+within_site_foliar_sd <- merge(mean_foliar,mean_site_foliar,by=c('siteID'))
+within_site_foliar_sd <- within_site_foliar_sd %>%
+  dplyr::filter(N > 9)
+within_site_foliar_sd <- mean(sd(round(within_site_foliar_sd$foliarNPercent_mean),2))
+within_site_foliar_sd<-round(within_site_foliar_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_foliar_sd,cross_site_foliar_sd)
+leaf_scale<-data.frame(sd,scale)
+leaf_scale$pool <- 'foliar'
+
+# % Root N
+cross_site_root_sd<-round(sd(mean_site_root$`%Root`),2)
+
+#average within-site root SD
+within_site_root_sd <- merge(mean_root,mean_site_root,by=c('siteID'))
+within_site_root_sd <- within_site_root_sd %>%
+  dplyr::filter(N > 9)
+within_site_root_sd <- mean(sd(round(within_site_root_sd$rootNPercent),2))
+within_site_root_sd<-round(within_site_root_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_root_sd,cross_site_root_sd)
+root_scale<-data.frame(sd,scale)
+root_scale$pool <- 'root'
+
+# % Total soil N
+cross_site_soil_sd<-round(sd(mean_site_soil$`%TotalSoil`),2)
+
+#average within-site total soil N
+within_site_soil_sd <- merge(mean_soil,mean_site_soil,by=c('siteID'))
+within_site_soil_sd <- within_site_soil_sd %>%
+  dplyr::filter(N > 9)
+within_site_soil_sd <- mean(sd(round(within_site_soil_sd$soilNPercent_MHoriz_mean),2))
+within_site_soil_sd<-round(within_site_soil_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_soil_sd,cross_site_soil_sd)
+soil_scale<-data.frame(sd,scale)
+soil_scale$pool <- 'soil'
+
+# % Inorganic soil N
+cross_site_soil_inorganic_sd<-round(sd(mean_site_soil_inorganic$`%InorganicSoil`),2)
+
+#average within-site inorganic soil N
+within_site_soil_inorganic_sd <- merge(mean_soil_inorganic,mean_site_soil_inorganic,by=c('siteID'))
+within_site_soil_inorganic_sd <- within_site_soil_inorganic_sd %>%
+  dplyr::filter(N > 9)
+within_site_soil_inorganic_sd <- mean(sd(round(within_site_soil_inorganic_sd$`%InorganicSoil`),2))
+within_site_soil_inorganic_sd<-round(within_site_soil_inorganic_sd,2)
+
+scale <- c('within','across')
+sd<-c(within_site_soil_inorganic_sd,cross_site_soil_inorganic_sd)
+soil_inorganic_scale<-data.frame(sd,scale)
+soil_inorganic_scale$pool <- 'soil_inorganic'
+
+# Combine the datasets
+scale_sd<-rbind(soil_inorganic_scale,soil_scale,root_scale,leaf_scale)
+
+pdf(file='./../output/analyses_April_2021/within_versus_across_variation.pdf',
+    width=8,height=8)
+
+#plot it out
+ggplot(scale_sd,aes(reorder(pool,-sd),sd,fill=scale)) +
+  geom_bar(position="dodge", stat="identity") +
+  xlab('Pool') +
+  ylab('Standard deviation')
+
+dev.off()
+
+
+# mineralization-leaf N relationships ------
+
+# merge foliar and mineralization data by plot ID
+merge_mean_foliar_soil_mineralization <- filter_reps(mean_foliar, mean_soil_mineralization)
+
+#round to two decimal points
+merge_mean_foliar_soil_mineralization$foliarNPercent_mean<-round(merge_mean_foliar_soil_mineralization$foliarNPercent_mean,2)
+merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay<-round(merge_mean_foliar_soil_mineralization$netNminugPerGramPerDay,2)
+
+length(merge_mean_foliar_soil_mineralization$siteID) 
+
+#add veg type
+merge_mean_foliar_soil_mineralization <- merge(merge_mean_foliar_soil_mineralization,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=merge_mean_foliar_soil_mineralization)
+
+# take a look  
+outlierTest(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
+#no outliers
+
+summary(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
+#tab_model(lm(foliarNPercent_mean~netNminugPerGramPerDay,data=merge_mean_foliar_soil_mineralization))
+
+#moderately significant 
+
+#-------------------------------------------------------------------------------
+# mineralization-root relationships ------
+
+# merge root and soil data by plot ID
+merge_mean_mineralization_root <- filter_reps(mean_soil_mineralization, mean_root)
+
+length(merge_mean_mineralization_root$siteID) 
+# 19 sites
+
+#round to two decimal points
+merge_mean_mineralization_root$rootNPercent<-round(merge_mean_mineralization_root$rootNPercent,2)
+merge_mean_mineralization_root$netNminugPerGramPerDay<-round(merge_mean_mineralization_root$netNminugPerGramPerDay,2)
+
+length(merge_mean_mineralization_root$siteID) 
+
+#add veg type
+merge_mean_mineralization_root <- merge(merge_mean_mineralization_root,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=merge_mean_mineralization_root)
+
+#take a look
+#plot(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_root)
+outlierTest(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_root))
+# no outliers
+summary(lm(rootNPercent~netNminugPerGramPerDay,data=merge_mean_mineralization_root))
+
+#not significant
