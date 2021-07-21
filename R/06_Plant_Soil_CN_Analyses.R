@@ -7,13 +7,6 @@ sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df.2
 sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df.2) 
 sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df.2)
 
-# Get mean values for each plot
-mean_foliar_cn<-aggregate(foliarCNRatio_mean~siteID + plotID,mean,data=plot.df.2)
-mean_root_cn <- aggregate(rootCNratio ~ siteID + plotID, mean, data = plot.df.2)
-mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.df.2)
-
-
-
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 #---------------   Soil C:N effects on plant C:N     ---------------------------
@@ -39,7 +32,7 @@ outlierTest(lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)
 #no outliers
 
 root_soil_cn_lm<-lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)
-#summary(lm(rootCNratio~soilCNRatio_MHoriz_mean,data=merge_mean_soil_root_cn)) 
+#summary(root_soil_cn_lm) 
 #tab_model(root_soil_cn_lm)
 
 #-------------------------------------------------------------------------------
@@ -60,9 +53,9 @@ aggregate(siteID~Lcclass,length,data=merge_mean_soil_foliar_cn)
 
 #check for outliers
 outlierTest(lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn))
-#outliers?
+#one outlier (1)
 
-foliar_soil_cn_lm<-lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn)
+foliar_soil_cn_lm<-lm(foliarCNRatio_mean~soilCNRatio_MHoriz_mean,data=merge_mean_soil_foliar_cn[-1,])
 #tab_model(foliar_soil_cn_lm)
 
 #-------------------------------------------------------------------------------
@@ -82,15 +75,15 @@ merge_mean_root_foliar_cn <- merge(merge_mean_root_foliar_cn,vegtype.df,by='site
 aggregate(siteID~Lcclass,length,data=merge_mean_root_foliar_cn)
 
 outlierTest(lm(foliarCNRatio_mean~rootCNratio,data=merge_mean_root_foliar_cn))
-#outliers?
+#no outliers
 
-summary(lm(foliarCNRatio_mean~rootCNratio,data=merge_mean_root_foliar_cn))
-
+foliar_root_cn_lm<-lm(foliarCNRatio_mean~rootCNratio,data=merge_mean_root_foliar_cn)
+tab_model(foliar_root_cn_lm)
 
 #-------------------------------------------------------------------------------
 # Mixed effect model: soil C:N effects on foliar C:N ---------------------------
 
-foliar_cn_lme <- select(plot.df.2,c('siteID','vpd','Lcclass','soilCNRatio_MHoriz_mean','foliarCNRatio_mean'))
+foliar_cn_lme <- select(plot.df,c('siteID','MAP','Lcclass','soilCNRatio_MHoriz_mean','foliarCNRatio_mean'))
 
 #remove NAs
 foliar_cn_lme <- foliar_cn_lme %>%
