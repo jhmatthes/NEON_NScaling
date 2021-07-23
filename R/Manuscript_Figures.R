@@ -1,38 +1,18 @@
 # manuscript figures
 
-# set up ----
+# Table 1 summarizing  means and sample sizes of different pools -----
 
-
-# get aridity data
-vpd <- read.csv('./../data_pre-processed/scaled_vpd.csv')
-head(vpd)
-
-#cleanup
-vpd<-vpd[c(2,3)]
-colnames(vpd) <- c('siteID','vpd')
-
-# merge with vpd data frame
-plot.df <- merge(vpd,plot.df,by=c('siteID'))
-
-#unique(plot.df$Lcclass)
-
-#filter to just woody and herb (not NAs)
-plot.df.2 <- plot.df %>%
-  dplyr::filter(!Lcclass=='NA')
-
-# Table 1 -----
-
-head(plot.df.2)
+head(plot.df)
 
 # Get sample sizes:
 
-sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df.2)
-sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df.2) # KONZ only 4
-sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df.2) # HEAL only 1
-sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df.2)
-sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df.2)
-sample_size_soil_mineralization<- aggregate(netNminugPerGramPerDay ~ siteID, length, data = plot.df.2)
-sample_size_soil_resorpN<- aggregate(resorpN ~ siteID, length, data = plot.df.2)
+sample_size_foliar<-aggregate(foliarNPercent_mean~siteID,length,data=plot.df)
+sample_size_litter<-aggregate(litterNPercent_mean~siteID,length,data=plot.df) # KONZ only 4
+sample_size_soil<-aggregate(soilNPercent_MHoriz_mean~siteID,length,data=plot.df) # HEAL only 1
+sample_size_root <- aggregate(rootNPercent ~ siteID, length, data = plot.df)
+sample_size_soil_inorganic <- aggregate(inorganicN ~ siteID, length, data = plot.df)
+sample_size_soil_mineralization<- aggregate(netNminugPerGramPerDay ~ siteID, length, data = plot.df)
+sample_size_soil_resorpN<- aggregate(resorpN ~ siteID, length, data = plot.df)
 sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df)
 sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df) 
 sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df)
@@ -41,77 +21,77 @@ sample_size_litter_cn <- aggregate(litterNPercent_mean ~ siteID, length, data = 
 # Get means:
 
 #foliar
-mean_site_foliar <-aggregate(foliarNPercent_mean~siteID,mean,data=plot.df.2)
+mean_site_foliar <-aggregate(foliarNPercent_mean~siteID,mean,data=plot.df)
 mean_site_foliar$Foliar<-round(mean_site_foliar$foliarNPercent_mean,2)
 mean_site_foliar <- mean_site_foliar[c(1,3)]
 mean_site_foliar<-merge(mean_site_foliar,sample_size_foliar,by=c('siteID'))
 colnames(mean_site_foliar) <-c('siteID','%Foliar','N')
 
 #root
-mean_site_root <-aggregate(rootNPercent~siteID,mean,data=plot.df.2)
+mean_site_root <-aggregate(rootNPercent~siteID,mean,data=plot.df)
 mean_site_root$Root<-round(mean_site_root$rootNPercent,2)
 mean_site_root <- mean_site_root[c(1,3)]
 mean_site_root <-merge(mean_site_root,sample_size_root,by=c('siteID'))
 colnames(mean_site_root) <-c('siteID','%Root','N')
 
 #total soil N
-mean_site_soil <-aggregate(soilNPercent_MHoriz_mean~siteID,mean,data=plot.df.2)
+mean_site_soil <-aggregate(soilNPercent_MHoriz_mean~siteID,mean,data=plot.df)
 mean_site_soil$TotalSoil<-round(mean_site_soil$soilNPercent_MHoriz_mean,2)
 mean_site_soil  <- mean_site_soil[c(1,3)]
 mean_site_soil  <-merge(mean_site_soil,sample_size_soil, by=c('siteID'))
 colnames(mean_site_soil) <-c('siteID','%TotalSoil','N')
 
 #inorganic soil N
-mean_site_soil_inorganic <-aggregate(inorganicN~siteID,mean,data=plot.df.2)
+mean_site_soil_inorganic <-aggregate(inorganicN~siteID,mean,data=plot.df)
 mean_site_soil_inorganic$InorganicSoil<-round(mean_site_soil_inorganic$inorganicN,2)
 mean_site_soil_inorganic  <- mean_site_soil_inorganic[c(1,3)]
 mean_site_soil_inorganic  <-merge(mean_site_soil_inorganic,sample_size_soil_inorganic, by=c('siteID'))
 colnames(mean_site_soil_inorganic) <-c('siteID','%InorganicSoil','N')
 
 #mineralization 
-mean_site_soil_mineralization <-aggregate(netNminugPerGramPerDay~siteID,mean,data=plot.df.2)
+mean_site_soil_mineralization <-aggregate(netNminugPerGramPerDay~siteID,mean,data=plot.df)
 mean_site_soil_mineralization$mineralization<-round(mean_site_soil_mineralization$netNminugPerGramPerDay,2)
 mean_site_soil_mineralization  <- mean_site_soil_mineralization[c(1,3)]
 mean_site_soil_mineralization  <-merge(mean_site_soil_mineralization,sample_size_soil_mineralization, by=c('siteID'))
 colnames(mean_site_soil_mineralization) <-c('siteID','Mineralization','N')
 
 #resorption 
-mean_site_soil_resorpN <-aggregate(resorpN~siteID,mean,data=plot.df.2)
+mean_site_soil_resorpN <-aggregate(resorpN~siteID,mean,data=plot.df)
 mean_site_soil_resorpN$resorption<-round(mean_site_soil_resorpN$resorpN,2)
 mean_site_soil_resorpN  <- mean_site_soil_resorpN[c(1,3)]
 mean_site_soil_resorpN  <-merge(mean_site_soil_resorpN,sample_size_soil_resorpN,by=c('siteID'))
 colnames(mean_site_soil_resorpN) <-c('siteID','Resporption','N')
 
 #litter
-mean_site_soil_litter <-aggregate(litterNPercent_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_litter <-aggregate(litterNPercent_mean~siteID,mean,data=plot.df)
 mean_site_soil_litter$litter<-round(mean_site_soil_litter$litterNPercent_mean,2)
 mean_site_soil_litter  <- mean_site_soil_litter[c(1,3)]
 mean_site_soil_litter  <-merge(mean_site_soil_litter,sample_size_litter,by=c('siteID'))
 colnames(mean_site_soil_litter) <-c('siteID','Litter','N')
 
 #total soil C:N
-mean_site_soil_cn <-aggregate(soilCNRatio_MHoriz_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_cn <-aggregate(soilCNRatio_MHoriz_mean~siteID,mean,data=plot.df)
 mean_site_soil_cn$soilCN<-round(mean_site_soil_cn$soilCNRatio_MHoriz_mean,2)
 mean_site_soil_cn  <- mean_site_soil_litter[c(1,3)]
 mean_site_soil_cn  <-merge(mean_site_soil_cn,sample_size_soil_cn,by=c('siteID'))
 colnames(mean_site_soil_cn) <-c('siteID','Soil C:N','N')
 
 # root C:N
-mean_site_soil_root_cn <-aggregate(rootCNratio~siteID,mean,data=plot.df.2)
+mean_site_soil_root_cn <-aggregate(rootCNratio~siteID,mean,data=plot.df)
 mean_site_soil_root_cn$rootCN<-round(mean_site_soil_root_cn$rootCNratio,2)
 mean_site_soil_root_cn  <- mean_site_soil_root_cn[c(1,3)]
 mean_site_soil_root_cn  <-merge(mean_site_soil_root_cn,sample_size_root_cn,by=c('siteID'))
 colnames(mean_site_soil_root_cn) <-c('siteID','Root C:N','N')
 
 # leaf C:N
-mean_site_soil_leaf_cn <-aggregate(foliarCNRatio_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_leaf_cn <-aggregate(foliarCNRatio_mean~siteID,mean,data=plot.df)
 mean_site_soil_leaf_cn$rootCN<-round(mean_site_soil_leaf_cn$foliarCNRatio_mean,2)
 mean_site_soil_leaf_cn  <- mean_site_soil_leaf_cn[c(1,3)]
 mean_site_soil_leaf_cn  <-merge(mean_site_soil_leaf_cn,sample_size_foliar_cn,by=c('siteID'))
 colnames(mean_site_soil_leaf_cn) <-c('siteID','Leaf C:N','N')
 
 # Litter C:N
-mean_site_soil_litter_cn <-aggregate(litterCNRatio_mean~siteID,mean,data=plot.df.2)
+mean_site_soil_litter_cn <-aggregate(litterCNRatio_mean~siteID,mean,data=plot.df)
 mean_site_soil_litter_cn$litterCN<-round(mean_site_soil_litter_cn$litterCNRatio_mean,2)
 mean_site_soil_litter_cn  <- mean_site_soil_litter_cn[c(1,3)]
 mean_site_soil_litter_cn  <-merge(mean_site_soil_litter_cn,sample_size_litter,by=c('siteID'))
@@ -308,17 +288,20 @@ write.csv(summary_stats,file='./../output/manuscript_figures/Pool_means.csv')
 
 
 
-# Figure 1 = conceptual-----
+#-------------------------------------------------------------------------------
+# Figure 1 = conceptual model-----
 
-#Figure 2 - Map of sites -----
+#-------------------------------------------------------------------------------
+#Figure 2 = Map of sites -----
 
+#-------------------------------------------------------------------------------
 # Figure 3: histograms of key N pools and bivariates with climate ----
 
 
 
 #total soil N
 total_soil_hist <-
-  ggplot(plot.df.2,aes(soilNPercent_MHoriz_mean,fill=Lcclass)) +
+  ggplot(plot.df,aes(soilNPercent_MHoriz_mean,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
 scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -346,7 +329,7 @@ scale_fill_manual(values=c('herb'='red','woody'='blue'),
 
 #Root N 
 root_hist <-
-  ggplot(plot.df.2,aes(rootNPercent,fill=Lcclass)) +
+  ggplot(plot.df,aes(rootNPercent,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
   scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -374,7 +357,7 @@ root_hist <-
 
 #Leaf N 
 leaf_hist <-
-  ggplot(plot.df.2,aes(foliarNPercent_mean,fill=Lcclass)) +
+  ggplot(plot.df,aes(foliarNPercent_mean,fill=Lcclass)) +
   scale_y_continuous(expand = c(0,0)) +
   geom_histogram(color='black',bins=50) +
   scale_fill_manual(values=c('herb'='red','woody'='blue'),
@@ -401,19 +384,19 @@ leaf_hist <-
     axis.line.y = element_line(colour = "black"))
 
 # now make the bivariates with climate variable
-summary(lm(soilNPercent_MHoriz_mean~vpd,data=plot.df.2))
+summary(lm(soilNPercent_MHoriz_mean~MAP,data=plot.df))
 # weakly significant, negative effect of vpd on soil N
 
 #total soil N
 total_soil_climate <-
-  ggplot(plot.df.2,aes(vpd,soilNPercent_MHoriz_mean,fill=Lcclass)) +
+  ggplot(plot.df,aes(MAP,soilNPercent_MHoriz_mean,fill=Lcclass)) +
+  geom_smooth(aes(group=1),color="black",
+              method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
+  annotate(x=450, y=2, label="R-squared = 0.028", geom="text", size=2.5) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
-  # geom_smooth(aes(group=1),color="black", 
-  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
-  # annotate(x=1.7, y=2, label="R-squared = 0.08", geom="text", size=4.5) +
   xlab('') +
   ylab('% Soil N') +
   theme(
@@ -436,18 +419,18 @@ total_soil_climate <-
     axis.line.y = element_line(colour = "black"))
 
 #root N climate
-summary(lm(rootNPercent~vpd,data=plot.df.2))
-# weakly positive relationship
+summary(lm(rootNPercent~MAP,data=plot.df))
+# weakly negative significant relationship
 root_climate <-
-  ggplot(plot.df.2,aes(vpd,rootNPercent,fill=Lcclass)) +
+  ggplot(plot.df,aes(MAP,rootNPercent,fill=Lcclass)) +
+  geom_smooth(aes(group=1),color="black",
+              method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
+  annotate(x=1800, y=2, label="R-squared = 0.064", geom="text", size=2.5) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
   #stat_smooth(method='lm',color='black') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
-  # geom_smooth(aes(group=1),color="black", 
-  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
-  # annotate(x=1.7, y=2, label="R-squared = 0.025", geom="text", size=4.5) +
   xlab('') +
   ylab('% Root N') +
   theme(
@@ -470,19 +453,16 @@ root_climate <-
     axis.line.y = element_line(colour = "black"))
 
 #leaf N and climate
-summary(lm(foliarNPercent_mean~vpd,data=plot.df.2))
-#weak negative relationship
+summary(lm(foliarNPercent_mean~MAP,data=plot.df))
+#weak negative non-significant relationship
 leaf_climate <-
-  ggplot(plot.df.2,aes(vpd,foliarNPercent_mean,fill=Lcclass)) +
+  ggplot(plot.df,aes(MAP,foliarNPercent_mean,fill=Lcclass)) +
   #scale_y_continuous(expand = c(0,0)) +
   geom_point(color='black',pch=21,alpha=0.5) +
   #stat_smooth(method='lm') +
   scale_fill_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
-  # geom_smooth(aes(group=1),color="black", 
-  #             method="lm", se=FALSE, linetype="solid",size=0.5, fullrange=TRUE) +
-  # annotate(x=1.7, y=4, label="R-squared = 0.011", geom="text", size=4.5) +
-  xlab('Long-term vapor pressure deficit') +
+  xlab('Mean annual precipitation (mm)') +
   ylab('% Foliar N') +
   theme(
     axis.text.x = element_text(color='black',size=10), #angle=25,hjust=1),
@@ -517,35 +497,23 @@ dev.off()
 
 
 
+#-------------------------------------------------------------------------------
 # Figure 4: bivariate with C:N pools ------
 
-# run this first
-#source('cn_analysis.R')
-sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df)
-sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df) 
-sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df)
+# run this first if not already run
+source('06_Plant_Soil_CN_Analyses.R')
 
-# Get mean values for each plot
-mean_foliar_cn<-aggregate(foliarCNRatio_mean~siteID + plotID,mean,data=plot.df)
-mean_root_cn <- aggregate(rootCNratio ~ siteID + plotID, mean, data = plot.df)
-mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.df)
-
-#final DF
-merge_mean_soil_root_cn<-filter_reps(mean_soil_cn, mean_root_cn)
-merge_mean_soil_root_cn <- merge(merge_mean_soil_root_cn,vegtype.df,by='siteID')
-
-# length(merge_mean_soil_root_cn$siteID)
 # head(merge_mean_soil_root_cn)
 
 root_cn_fig <-
   ggplot(merge_mean_soil_root_cn,aes(soilCNRatio_MHoriz_mean,rootCNratio,color=Lcclass,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(10,34)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  geom_text(aes(label=siteID),hjust=0, vjust=0) +
+  geom_text(aes(label=siteID),hjust=0, vjust=0,size=2.5) +
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                     labels=c('herb'='Herbaceous','woody'='Woody')) +
-  annotate(x=24, y=37, label="R-squared = 0.44", geom="text", size=4.5) +
+  annotate(x=24, y=37, label="R-squared = 0.43", geom="text", size=4.5) +
   xlab('Soil C:N') +
   ylab('Root C:N') +
   theme(
@@ -568,18 +536,16 @@ root_cn_fig <-
     axis.line.y = element_line(colour = "black"))
 
 # now do foliar
-merge_mean_soil_foliar_cn <- filter_reps(mean_soil_cn, mean_foliar_cn)
-merge_mean_soil_foliar_cn_2 <- merge(merge_mean_soil_foliar_cn[-1,],vegtype.df,by='siteID')
 
 foliar_cn_fig <-
-  ggplot(merge_mean_soil_foliar_cn_2,aes(soilCNRatio_MHoriz_mean,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
+  ggplot(merge_mean_soil_foliar_cn,aes(soilCNRatio_MHoriz_mean,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(10,30.5)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
-  geom_text(aes(label=siteID),hjust=0, vjust=0) +
+  geom_text(aes(label=siteID),hjust=0, vjust=0,size=2.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
-  annotate(x=24, y=21, label="R-squared = 0.68", geom="text", size=4.5) +
+  annotate(x=24, y=21, label="R-squared = 0.64", geom="text", size=4.5) +
   xlab('Soil C:N') +
   ylab('Foliar C:N') +
   theme(
@@ -602,17 +568,16 @@ foliar_cn_fig <-
     axis.line.y = element_line(colour = "black"))
 
 #now do root and leaf C:N
-merge_mean_root_foliar_cn <- filter_reps(mean_root_cn, mean_foliar_cn)
-merge_mean_root_foliar_cn  <- merge(merge_mean_root_foliar_cn,vegtype.df,by='siteID')
 
 root_foliar_cn_fig <-
   ggplot(merge_mean_root_foliar_cn,aes(rootCNratio,foliarCNRatio_mean,color=Lcclass,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(37,90.5)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  #stat_smooth(method='lm',color='black',se=F,size=0.5) + N.S
-  geom_text(aes(label=siteID),hjust=0, vjust=0) +
+  stat_smooth(method='lm',color='black',se=F,size=0.5) +
+  geom_text(aes(label=siteID),hjust=0, vjust=0,size=2.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
+  annotate(x=50, y=60, label="R-squared = 0.11", geom="text", size=4.5) +
   xlab('Root C:N') +
   ylab('Foliar C:N') +
   theme(
@@ -644,20 +609,16 @@ cowplot::plot_grid(root_cn_fig, foliar_cn_fig,root_foliar_cn_fig, labels = c('A'
 
 dev.off()
 
+#-------------------------------------------------------------------------------
 # Figure 5: plant feedbacks C:N figure ------
 
 #litter feedbacks to soil CN
-mean_litter_cn<-aggregate(litterCNRatio_mean~siteID + plotID,mean,data=plot.df.2)
-mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.df.2)
-mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df.2)
-mean_litter_soil_cn_2 <- filter_reps(mean_litter_cn, mean_soil_cn)
-mean_litter_soil_cn_2 <- merge(mean_litter_soil_cn_2,vegtype.df,by='siteID')
 
 litter_soil_fig <-
   ggplot(mean_litter_soil_cn_2,aes(litterCNRatio_mean,soilCNRatio_MHoriz_mean,label=siteID)) +
   scale_x_continuous(expand = c(0,0),limits = c(39,125)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  geom_text(aes(label=siteID),hjust=.0, vjust=0.0,alpha=1,color='red') +
+  geom_text(aes(label=siteID),hjust=.0, vjust=0.0,alpha=1,color='red',size=3.5) +
   stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
@@ -683,16 +644,13 @@ litter_soil_fig <-
     axis.line.x = element_line(colour = "black"),
     axis.line.y = element_line(colour = "black"))
 
-# now do resportion
-mean_resorp_soil_cn_2 <- filter_reps(mean_resorp, mean_soil_cn)
-mean_resorp_soil_cn_2 <- merge(mean_resorp_soil_cn_2,vegtype.df,by='siteID')
-
+# now do resorption
 resorp_soil_fig <-
   ggplot(mean_resorp_soil_cn_2,aes(resorpN,soilCNRatio_MHoriz_mean,label=siteID)) +
   #scale_y_continuous(expand = c(0,0)) +
   scale_x_continuous(expand = c(0,0),limits = c(25,69)) +
   geom_point(size=0.75,alpha=0.75,color='black') +
-  geom_text(aes(label=siteID),hjust=0, vjust=0,color='red') +
+  geom_text(aes(label=siteID),hjust=0, vjust=0,color='red',size=4.5) +
   #stat_smooth(method='lm',color='black',se=F,size=0.5) +
   scale_colour_manual(values=c('herb'='blue','woody'='red'),
                       labels=c('herb'='Herbaceous','woody'='Woody')) +
@@ -725,3 +683,5 @@ cowplot::plot_grid(litter_soil_fig, resorp_soil_fig, labels = c('A', 'B'),ncol =
 
 dev.off()
 
+
+#-------------------------------------------------------------------------------

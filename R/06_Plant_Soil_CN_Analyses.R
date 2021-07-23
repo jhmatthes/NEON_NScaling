@@ -1,12 +1,5 @@
 #C:N analyses
 
-head(plot.df)
-
-# Get sample sizes and plot means (can put into additional prep) ------
-sample_size_foliar_cn<-aggregate(foliarCNRatio_mean~siteID,length,data=plot.df.2)
-sample_size_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=plot.df.2) 
-sample_size_root_cn <- aggregate(rootCNratio ~ siteID, length, data = plot.df.2)
-
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 #---------------   Soil C:N effects on plant C:N     ---------------------------
@@ -95,7 +88,8 @@ aggregate(foliarCNRatio_mean~siteID,length,data=foliar_cn_lme)
 
 #remove site with only one rep
 foliar_cn_lme <- foliar_cn_lme %>%
-  dplyr::filter(!(siteID=="WREF"))
+  dplyr::filter(!(siteID=="WREF")) %>%
+  dplyr::filter(!(siteID=="BONA"))
 
 #check herb sample size
 herb.count<-subset(foliar_cn_lme,Lcclass=='herb')
@@ -110,7 +104,7 @@ length(unique(woody.count$siteID))
 
 #Mixedd effects model:
 
-leaf_cn_lme.1<-lme(foliarCNRatio_mean~ soilCNRatio_MHoriz_mean + vpd + Lcclass, random= ~1|siteID,data=foliar_cn_lme)
+leaf_cn_lme.1<-lme(foliarCNRatio_mean~ soilCNRatio_MHoriz_mean + MAP + Lcclass, random= ~1|siteID,data=foliar_cn_lme)
 summary(leaf_cn_lme.1) #only significant factor is soil C:N
 #r.squaredGLMM(leaf_cn_lme.1)
 
@@ -119,11 +113,9 @@ summary(leaf_cn_lme.1) #only significant factor is soil C:N
 # Mixed effect model: soil C:N effects on foliar C:N ---------------------------
 
 # Do mixed effects analysis for root N, same work flow
-head(plot.df.2)
 
-root_cn_lme <- select(plot.df.2,c('siteID','vpd','Lcclass','rootCNratio','soilCNRatio_MHoriz_mean'))
+root_cn_lme <- select(plot.df,c('siteID','MAP','Lcclass','rootCNratio','soilCNRatio_MHoriz_mean'))
 head(root_cn_lme)
-#head(mean_root_cn_lme)
 
 root_cn_lme  <- root_cn_lme  %>%
   dplyr::filter(!rootCNratio=='NA') %>%
@@ -145,9 +137,8 @@ length(unique(woody.count$siteID))
 
 #mixed effects model:
 
-root_cn_lme.1<-lme(rootCNratio~ soilCNRatio_MHoriz_mean + vpd + Lcclass , random= ~1|siteID,data=root_cn_lme)
+root_cn_lme.1<-lme(rootCNratio~ soilCNRatio_MHoriz_mean + MAP + Lcclass , random= ~1|siteID,data=root_cn_lme)
 summary(root_cn_lme.1) # soil C:N only significant 
-# tab_model(root_cn_lme.1)
 # r.squaredGLMM(root_cn_lme.1)
 
 
@@ -170,20 +161,50 @@ mean_resorp_soil_cn_2$soilCNRatio_MHoriz_mean <- round(mean_resorp_soil_cn_2$soi
 mean_resorp_soil_cn_2 <- merge(mean_resorp_soil_cn_2,vegtype.df,by='siteID')
 aggregate(siteID~Lcclass,length,data=mean_resorp_soil_cn_2)
 
+#take a look
 plot(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2)
 
 #look at  outliers
 #outlierTest(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
 #no outliers
 
-summary(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
+#summary(lm(soilCNRatio_MHoriz_mean~resorpN,data=mean_resorp_soil_cn_2))
+#not significant 
+
+
+
+#-------------------------------------------------------------------------------
+# soil C:N and litter C:N-----------------------------------------------
+
+mean_litter_soil_cn_2 <- filter_reps(mean_litter_cn,mean_soil_cn)
+length(mean_litter_soil_cn_2$plotID)
+# 13 sites
+
+#round to two decimal places
+mean_litter_soil_cn_2$litterCNRatio_mean <- round(mean_litter_soil_cn_2$litterCNRatio_mean ,2)
+mean_litter_soil_cn_2$soilCNRatio_MHoriz_mean <- round(mean_litter_soil_cn_2$soilCNRatio_MHoriz_mean,2)
+
+#add veg type
+mean_litter_soil_cn_2 <- merge(mean_litter_soil_cn_2,vegtype.df,by='siteID')
+aggregate(siteID~Lcclass,length,data=mean_litter_soil_cn_2)
+
+#take a look
+plot(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
+
+#look at  outliers
+#outlierTest(lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2))
+#no outliers
+
+litter_soil_cn_lm<-lm(soilCNRatio_MHoriz_mean~litterCNRatio_mean,data=mean_litter_soil_cn_2)
+tab_model(litter_soil_cn_lm)
+#significant
 
 
 
 #-------------------------------------------------------------------------------
 # mixed effects models for plant effects on soil C:N (STOPPED HERE) ------------
 
-soil_cn_lme <- select(plot.df.2,c('siteID','vpd','Lcclass','soilCNRatio_MHoriz_mean','litterCNRatio_mean'))
+soil_cn_lme <- select(plot.df,c('siteID','MAP','Lcclass','soilCNRatio_MHoriz_mean','litterCNRatio_mean'))
 head(soil_cn_lme)
 
 soil_cn_lme <- soil_cn_lme %>%
@@ -191,24 +212,25 @@ soil_cn_lme <- soil_cn_lme %>%
   dplyr::filter(!litterCNRatio_mean =='NA') 
 
 #check sample sizes
-length_mean_soil_cn_lme<-aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=soil_cn_lme)
+aggregate(soilCNRatio_MHoriz_mean~siteID,length,data=soil_cn_lme)
 
 #remove site with only one rep
 soil_cn_lme<- soil_cn_lme %>%
-  dplyr::filter(!(siteID=="SJER"))
+  dplyr::filter(!(siteID=="SJER")) %>%
+  dplyr::filter(!(siteID=="DEJU"))
 
-#check
+#check herb
 herb.count<-subset(soil_cn_lme,Lcclass=='herb')
 length(herb.count$siteID)
 length(unique(herb.count$siteID))
 
-#
+#check woody
 woody.count<-subset(soil_cn_lme,Lcclass=='woody')
 length(woody.count$siteID)
 length(unique(woody.count$siteID))
 
 # lme functions lets you see P values in summary output
-soil_cn_lme.1<-lme(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + vpd , random= ~1|siteID,data=soil_cn_lme)
+soil_cn_lme.1<-lme(soilCNRatio_MHoriz_mean~ litterCNRatio_mean + MAP , random= ~1|siteID,data=soil_cn_lme)
 summary(soil_cn_lme.1)
 # r.squaredGLMM(soil_cn_lme.1)
 
@@ -216,3 +238,5 @@ summary(soil_cn_lme.1)
 
 
 
+
+#-------------------------------------------------------------------------------
