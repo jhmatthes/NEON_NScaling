@@ -37,6 +37,14 @@ foliar_soil_total_lm<-lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=mer
 summary(foliar_soil_total_lm)
 # not significant 
 
+#see if inferences change when we remove GUAN (the site with very high soil N)
+
+#plot(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means[-6,])
+foliar_soil_total_noguan_lm<-lm(foliarNPercent_mean ~ soilNPercent_MHoriz_mean,data=merge_foliar_soil_means[-6,])
+summary(foliar_soil_total_lm)
+# Still not significant 
+
+
 #-------------------------------------------------------------------------------
 # % Root N and % total soil N spatial gradient -----
 
@@ -83,6 +91,9 @@ merge_foliar_soil_inorganic$inorganicN<- round(merge_foliar_soil_inorganic$inorg
 #add veg type
 merge_foliar_soil_inorganic <- merge(merge_foliar_soil_inorganic,vegtype.df,by='siteID')
 aggregate(siteID~Lcclass,length,data=merge_foliar_soil_inorganic)
+
+#take a look
+plot(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
 
 # outlierTest(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
 #no outliers
