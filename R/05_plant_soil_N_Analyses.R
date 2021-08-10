@@ -92,14 +92,15 @@ merge_foliar_soil_inorganic$inorganicN<- round(merge_foliar_soil_inorganic$inorg
 merge_foliar_soil_inorganic <- merge(merge_foliar_soil_inorganic,vegtype.df,by='siteID')
 aggregate(siteID~Lcclass,length,data=merge_foliar_soil_inorganic)
 
-#take a look
-plot(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
 
 # outlierTest(lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic))
 #no outliers
 
 #take a look
 #plot(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
+
+#see if inferences change when you remove GUAN:
+
 
 leaf_soil_inorganic_lm<-lm(foliarNPercent_mean~inorganicN,data=merge_foliar_soil_inorganic)
 summary(leaf_soil_inorganic_lm)
