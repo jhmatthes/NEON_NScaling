@@ -140,7 +140,8 @@ summary(root_soil_inorganic_lm)
 # Mixed effects models of % Foliar N using inorganic soil N --------------------
 
 # select columns
-foliar_lme <- select(plot.df,c('siteID','MAP','foliarNPercent_mean','inorganicN','Lcclass'))
+foliar_lme <- select(plot.df,c('siteID','MAP','foliarNPercent_mean',
+                               'inorganicN','Lcclass','pctSand_mean'))
 #head(foliar_lme)
 
 # eliminate NAs
@@ -170,11 +171,19 @@ length(unique(woody.count$siteID)) #20 herb sites
 
 # mixed effects model: 
 
+#just with soil N variable:
+leaf_lme<-lme(foliarNPercent_mean~ inorganicN, random= ~1|siteID,data=foliar_lme)
+summary(leaf_lme)
+r.squaredGLMM(leaf_lme)
+# R2m       R2c
+# [1,] 0.08059596 0.5374415
+
 # Chose lme functions because it lets you see P values in summary output
-leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN + MAP + Lcclass, random= ~1|siteID,data=foliar_lme)
+leaf_lme.1<-lme(foliarNPercent_mean~ inorganicN*pctSand_mean, random= ~1|siteID,data=foliar_lme)
 summary(leaf_lme.1) # inorganic N shows as significant
 r.squaredGLMM(leaf_lme.1)
 
+unique(plot.df$texture)
 
 #-------------------------------------------------------------------------------
 # Mixed effects models of % Root N using inorganic soil N ---------------------------------------------------------
