@@ -27,32 +27,54 @@ neonToken <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEub
 #for downloading the neonNTrans package
 library(devtools)
 #install_github("NEONScience/NEON-Nitrogen-Transformations/neonNTrans", dependencies=TRUE)  
-library(neonNTrans)
+#library(neonNTrans)
 
 # Load NEON download/processing R package
 library(neonUtilities)
-library(neonNTrans)
+
 #?loadByProduct
-# Download and stack canopy foliar chemistry: DP1.10026.001
-foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F,
-                          token = neonToken, tabl = "cfc_carbonNitrogen")
-list2env(foliarCN, .GlobalEnv)
 
 # Download and stack soil chemical properties (distributed plots, periodic): DP1.10078.001
 # 26 Oct 20: Bundled into DP1.10086.001
 soilCN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
                         token = neonToken,
                         tabl = "sls_soilChemistry")
+list2env(soilCN, .GlobalEnv)
 
-# soil ingornaic N: ammonium and nitrate
-inorganicN<- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
-                     token = neonToken, tabl='ntr_externalLab')
+#create dataframe to see which sites are acid treatment (no C:N data)
+# soilCN_original_info = data.frame(soilCN$sls_soilChemistry)
+# head(soilCN_original_info)
+# soilCN_original_info = soilCN_original_info %>%
+#   select(siteID,plotID, acidTreatment,analysisDate) #%>%
+#   filter(acidTreatment=='Y')
+# 
+# # save to file
+# acid_treat_sites<-soilCN_original_info[!duplicated(soilCN_original_info),]
+# write.csv(acid_treat_sites,'acid_treated_sites.csv')
 
-list2env(inorganicN, .GlobalEnv) 
+# Download and stack Root biochemistry
+# 26 Oct 20: Bundled into DP1.10067.001
+rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F,
+                        token = neonToken,
+                        tabl = "bbc_rootChemistry")
+list2env(rootCN, .GlobalEnv)
+
+# Download and stack canopy foliar chemistry: DP1.10026.001
+foliarCN <- loadByProduct(dpID="DP1.10026.001", site="all", check.size = F,
+                          token = neonToken, tabl = "cfc_carbonNitrogen")
+list2env(foliarCN, .GlobalEnv)
+
+
+# soil inorganic N: ammonium and nitrate
+# inorganicN <- loadByProduct(dpID="DP1.10086.001", site="all", check.size = F, 
+#                      token = neonToken, tabl='ntr_externalLab')
+# 
+# list2env(inorganicN, .GlobalEnv) 
+# 
+# look <- data.frame(inorganicN[2])
 
 # Didn't run into this issue (JHM, 1/5/21)
 #sls_soilChemistry <- soilCN$`1` # fix naming scheme!?!
-list2env(soilCN, .GlobalEnv) #edited this back to soilCN (JHM, 1/5/21)
 
 # Download and stack litter chemical properties: DP1.10031.001
 # 26 Oct 20: Bundled into DP1.10033.001
@@ -61,12 +83,6 @@ litterCN <- loadByProduct(dpID="DP1.10033.001", site="all", check.size = F,
                           tabl = "ltr_litterCarbonNitrogen")
 list2env(litterCN, .GlobalEnv)
 
-# Root biochemistry
-# 26 Oct 20: Bundled into DP1.10067.001
-rootCN <- loadByProduct(dpID="DP1.10067.001", site="all", check.size = F,
-                        token = neonToken,
-                        tabl = "bbc_rootChemistry")
-list2env(rootCN, .GlobalEnv)
 
 # Soil texture
 # 09 Dec 20: Bundled into DP1.10047.001
@@ -83,19 +99,6 @@ list2env(soiltexture, .GlobalEnv)
 #   print("Created a data/ folder in the current path to hold downloaded data.") 
 # }
 
-#get mineralization data
-#https://github.com/NEONScience/NEON-Nitrogen-Transformations/tree/master/neonNTrans
-soilData <- loadByProduct(site = "all", dpID = "DP1.10086.001", package = "basic", check.size = F)
-out <- def.calc.ntrans(kclInt = soilData$ntr_internalLab,
-                       kclIntBlank = soilData$ntr_internalLabBlanks,
-                       kclExt = soilData$ntr_externalLab,
-                       soilMoist = soilData$sls_soilMoisture,
-                       dropAmmoniumFlags = "blanks exceed sample value",
-                       dropNitrateFlags = "blanks exceed sample value" )
-
-# turn to data frame
-min.df<-as.data.frame(out[1])
-rm(out) #remove large list from memory
 
 #done
 

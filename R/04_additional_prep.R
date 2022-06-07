@@ -1,55 +1,77 @@
-# key preps for analyses and figure creation
+###############################################################################
+# last updated: May 30 2022
+# author: Andrew Felton
+# project: NEON N scaling
+# file Description: 
+# Creates additional files used for data filtering and for adding climate and soil
+# texture grouping columns to the main dataset
+# notes: 
+###############################################################################
+# First get mean values for each plot-site combination for each pool ------
 
-# Get mean values for each plot-site combination for each pool 
+#get mean site-plot N to prep for self-calculating C:N
+mean_foliar <- aggregate(foliarNPercent_mean ~ siteID + plotID,mean,data = plot_df)
+mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot_df)
+mean_soil <- aggregate(soilNPercent_MHoriz_mean ~ siteID + plotID,mean,data = plot_df)
+mean_soil_inorganic <- aggregate(inorganicN ~ siteID + plotID,mean,data = plot_df)
+mean_soil_mineralization <- aggregate(netNminugPerGramPerDay ~ siteID + plotID,mean,data = plot_df)
+mean_litter <- aggregate(litterNPercent_mean ~ siteID + plotID,mean,data = plot_df)
+mean_inorganic_per_g <- aggregate(soilInorganicNugPerGram_mean ~ siteID + plotID,mean,data = plot_df)
 
-#N
-mean_foliar<-aggregate(foliarNPercent_mean~siteID + plotID,mean,data=plot.df)
-mean_root <- aggregate(rootNPercent ~ siteID + plotID, mean, data = plot.df)
-mean_soil<-aggregate(soilNPercent_MHoriz_mean~siteID + plotID,mean,data=plot.df)
-mean_soil_inorganic<-aggregate(inorganicN~siteID + plotID,mean,data=plot.df)
-mean_soil_mineralization<-aggregate(netNminugPerGramPerDay~siteID + plotID,mean,data=plot.df)
-mean_litter<-aggregate(litterNPercent_mean~siteID + plotID,mean,data=plot.df)
-mean_resorp<-aggregate(resorpN~siteID + plotID,mean,data=plot.df)
+#get mean site-plot C:N to prep for comparing to self-calculated C:N
+mean_foliar_cn<-aggregate(foliarCNRatio_mean~siteID + plotID,mean,data=plot_df)
+mean_root_cn <- aggregate(rootCNratio ~ siteID + plotID, mean, data = plot_df)
+mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot_df)
+mean_litter_cn<-aggregate(litterCNRatio_mean~siteID + plotID,mean,data=plot_df)
 
-#C:N
-mean_foliar_cn<-aggregate(foliarCNRatio_mean~siteID + plotID,mean,data=plot.df)
-mean_root_cn <- aggregate(rootCNratio ~ siteID + plotID, mean, data = plot.df)
-mean_soil_cn<-aggregate(soilCNRatio_MHoriz_mean~siteID + plotID,mean,data=plot.df)
-mean_litter_cn<-aggregate(litterCNRatio_mean~siteID + plotID,mean,data=plot.df)
+#C:N self calculated ------
 
-#add site-means of soil texture to plot.df
+#calculate values
+plot_df$foliar_cn_self_calc <- plot_df$foliarCPercent_mean/plot_df$foliarNPercent_mean
+plot_df$root_cn_self_calc <- plot_df$rootCPercent/plot_df$rootNPercent
+plot_df$soil_cn_self_calc <- plot_df$soilCPercent_MHoriz_mean/plot_df$soilNPercent_MHoriz_mean
+plot_df$litter_cn_self_calc <- plot_df$litterCPercent_mean/plot_df$litterNPercent_mean
 
-coarse_fine_class <- aggregate(pctSand~siteID,mean,data=plot.df)
-coarse_fine_class$pctSand_mean = round(coarse_fine_class$pctSand,2)
-plot.df <- merge(plot.df,coarse_fine_class[c(1,3)],by=c('siteID'))
+#datasets (unclear if used)
+mean_foliar_cn_self_calc <- aggregate(foliar_cn_self_calc~siteID + plotID,mean,data=plot_df)
+mean_root_cn_self_calc <- aggregate(root_cn_self_calc ~ siteID + plotID, mean, data = plot_df)
+mean_soil_cn_self_calc <-aggregate(soil_cn_self_calc~siteID + plotID,mean,data=plot_df)
+mean_litter_cn_self_calc <-aggregate(litter_cn_self_calc~siteID + plotID,mean,data=plot_df)
 
-#add classification of soil texture
-coarse_fine_class <- aggregate(pctSand~siteID,mean,data=plot.df)
-coarse_fine_class$pctSand = round(coarse_fine_class$pctSand,2)
+#compare NEON and self-calculated C:N
+cor.test(plot_df$foliar_cn_self_calc,plot_df$foliarCNRatio_mean)
+#0.98
+cor.test(plot_df$root_cn_self_calc,plot_df$rootCNratio)
+#0.92
+cor.test(plot_df$soil_cn_self_calc,plot_df$soilCNRatio_MHoriz_mean)
+#0.99
+cor.test(plot_df$litter_cn_self_calc,plot_df$litterCNRatio_mean)
+#0.93
 
-coarse_fine_class_coarse<-coarse_fine_class %>%
-  dplyr::filter(pctSand < 50)
-coarse_fine_class_coarse$texture <- 'coarse'
+#add site-means of soil texture to plot_df ot prep for use as covariate-----
+str(sand_class)
+sand_class <- aggregate(pctSand ~ siteID,mean,data=plot_df)
+sand_class <- sand_class %>%
+  rename('pctSand_mean' = 'pctSand')
+sand_class$pctSand_mean = round(sand_class$pctSand_mean,2)
+plot_df <- merge(plot_df,sand_class,by=c('siteID'))
 
-coarse_fine_class_fine<-coarse_fine_class %>%
-  dplyr::filter(pctSand > 50)
-coarse_fine_class_fine$texture <- 'fine'
+#trim down columns to those used for analysis in this study
 
-coarse_fine_class_fine_course <- rbind(coarse_fine_class_fine,coarse_fine_class_coarse)
+#colnames(plot_df)
 
-plot.df <- merge(plot.df,coarse_fine_class_fine_course[c(1,3)],by=c('siteID'))
+myvars <- c("x","y","siteID",'plotType',"plotID",'soilCPercent_MHoriz_mean',
+            'soilNPercent_MHoriz_mean',"soil_cn_self_calc","inorganicN","rootCPercent","rootNPercent",
+            "root_cn_self_calc","foliarCPercent_mean","foliarNPercent_mean","foliar_cn_self_calc",
+            "litterCPercent_mean","litterNPercent_mean","litter_cn_self_calc",
+            "class","MAP","npp_g_m2","pctSand_mean")
+            
+plot_df <- plot_df[myvars] 
 
-#add classification of climate
+#one last measure, remove any duplicates
+plot_df <- plot_df[!duplicated(plot_df),]
+          
+#plot(y~x,plot_df)
 
-map.site <- aggregate(MAP~siteID,mean,data=plot.df)
-
-map.site_dry <- map.site %>%
-  dplyr::filter(MAP < 1000)
-map.site_dry$climate <- 'dry'
-map.site_wet <- map.site %>%
-  dplyr::filter(MAP > 1000)
-map.site_wet$climate <- 'wet'
-map.site_dry_wet <- rbind(map.site_wet,map.site_dry)
-plot.df<-merge(map.site_dry_wet[c(1,3)],plot.df,by=c('siteID'))
-
+#write to a csv
 
