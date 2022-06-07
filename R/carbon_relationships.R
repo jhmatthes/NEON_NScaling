@@ -11,6 +11,7 @@ mean_foliar_c_n<-aggregate(foliarCPercent_mean~siteID,length,data=plot.df)
 mean_root_c_n <- aggregate(rootCPercent ~ siteID , length, data = plot.df)
 mean_soil_c_n<-aggregate(soilCPercent_MHoriz_mean~siteID ,length,data=plot.df)
 
+#-------------------------------------------------------------
 # look at foliar and soil C relationship ------
 
 merge_foliar_c_means <- filter_reps(mean_foliar_c, mean_soil_c)
@@ -33,7 +34,6 @@ plot(foliarCPercent_mean ~ soilCPercent_MHoriz_mean,data=merge_foliar_c_means[-7
 #Adjusted R-squared:  0.1791,p-value: 0.01432
 
 #-------------------------------------------------------------
-
 #now do root and soil C relationships----
 
 
@@ -51,5 +51,34 @@ outlierTest(lm(rootCPercent ~ soilCPercent_MHoriz_mean,data=merge_root_c_means))
 summary(lm(rootCPercent ~ soilCPercent_MHoriz_mean,data=merge_root_c_means))
 #Adjusted R-squared:  0.3812, p-value: 0.0002774 
 
+
+
+
+#-------------------------------------------------------------
+#look at discrepency between C, N, and C:N
+
+#root
+plot.df.root.cn.look <- plot.df %>%
+  dplyr::select(siteID,plotID,rootCPercent,rootNPercent,rootCNratio) 
+
+plot.df.root.cn.look$cn_compare <- 
+  plot.df.root.cn.look$rootCPercent/plot.df.root.cn.look$rootNPercent
+
+plot(cn_compare ~ rootCNratio, plot.df.root.cn.look)
+
+#
+
+#foliar
+plot.df.foliar.cn.look <- plot.df %>%
+  dplyr::select(siteID,plotID,foliarCpercent_mean,foliarNPercent_mean,foliarCNratio_mean) %>%
+  dplyr::summarise_all(length)
+
+#soil
+#plot.df$soilNPercent_MHoriz_mean
+plot.df.soil.cn.look <- plot.df %>%
+  dplyr::select(siteID,plotID,soilCPercent_MHoriz_mean,soilNPercent_MHoriz_mean,soilCNRatio_MHoriz_mean) 
+
+plot.df.soil.cn.look$cn_compre <- 
+  plot.df.soil.cn.look$soilCPercent_MHoriz_mean/plot.df.soil.cn.look$soilNPercent_MHoriz_mean
 
 
