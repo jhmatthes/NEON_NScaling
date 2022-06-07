@@ -426,6 +426,10 @@ foliar_root_cn_lme_2 <- lme(log(foliar_cn_self_calc) ~ root_cn_self_calc +
                                random= ~1|siteID,data=foliar_root_cn,method='ML')
 # summary(foliar_root_cn_lme_2)
 # plot(foliar_root_cn_lme_2)
+tab_model(foliar_root_cn_lme_2)
+r.squaredGLMM(foliar_root_cn_lme_2)
+
+AIC(foliar_root_cn_lme_2)
 
 #-------------------------------------------------------------------------------
 # partial correlation follow-up (likely delete) -----
