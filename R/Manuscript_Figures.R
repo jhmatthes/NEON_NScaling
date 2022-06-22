@@ -665,6 +665,7 @@ root_soil_plot <- ggplot(root_soil, aes(x = soilNPercent_MHoriz_mean, y = rootNP
 #soil to foliar C:N
 #back transform for the plot
 foliar_soil$predict.fixed_2 <- exp(foliar_soil$predict.fixed)
+foliar_soil$predict.siteID_2 <- exp(foliar_soil$predict.siteID)
 #summary(foliar_soil)
 foliar_soil_plot <- ggplot(foliar_soil, aes(x = soilNPercent_MHoriz_mean, y = foliarNPercent_mean)) +
   geom_abline(slope=1,linetype='dashed') +
@@ -673,6 +674,7 @@ foliar_soil_plot <- ggplot(foliar_soil, aes(x = soilNPercent_MHoriz_mean, y = fo
   #                   breaks = c(238,919,1512)) +
   geom_point(shape = 19, size=5,alpha=0.75,color='grey') + #theme(legend.position = "none") + 
   geom_line(data=foliar_soil,aes(y=predict.fixed_2),size=1.25,color='black') +
+  #geom_line(data=foliar_soil,aes(y=predict.siteID_2),size=1.25,color='red') +
   xlab('Total soil nitrogen (%)') +
   ylab('Foliar nitrogen (%)') +
   theme(

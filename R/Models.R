@@ -232,7 +232,7 @@ foliar_soil_lme <- lme(log(foliarNPercent_mean) ~ soilNPercent_MHoriz_mean,
 foliar_soil_lme_predict <- predict(foliar_soil_lme,foliar_soil,level=0:1)
 
 #combine
-foliar_soil <- cbind(foliar_soil,foliar_soil_lme_predict[2])
+foliar_soil <- cbind(foliar_soil,foliar_soil_lme_predict[c(2,3)])
 
 #now do full model selection (todo)
 

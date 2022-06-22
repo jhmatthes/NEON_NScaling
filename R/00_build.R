@@ -38,7 +38,7 @@ source("Functions.R")
 # source("03_compile-data.R")
 
 # Read in core dataset
-cn_data <- read.csv("data/C_N_data_for_analysis.csv")
+#cn_data <- read.csv("data/C_N_data_for_analysis.csv")
 #length(unique(cn_data$siteID))
 
 
